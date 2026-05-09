@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
+<title>หารกันเอง · capybarabu</title>
+<meta name="theme-color" content="#06C755"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="หารกันเอง"/>
+<link rel="manifest" href="./manifest.json"/>
+<link rel="apple-touch-icon" href="./icons/icon-192.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Mali:wght@500;600;700&display=swap" rel="stylesheet">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js" onerror="window.__liffFailed=true"></script>
+<style>
+:root{
+  --line:#06C755;--line-dark:#05A648;--line-soft:#E6F9EE;--line-tint:#F2FBF5;
+  --bg:#F2FBF5;--surface:#fff;--surface-2:#F4F8F5;
+  --border:#E2EDE6;--ink:#1F2D24;--ink-2:#5C6E63;--ink-3:#94A89C;
+  --good:#06C755;--bad:#F25555;--r:16px;--r-sm:10px;--r-full:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Noto Sans Thai',sans-serif;min-height:100vh;overscroll-behavior:none}
+.hidden{display:none!important}
+.screen{min-height:100vh;display:flex;flex-direction:column}
+.card{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 4px #00000010}
+.btn{border-radius:var(--r-sm);padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-line{background:var(--line);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;border-radius:var(--r);font-size:16px;font-weight:700;box-shadow:0 4px 18px rgba(6,199,85,.35)}
+.btn-ghost{background:var(--surface);color:var(--ink-2);border:1.5px solid var(--border)}
+.btn-primary{background:var(--line);color:#fff}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.field input,.field select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:inherit;background:var(--surface-2);color:var(--ink);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--line)}
+.topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;transition:box-shadow .2s}
+.topbar.scrolled{box-shadow:0 2px 12px #00000012}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;height:52px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:52px;z-index:19}
+.tab{flex:1;padding:12px 4px 10px;background:none;border:none;font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;transition:all .15s}
+.tab.active{color:var(--line);border-bottom-color:var(--line)}
+.trip-card{background:var(--surface);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 4px #00000010;transition:transform .15s}
+.trip-card:active{transform:scale(.98)}
+.trip-icon{width:44px;height:44px;border-radius:12px;background:var(--line-soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:var(--r-full);padding:10px 22px;font-size:13px;font-weight:600;z-index:999;display:none;white-space:nowrap;box-shadow:0 4px 20px #0004}
+.badge{display:inline-block;background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:2px 8px;font-size:11px;font-weight:700}
+.num{font-family:'Mali',sans-serif}
+.small{font-size:12px}.muted{color:var(--ink-3)}.good{color:var(--good)}.bad{color:var(--bad)}
+.section-label{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase;margin:16px 0 8px}
+.empty{text-align:center;padding:32px 20px;color:var(--ink-3)}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--ink-2);padding:6px;border-radius:8px;display:flex;align-items:center}
+.bar-track{height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;transition:width .4s ease}
+.settle-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.settle-row:last-child{border-bottom:0}
+.lb-row{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:10px;transition:background .15s}
+.lb-row:last-child{border-bottom:0}
+.lb-row:hover,.lb-row.expanded{background:var(--line-tint)}
+.lb-rank{width:26px;text-align:center;font-weight:800;font-size:15px;flex-shrink:0}
+.lb-rank.gold{color:#F5A623}.lb-rank.silver{color:#9B9B9B}.lb-rank.bronze{color:#C87533}
+.lb-chevron{font-size:11px;color:var(--ink-3);transition:transform .2s}
+.lb-chevron.open{transform:rotate(180deg)}
+.lb-detail{display:none;padding:8px 14px 12px 46px;background:var(--line-tint);border-radius:0 0 10px 10px;border-bottom:1px solid var(--border)}
+.lb-detail.open{display:block}
+.lb-exp-row{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);padding:3px 0;border-bottom:1px dotted var(--border)}
+.lb-exp-row:last-child{border-bottom:0}
+.conn-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.conn-dot.ok{background:var(--good)}.conn-dot.bad{background:var(--bad)}
+.trip-chip{background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: LOGIN -->
+<div id="screen-login" class="screen" style="align-items:center;justify-content:space-between;padding:52px 24px 48px;background:linear-gradient(170deg,#F2FBF5 0%,#E6F9EE 100%)">
+  <div style="position:fixed;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:#06C75514;pointer-events:none"></div>
+  <div style="position:fixed;bottom:100px;left:-40px;width:140px;height:140px;border-radius:50%;background:#06C75510;pointer-events:none"></div>
+  <div style="text-align:center;z-index:1">
+    <div style="font-size:11px;font-weight:700;color:var(--line);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">capybarabu</div>
+    <div style="font-size:30px;font-weight:700;color:var(--ink);letter-spacing:-.5px">หารกันเอง</div>
+  </div>
+  <div style="z-index:1;animation:bob 2.8s ease-in-out infinite;display:flex;flex-direction:column;align-items:center;gap:14px">
+    <svg width="210" height="210" viewBox="0 0 210 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="105" cy="192" rx="62" ry="11" fill="#00000014"/>
+      <ellipse cx="105" cy="146" rx="60" ry="53" fill="#C4843A"/>
+      <ellipse cx="105" cy="150" rx="48" ry="42" fill="#D4924A"/>
+      <ellipse cx="78" cy="178" rx="19" ry="12" fill="#C4843A"/><ellipse cx="132" cy="178" rx="19" ry="12" fill="#C4843A"/>
+      <ellipse cx="78" cy="178" rx="13" ry="8" fill="#D4924A"/><ellipse cx="132" cy="178" rx="13" ry="8" fill="#D4924A"/>
+      <ellipse cx="72" cy="186" rx="9" ry="5" fill="#A06830"/><ellipse cx="138" cy="186" rx="9" ry="5" fill="#A06830"/>
+      <ellipse cx="105" cy="115" rx="46" ry="44" fill="#D4924A"/>
+      <ellipse cx="69" cy="81" rx="13" ry="15" fill="#C4843A"/><ellipse cx="141" cy="81" rx="13" ry="15" fill="#C4843A"/>
+      <ellipse cx="69" cy="81" rx="8" ry="9" fill="#E8B07A"/><ellipse cx="141" cy="81" rx="8" ry="9" fill="#E8B07A"/>
+      <ellipse cx="105" cy="118" rx="32" ry="30" fill="#E8A85C"/>
+      <ellipse cx="90" cy="107" rx="8.5" ry="9.5" fill="white"/><ellipse cx="120" cy="107" rx="8.5" ry="9.5" fill="white"/>
+      <circle cx="92" cy="108" r="5.5" fill="#2C1810"/><circle cx="122" cy="108" r="5.5" fill="#2C1810"/>
+      <circle cx="93.5" cy="106.5" r="1.8" fill="white"/><circle cx="123.5" cy="106.5" r="1.8" fill="white"/>
+      <ellipse cx="105" cy="123" rx="11" ry="7.5" fill="#C4843A"/>
+      <ellipse cx="99.5" cy="120.5" rx="3" ry="2.2" fill="#D4924A"/><ellipse cx="110.5" cy="120.5" rx="3" ry="2.2" fill="#D4924A"/>
+      <ellipse cx="102.5" cy="125" rx="2.2" ry="1.8" fill="#8B5A2B"/><ellipse cx="107.5" cy="125" rx="2.2" ry="1.8" fill="#8B5A2B"/>
+      <path d="M96 131 Q105 138 114 131" stroke="#A06830" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <rect x="65" y="55" width="80" height="44" rx="22" fill="#06C755"/>
+      <rect x="74" y="49" width="62" height="27" rx="13.5" fill="#04A847"/>
+      <ellipse cx="105" cy="49" rx="31" ry="9" fill="#06C755"/>
+      <text x="105" y="80" text-anchor="middle" font-size="10" font-weight="700" fill="white" font-family="sans-serif" letter-spacing="0.3">หารกันเอง</text>
+      <circle cx="147" cy="60" r="12" fill="#FFD700"/><circle cx="147" cy="60" r="9.5" fill="#F0C000"/>
+      <text x="147" y="65" text-anchor="middle" font-size="12" fill="#B8860B" font-weight="700" font-family="sans-serif">฿</text>
+      <text x="34" y="68" font-size="13">✨</text><text x="162" y="96" font-size="11">⭐</text><text x="42" y="108" font-size="10">💰</text>
+    </svg>
+    <div style="font-size:15px;color:var(--ink-2);text-align:center;line-height:1.8">คำนวณค่าใช้จ่ายร่วมกัน<br>หารง่าย จ่ายครบ ไม่งอน 🐾</div>
+  </div>
+  <div style="width:100%;max-width:360px;z-index:1">
+    <button class="btn-line" id="btn-login" onclick="loginWithLine()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+      เข้าสู่ระบบด้วย LINE
+    </button>
+    <div id="login-status" style="text-align:center;font-size:12px;color:var(--ink-3);margin-top:10px;min-height:18px"></div>
+    <div style="text-align:center;font-size:11px;color:var(--ink-3);margin-top:6px">ต้องเข้าสู่ระบบเพื่อสร้างและจัดการ Trip</div>
+  </div>
+</div>
+
+<!-- SCREEN 2: MY TRIPS -->
+<div id="screen-trips" class="screen hidden" style="background:var(--bg)">
+  <div style="background:var(--line);padding:20px 20px 26px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:#ffffff15;pointer-events:none"></div>
+    <div style="display:flex;align-items:center;gap:12px;position:relative">
+      <div id="trips-avatar" class="avatar" style="width:46px;height:46px;font-size:17px;background:#04A847;border:2.5px solid rgba(255,255,255,.45)"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:2px">ยินดีต้อนรับกลับ</div>
+        <div id="trips-name" style="font-weight:700;font-size:17px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+      </div>
+      <button onclick="handleLogout()" style="background:rgba(255,255,255,.18);border:none;border-radius:8px;padding:6px 12px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">ออก</button>
+    </div>
+  </div>
+  <div style="padding:14px 16px 100px">
+    <div class="section-label" style="margin-top:4px">🏝 Trip ของฉัน</div>
+    <div id="my-trips-list"><div class="empty"><div style="width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--line);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 8px"></div><div class="small muted">กำลังโหลด...</div></div></div>
+    <div class="section-label">🤝 Trip ที่เข้าร่วม</div>
+    <div id="joined-trips-list"><div class="empty small muted" style="padding:14px 0">ยังไม่ได้เข้าร่วม Trip ใด</div></div>
+  </div>
+  <div style="position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 16px 28px;display:flex;gap:10px;z-index:30">
+    <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="showJoinModal()">🔗 เข้าร่วม Trip</button>
+    <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="showCreateModal()">✨ สร้าง Trip ใหม่</button>
+  </div>
+</div>
+
+<!-- SCREEN 3: TRIP DETAIL -->
+<div id="screen-main" class="screen hidden" style="background:var(--bg)">
+  <div class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <button onclick="backToTrips()" class="icon-btn" style="margin-right:2px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="trip-chip" id="trip-chip"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <div id="topbar-aw" style="display:none"><img id="topbar-av" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--line)"/></div>
+        <button class="icon-btn" id="open-share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
+        <button class="icon-btn" id="open-settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9z"/></svg></button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard">สรุป</button>
+      <button class="tab" data-tab="expenses">รายจ่าย</button>
+      <button class="tab" data-tab="members">สมาชิก</button>
+      <button class="tab" data-tab="settle">เคลียร์</button>
+    </div>
+  </div>
+  <div style="padding:12px 14px 100px">
+    <div id="tab-dashboard" class="tab-pane" style="animation:fadeIn .25s ease">
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px">
+        <div><div class="small muted" style="margin-bottom:3px">ยอดรวมทริป</div><div id="dash-total" class="num" style="font-size:28px;font-weight:700">฿0</div></div>
+        <div style="text-align:right"><div class="small muted" style="margin-bottom:3px">เฉลี่ย/คน</div><div id="dash-avg" class="num" style="font-size:20px;font-weight:700;color:var(--line)">฿0</div></div>
+      </div>
+      <div class="card" id="my-status-card" style="display:none">
+        <div style="font-weight:700;font-size:14px;margin-bottom:10px">สถานะของคุณ</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="small muted">คุณจ่ายไป</span><span id="my-paid" class="num small" style="font-weight:700">฿0</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="small muted">ส่วนของคุณ</span><span id="my-owed" class="num small" style="font-weight:700">฿0</span></div>
+        <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border)"><span class="small" style="font-weight:600">สุทธิ</span><span id="my-net" class="num small" style="font-weight:700"></span></div>
+      </div>
+      <div class="card"><h3 style="font-size:14px;margin-bottom:12px">🏆 Leaderboard</h3><div id="all-members-summary"><div class="empty small muted">เพิ่มสมาชิกเพื่อเริ่ม</div></div></div>
+      <div class="card" id="cat-chart-card" style="display:none"><h3 style="font-size:14px;margin-bottom:12px">📊 หมวดหมู่</h3><div id="cat-chart"></div></div>
+    </div>
+    <div id="tab-expenses" class="tab-pane hidden">
+      <button class="btn btn-primary" style="width:100%;border-radius:12px;padding:13px;font-size:15px;margin-bottom:12px" onclick="openExpenseForm()">+ เพิ่มค่าใช้จ่าย</button>
+      <div id="expense-list"><div class="empty small muted">ยังไม่มีรายการ</div></div>
+    </div>
+    <div id="tab-members" class="tab-pane hidden">
+      <div class="card" style="margin-bottom:12px">
+        <div style="font-size:13px;color:var(--ink-2);margin-bottom:10px">เชิญเพื่อน — แชร์รหัส <strong id="trip-code-display"></strong></div>
+        <button class="btn btn-ghost" style="width:100%;border-radius:10px;font-size:13px" onclick="copyTripLink()">📋 คัดลอก link เชิญ</button>
+      </div>
+      <div id="member-list"><div class="empty small muted">กำลังโหลด...</div></div>
+    </div>
+    <div id="tab-settle" class="tab-pane hidden">
+      <div class="card">
+        <div style="font-size:12px;color:var(--ink-3);margin-bottom:10px"><span class="conn-dot ok" id="conn-dot"></span><span id="conn-text">เชื่อมต่อแล้ว</span></div>
+        <h3 style="font-size:14px;margin-bottom:12px">ยอดสุทธิแต่ละคน</h3><div id="net-balances"></div>
+      </div>
+      <div class="card"><h3 style="font-size:14px;margin-bottom:12px">💸 วิธีโอนให้จบ</h3><div id="settle-list"></div></div>
+    </div>
+  </div>
+  <button id="fab" onclick="openExpenseForm()" style="position:fixed;bottom:24px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--line);color:white;border:none;font-size:24px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(6,199,85,.4);z-index:50">+</button>
+</div>
+
+<!-- MODAL: CREATE -->
+<div id="modal-create" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
+    <div style="font-weight:700;font-size:17px;margin-bottom:16px">✨ สร้าง Trip ใหม่</div>
+    <div class="field"><label>ชื่อ Trip</label><input id="new-trip-name" placeholder="เช่น เที่ยวหัวหิน พ.ค. 68" maxlength="60"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-create')">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doCreateTrip()">สร้างเลย 🎉</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: JOIN -->
+<div id="modal-join" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
+    <div style="font-weight:700;font-size:17px;margin-bottom:16px">🔗 เข้าร่วม Trip</div>
+    <div class="field"><label>เลือก Trip</label><select id="join-select" style="font-size:15px"><option value="">⏳ กำลังโหลด...</option></select></div>
+    <div class="field"><label>หรือพิมพ์รหัสเอง</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-join')">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doJoinTrip()">เข้าร่วม</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EXPENSE -->
+<div id="modal-expense" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;overflow-y:auto">
+  <div style="min-height:100%;display:flex;align-items:flex-end;justify-content:center">
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;animation:slideUp .25s ease">
+      <div style="font-weight:700;font-size:17px;margin-bottom:16px" id="ef-title-label">เพิ่มค่าใช้จ่าย</div>
+      <div class="field"><label>ชื่อรายการ</label><input id="ef-title" placeholder="ค่าอาหาร, โรงแรม..." maxlength="80"/></div>
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1"><label>จำนวนเงิน (฿)</label><input id="ef-amount" type="number" placeholder="0" min="0" max="1000000"/></div>
+        <div class="field" style="flex:1"><label>หมวด</label><select id="ef-cat"><option>🍽️ อาหาร</option><option>🏨 ที่พัก</option><option>🚗 เดินทาง</option><option>🎫 กิจกรรม</option><option>🛒 ของฝาก</option><option>💧 น้ำ/ขนม</option><option>📦 อื่นๆ</option></select></div>
+      </div>
+      <div class="field"><label>วันที่</label><input id="ef-date" type="date"/></div>
+      <div class="field"><label>ใครจ่าย</label><div id="ef-payer-row" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
+      <div class="field">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label style="margin:0">ใครร่วมหาร</label>
+          <button onclick="efToggleAll()" style="font-size:12px;color:var(--line);font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit">เลือกทั้งหมด</button>
+        </div>
+        <div id="ef-bene-row" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <input type="hidden" id="ef-id"/>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-expense')">ยกเลิก</button>
+        <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="saveExpense()">บันทึก ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SETTINGS -->
+<div id="modal-settings" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
+    <div style="font-weight:700;font-size:17px;margin-bottom:16px">⚙️ ตั้งค่า Trip</div>
+    <div class="field"><label>ชื่อ Trip</label><input id="settings-name"/></div>
+    <button class="btn btn-ghost" style="width:100%;border-radius:12px;margin-bottom:10px;padding:12px;font-size:13px;color:var(--bad);border-color:var(--bad)" onclick="doLeaveTrip()">🚪 ออกจาก Trip นี้</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-settings')">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="saveSettings()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  function ls(src){return new Promise((r,j)=>{const s=document.createElement('script');s.src=src;s.async=false;s.onload=()=>r(src);s.onerror=()=>j(new Error('Failed:'+src));document.head.appendChild(s);});}
+  const cdns=[
+    ['https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js'],
+    ['https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-database-compat.js'],
+    ['https://unpkg.com/firebase@10.12.5/firebase-app-compat.js','https://unpkg.com/firebase@10.12.5/firebase-database-compat.js'],
+  ];
+  (async()=>{for(const p of cdns){try{await ls(p[0]);await ls(p[1]);if(typeof firebase!=='undefined'&&firebase.initializeApp){window.__fbReady=true;window.dispatchEvent(new Event('fb-ready'));return;}}catch(e){console.warn('[FB CDN]',e);}}window.__fbError=new Error('Firebase โหลดไม่ได้');window.dispatchEvent(new Event('fb-failed'));})();
+})();
+</script>
+
+<script>
+const FB_CFG={apiKey:"AIzaSyBdfX2rxBuL2Jqm6DZn5yHFm250LD1Rabc",authDomain:"capybarabu-dec37.firebaseapp.com",databaseURL:"https://capybarabu-dec37-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"capybarabu-dec37",storageBucket:"capybarabu-dec37.firebasestorage.app",messagingSenderId:"830992073454",appId:"1:830992073454:web:7b29bc4a8c89edbb7d29ff"};
+const LIFF_ID='2009992040-aXIvOY23';
+let db=null,tripRef=null,tripsRef=null,liffProfile=null;
+const state={lineUserId:null,tripId:null,tripName:null,me:null,members:[],expenses:[]};
+const $=id=>document.getElementById(id);const $$=s=>document.querySelectorAll(s);
+const fmt=n=>'฿'+Math.abs(n).toLocaleString('th-TH',{maximumFractionDigits:0});
+const today=()=>new Date().toISOString().split('T')[0];
+const uuid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ini=n=>n?n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2):'?';
+const san=(s,m)=>String(s||'').trim().slice(0,m);
+function mkCode(n){const s=(n||'').toUpperCase().replace(/[^A-Z0-9ก-๙]/g,'').slice(0,3).padEnd(3,'X');return s+Math.random().toString(36).slice(2,5).toUpperCase();}
+function toast(msg,d=2200){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',d);}
+function showScr(id){['screen-login','screen-trips','screen-main'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
+function openModal(id){const m=$(id);if(!m)return;m.style.display='flex';m.onclick=e=>{if(e.target===m)closeModal(id);};}
+window.closeModal=id=>{const m=$(id);if(m)m.style.display='none';};
+function mkAv(n,sz,pic){if(pic)return`<img src="${esc(pic)}" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'"/>`;const h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%360;return`<div class="avatar" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.36)}px;background:hsl(${h},55%,42%)">${ini(n)}</div>`;}
+
+async function initLiff(){
+  if(typeof liff==='undefined'||window.__liffFailed){return;}
+  try{await liff.init({liffId:LIFF_ID});if(liff.isLoggedIn()){liffProfile=await liff.getProfile();}else if(liff.isInClient()){liff.login();}}
+  catch(e){console.warn('[LIFF]',e.message);}
+}
+window.loginWithLine=function(){
+  const s=$('login-status'),b=$('btn-login');
+  if(typeof liff!=='undefined'&&!window.__liffFailed&&liff.isInClient&&liff.isInClient()){if(!liff.isLoggedIn()){s.textContent='กำลังเชื่อมต่อ...';liff.login();return;}}
+  s.textContent='⏳ กำลังเปิด LINE...';if(b)b.disabled=true;
+  setTimeout(()=>{window.location.href=`https://liff.line.me/${LIFF_ID}`;},300);
+};
+function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if(window.__fbError)return j(window.__fbError);const t=setTimeout(()=>j(new Error('timeout')),ms);window.addEventListener('fb-ready',()=>{clearTimeout(t);r()},{once:true});window.addEventListener('fb-failed',()=>{clearTimeout(t);j(window.__fbError)},{once:true});});}
+function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.database();}
+async function saveUser(){if(!liffProfile||!db)return;await db.ref('users/'+liffProfile.userId).update({displayName:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lastSeen:Date.now()});}
+async function afterLogin(){
+  if(!liffProfile){showScr('screen-login');return;}
+  state.lineUserId=liffProfile.userId;await saveUser();
+  const av=$('trips-avatar'),nm=$('trips-name');
+  if(av){if(liffProfile.pictureUrl)av.innerHTML=`<img src="${esc(liffProfile.pictureUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;else av.textContent=ini(liffProfile.displayName);}
+  if(nm)nm.textContent=liffProfile.displayName;
+  const ta=$('topbar-av'),tw=$('topbar-aw');if(ta&&liffProfile.pictureUrl){ta.src=liffProfile.pictureUrl;if(tw)tw.style.display='block';}
+  showScr('screen-trips');listenMyTrips();loadAllTrips();
+  const hash=location.hash.replace(/^#/,'').trim().toUpperCase();if(hash)handleHashJoin(hash);
+}
+window.handleLogout=function(){
+  if(typeof liff!=='undefined'&&!window.__liffFailed&&liff.isLoggedIn&&liff.isLoggedIn())liff.logout();
+  liffProfile=null;state.lineUserId=null;
+  if(tripRef){tripRef.off();tripRef=null;}if(tripsRef){tripsRef.off();tripsRef=null;}
+  showScr('screen-login');const b=$('btn-login');if(b)b.disabled=false;const s=$('login-status');if(s)s.textContent='';
+};
+function listenMyTrips(){
+  if(!state.lineUserId||!db)return;if(tripsRef)tripsRef.off();
+  tripsRef=db.ref('userTrips/'+state.lineUserId);
+  tripsRef.on('value',snap=>{
+    const data=snap.val()||{};const owned=[],joined=[];
+    Object.entries(data).forEach(([id,info])=>{(info.role==='owner'?owned:joined).push({tripId:id,...info});});
+    const rl=(items,msg)=>!items.length?`<div class="empty small muted" style="padding:14px 0">${msg}</div>`:items.map(t=>`<div class="trip-card" onclick="openTrip('${esc(t.tripId)}')"><div class="trip-icon">${t.role==='owner'?'🏝':'🤝'}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div class="small muted">รหัส: ${esc(t.tripId)}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>`).join('');
+    $('my-trips-list').innerHTML=rl(owned,'ยังไม่มี Trip ที่สร้าง');$('joined-trips-list').innerHTML=rl(joined,'ยังไม่ได้เข้าร่วม Trip ใด');
+  });
+}
+async function loadAllTrips(){
+  const sel=$('join-select');if(!sel||!db)return;
+  try{const snap=await db.ref('trips').get();if(!snap.exists()){sel.innerHTML='<option value="">— ยังไม่มี Trip —</option>';return;}const trips=[];snap.forEach(c=>{const d=c.val();trips.push({id:c.key,name:d.name||c.key,createdAt:d.createdAt||0});});trips.sort((a,b)=>b.createdAt-a.createdAt);sel.innerHTML='<option value="">— เลือก Trip —</option>'+trips.map(t=>`<option value="${esc(t.id)}">${esc(t.name)} · ${esc(t.id)}</option>`).join('');sel.onchange=()=>{if(sel.value)$('join-code').value=sel.value;};}
+  catch(e){sel.innerHTML='<option value="">— โหลดไม่สำเร็จ —</option>';}
+}
+window.showCreateModal=()=>{openModal('modal-create');setTimeout(()=>$('new-trip-name').focus(),120);};
+window.showJoinModal=()=>{openModal('modal-join');loadAllTrips();};
+window.doCreateTrip=async function(){
+  const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!liffProfile)return toast('กรุณา login ก่อน');
+  const code=mkCode(name),uid=liffProfile.userId,mid='line_'+uid.slice(0,16);
+  await db.ref('trips/'+code).set({name,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lineUserId:uid}},expenses:{}});
+  await db.ref('userTrips/'+uid+'/'+code).set({role:'owner',tripName:name,joinedAt:Date.now()});
+  closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');openTrip(code);
+};
+window.doJoinTrip=async function(){
+  const code=san($('join-code').value||$('join-select').value,20).toUpperCase();if(!code)return toast('เลือกหรือใส่รหัสก่อน');
+  const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้');
+  const data=snap.val(),uid=liffProfile.userId,mid='line_'+uid.slice(0,16);
+  let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
+  if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lineUserId:uid});
+  await db.ref('userTrips/'+uid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,joinedAt:Date.now()});
+  closeModal('modal-join');$('join-code').value='';openTrip(code);
+};
+async function handleHashJoin(hash){
+  if(!db||!liffProfile)return;const uid=liffProfile.userId;
+  const ex=await db.ref('userTrips/'+uid+'/'+hash).get();if(ex.exists()){openTrip(hash);return;}
+  const ts=await db.ref('trips/'+hash).get();if(!ts.exists())return;
+  const data=ts.val(),mid='line_'+uid.slice(0,16);
+  if(!data.members?.[mid])await db.ref(`trips/${hash}/members/${mid}`).set({id:mid,name:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lineUserId:uid});
+  await db.ref('userTrips/'+uid+'/'+hash).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||hash,joinedAt:Date.now()});
+  openTrip(hash);
+}
+window.openTrip=function(code){
+  state.tripId=code;state.me='line_'+(state.lineUserId||'').slice(0,16);
+  history.replaceState(null,'','#'+code);showScr('screen-main');setupTopbar();
+  if(tripRef)tripRef.off();
+  tripRef=db.ref('trips/'+code);
+  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
+};
+window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}history.replaceState(null,'','./');showScr('screen-trips');};
+window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(liffProfile&&state.tripId)await db.ref('userTrips/'+liffProfile.userId+'/'+state.tripId).remove();closeModal('modal-settings');backToTrips();};
+function setupTopbar(){
+  $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
+  $$('.tab').forEach(t=>{t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.tab-pane').forEach(p=>p.classList.add('hidden'));$('tab-'+t.dataset.tab).classList.remove('hidden');const f=$('fab');if(f)f.style.display=t.dataset.tab==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});};});
+  $('open-share').onclick=()=>{const u=location.origin+location.pathname+'#'+state.tripId;if(navigator.share)navigator.share({title:'หารกันเอง · '+state.tripName,url:u});else navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
+  $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;openModal('modal-settings');};
+  const tb=$('topbar');window.onscroll=()=>tb.classList.toggle('scrolled',window.scrollY>4);
+}
+function setConn(ok){const d=$('conn-dot'),t=$('conn-text');if(!d)return;d.className='conn-dot '+(ok?'ok':'bad');t.textContent=ok?'เชื่อมต่อแล้ว':'การเชื่อมต่อมีปัญหา';}
+function calcBal(){const paid={},owed={};let total=0;state.members.forEach(m=>{paid[m.id]=0;owed[m.id]=0;});state.expenses.forEach(e=>{const a=+e.amount||0;total+=a;if(paid[e.payer]!==undefined)paid[e.payer]+=a;const b=e.beneficiaries||[];const sh=a/(b.length||1);b.forEach(id=>{if(owed[id]!==undefined)owed[id]+=sh;});});return{paid,owed,total};}
+function calcSettle(net){const p=Object.entries(net).filter(([,v])=>v>0).map(([n,v])=>[n,v]).sort((a,b)=>b[1]-a[1]);const n=Object.entries(net).filter(([,v])=>v<0).map(([n,v])=>[n,-v]).sort((a,b)=>b[1]-a[1]);const tx=[];let i=0,j=0;while(i<p.length&&j<n.length){const a=Math.min(p[i][1],n[j][1]);if(a>0.5)tx.push({from:n[j][0],to:p[i][0],amount:Math.round(a)});p[i][1]-=a;n[j][1]-=a;if(p[i][1]<0.5)i++;if(n[j][1]<0.5)j++;}return tx;}
+function renderAll(){
+  const{paid,owed,total}=calcBal();
+  $('dash-total').textContent=fmt(total);$('dash-avg').textContent=state.members.length?fmt(total/state.members.length):'฿0';
+  const ms=$('my-status-card');if(ms&&state.members.find(m=>m.id===state.me)){ms.style.display='block';const p=paid[state.me]||0,o=owed[state.me]||0,n=p-o;$('my-paid').textContent=fmt(p);$('my-owed').textContent=fmt(o);$('my-net').innerHTML=`<span class="${n>=0?'good':'bad'}">${n>=0?'+':''}${fmt(n)}</span>`;}
+  const le=$('all-members-summary');
+  if(!state.members.length){le.innerHTML='<div class="empty small muted">เพิ่มสมาชิกเพื่อเริ่ม</div>';}
+  else{const sorted=[...state.members].map(m=>({m,o:owed[m.id]||0,n:(paid[m.id]||0)-(owed[m.id]||0)})).sort((a,b)=>b.o-a.o);const ri=['🥇','🥈','🥉'],rc=['gold','silver','bronze'];le.innerHTML=sorted.map(({m,o,n},i)=>{const pct=total>0?Math.round(o/total*100):0;const rows=state.expenses.filter(e=>(e.beneficiaries||[]).includes(m.id)).map(e=>{const s=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="lb-exp-row"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.category||'')} ${esc(e.title||'')}</span><span class="num" style="flex-shrink:0">${fmt(s)}</span></div>`;}).join('')||'<div class="small muted">ยังไม่มีรายการ</div>';return`<div><div class="lb-row" id="lbr-${m.id}" onclick="tlb('${m.id}')"><div class="lb-rank ${rc[i]||''}">${ri[i]||i+1}</div>${mkAv(m.name,34,m.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:600;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</span><span class="num" style="font-weight:700;font-size:14px;flex-shrink:0">${fmt(o)}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:3px"><div class="bar-track" style="flex:1"><div class="bar-fill" style="width:${pct}%;background:var(--line)"></div></div><span class="small muted" style="flex-shrink:0;min-width:26px;text-align:right">${pct}%</span><span class="num small" style="color:${n>=0?'var(--good)':'var(--bad)'};flex-shrink:0">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</span></div></div><div class="lb-chevron" id="lbc-${m.id}">▼</div></div><div class="lb-detail" id="lbd-${m.id}"><div style="font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:4px">รายการของ ${esc(m.name)}</div>${rows}</div></div>`;}).join('');}
+  const cm={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';cm[k]=(cm[k]||0)+(+e.amount||0);});const cc=$('cat-chart'),ck=$('cat-chart-card');if(Object.keys(cm).length&&cc){ck.style.display='block';cc.innerHTML=Object.entries(cm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const p=total>0?Math.round(v/total*100):0;return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span>${esc(k)}</span><span class="num" style="font-weight:600">${fmt(v)} <span class="muted">${p}%</span></span></div><div class="bar-track"><div class="bar-fill" style="width:${p}%;background:var(--line)"></div></div></div>`;}).join('');}
+  const el=$('expense-list');el.innerHTML=!state.expenses.length?'<div class="empty small muted">ยังไม่มีรายการ<br>กด + เพิ่มค่าใช้จ่าย</div>':state.expenses.map(e=>{const pr=state.members.find(m=>m.id===e.payer),ph=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="card" style="padding:13px 14px;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start">${mkAv(pr?.name||'?',36,pr?.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-weight:700;font-size:14px">${esc(e.category||'')} ${esc(e.title||'')}</div><div class="small muted" style="margin-top:2px">${esc(pr?.name||'?')} จ่าย · ${esc(e.date||'')}</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div class="num" style="font-weight:700;font-size:16px">${fmt(+e.amount||0)}</div><div class="small muted">÷${(e.beneficiaries||[]).length}=${fmt(ph)}/คน</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><div style="display:flex;gap:4px;flex-wrap:wrap">${(e.beneficiaries||[]).map(bid=>{const bm=state.members.find(m=>m.id===bid);return bm?`<span class="badge" style="font-size:10px">${esc(bm.name)}</span>`:''}).join('')}</div><button onclick="delExp('${esc(e.id)}')" style="font-size:11px;color:var(--bad);background:#F2555510;border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">ลบ</button></div></div></div></div>`;}).join('');
+  const ml=$('member-list');ml.innerHTML=!state.members.length?'<div class="empty small muted">ยังไม่มีสมาชิก</div>':state.members.map(m=>{const n=(paid[m.id]||0)-(owed[m.id]||0);return`<div class="card" style="display:flex;align-items:center;gap:12px;padding:13px 14px">${mkAv(m.name,40,m.pictureUrl)}<div style="flex:1"><div style="font-weight:700;font-size:15px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</div><div class="small muted">${state.expenses.filter(e=>(e.beneficiaries||[]).includes(m.id)).length} รายการ</div></div><div class="num" style="font-weight:700;font-size:15px;color:${n>=0?'var(--good)':'var(--bad)'}">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;}).join('');
+  const net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});
+  $('net-balances').innerHTML=state.members.map(m=>{const n=net[m.id]||0;return`<div class="settle-row">${mkAv(m.name,32,m.pictureUrl)}<div style="flex:1;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</div><div class="num" style="font-weight:700;color:${n>=0?'var(--good)':'var(--bad)'}">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;}).join('');
+  const txns=calcSettle(net);$('settle-list').innerHTML=!txns.length?`<div class="empty small muted">${state.members.length?'✅ ทุกคนเท่ากัน':'ยังไม่มีสมาชิก'}</div>`:txns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to);return`<div class="settle-row">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>`;}).join('');
+}
+window.tlb=function(id){const d=$('lbd-'+id),r=$('lbr-'+id),c=$('lbc-'+id);if(!d)return;const o=d.classList.contains('open');d.classList.toggle('open',!o);r&&r.classList.toggle('expanded',!o);c&&c.classList.toggle('open',!o);};
+let _pay=null,_ben=new Set();
+window.openExpenseForm=function(id){
+  $('ef-date').value=today();$('ef-id').value=id||'';$('ef-title-label').textContent=id?'แก้ไขค่าใช้จ่าย':'เพิ่มค่าใช้จ่าย';
+  _pay=null;_ben=new Set();
+  const mk=(m,tp)=>`<button onclick="${tp==='p'?`selP('${m.id}',this)`:`togB('${m.id}',this)`}" data-id="${m.id}" style="display:flex;align-items:center;gap:6px;padding:5px 12px 5px 5px;border-radius:20px;border:2px solid var(--border);background:var(--surface-2);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink)">${mkAv(m.name,22,m.pictureUrl)}<span>${esc(m.name)}</span></button>`;
+  $('ef-payer-row').innerHTML=state.members.map(m=>mk(m,'p')).join('');$('ef-bene-row').innerHTML=state.members.map(m=>mk(m,'b')).join('');
+  if(id){const e=state.expenses.find(x=>x.id===id);if(e){$('ef-title').value=e.title||'';$('ef-amount').value=e.amount||'';$('ef-cat').value=e.category||'🍽️ อาหาร';$('ef-date').value=e.date||today();$$('#ef-payer-row button').forEach(b=>{if(b.dataset.id===e.payer)selP(e.payer,b);});$$('#ef-bene-row button').forEach(b=>{if((e.beneficiaries||[]).includes(b.dataset.id))togB(b.dataset.id,b,true);});}}
+  else{const sb=document.querySelector('#ef-payer-row button[data-id="'+state.me+'"]');if(sb)selP(state.me,sb);$$('#ef-bene-row button').forEach(b=>togB(b.dataset.id,b,true));}
+  openModal('modal-expense');
+};
+function hi(btn,on){btn.style.borderColor=on?'var(--line)':'var(--border)';btn.style.background=on?'var(--line-soft)':'var(--surface-2)';btn.style.color=on?'var(--line-dark)':'var(--ink)';}
+window.selP=function(id,btn){_pay=id;$$('#ef-payer-row button').forEach(b=>hi(b,b.dataset.id===id));};
+window.togB=function(id,btn,on){if(on===true)_ben.add(id);else if(_ben.has(id))_ben.delete(id);else _ben.add(id);$$('#ef-bene-row button').forEach(b=>hi(b,_ben.has(b.dataset.id)));};
+window.efToggleAll=function(){const all=state.members.map(m=>m.id),allSel=all.every(id=>_ben.has(id));if(allSel)_ben.clear();else all.forEach(id=>_ben.add(id));$$('#ef-bene-row button').forEach(b=>hi(b,_ben.has(b.dataset.id)));};
+window.saveExpense=async function(){
+  const t=san($('ef-title').value,80),a=parseFloat($('ef-amount').value);
+  if(!t)return toast('ใส่ชื่อรายการก่อน');if(!a||a<=0)return toast('ใส่จำนวนเงินก่อน');if(!_pay)return toast('เลือกคนที่จ่ายก่อน');if(!_ben.size)return toast('เลือกคนร่วมหารก่อน');
+  const id=$('ef-id').value||'e_'+Date.now()+'_'+uuid();
+  await tripRef.child('expenses/'+id).set({id,title:t,amount:a,category:$('ef-cat').value,date:$('ef-date').value,payer:_pay,beneficiaries:[..._ben],splitMode:'equal',createdAt:Date.now()});
+  _pay=null;_ben=new Set();closeModal('modal-expense');toast('บันทึกแล้ว ✓');
+};
+window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+id).remove();toast('ลบแล้ว');};
+window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+state.tripId;navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
+window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(liffProfile&&state.tripId)await db.ref('userTrips/'+liffProfile.userId+'/'+state.tripId+'/tripName').set(n);closeModal('modal-settings');toast('บันทึกแล้ว');};
+
+async function boot(){
+  const[,fb]=await Promise.allSettled([initLiff(),(async()=>{await waitFb(15000);initFb();})()]);
+  if(fb.status==='rejected'){toast('Firebase โหลดไม่ได้ — เช็ค internet แล้ว refresh');return;}
+  await afterLogin();
+}
+boot();
+
+if('serviceWorker' in navigator){const h=location.hostname;if(h.endsWith('github.io')||(!h.includes('localhost')&&!h.includes('claudeusercontent'))){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}}
+</script>
+</body>
+</html>
