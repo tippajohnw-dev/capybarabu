@@ -223,8 +223,8 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 <div id="modal-join" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
     <div style="font-weight:700;font-size:17px;margin-bottom:16px">🔗 เข้าร่วม Trip</div>
-    <div class="field"><label>เลือก Trip</label><select id="join-select" style="font-size:15px"><option value="">⏳ กำลังโหลด...</option></select></div>
-    <div class="field"><label>หรือพิมพ์รหัสเอง</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
+    <div class="field"><label>รหัส Trip</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
+    <div style="background:var(--line-tint);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--ink-2)">💡 ขอรหัส Trip จากเพื่อนที่สร้าง หรือกดลิงก์ที่เพื่อนแชร์มา</div>
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-join')">ยกเลิก</button>
       <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doJoinTrip()">เข้าร่วม</button>
@@ -327,7 +327,7 @@ async function afterLogin(){
   if(av){if(liffProfile.pictureUrl)av.innerHTML=`<img src="${esc(liffProfile.pictureUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;else av.textContent=ini(liffProfile.displayName);}
   if(nm)nm.textContent=liffProfile.displayName;
   const ta=$('topbar-av'),tw=$('topbar-aw');if(ta&&liffProfile.pictureUrl){ta.src=liffProfile.pictureUrl;if(tw)tw.style.display='block';}
-  showScr('screen-trips');listenMyTrips();loadAllTrips();
+  showScr('screen-trips');listenMyTrips();
   const hash=location.hash.replace(/^#/,'').trim().toUpperCase();if(hash)handleHashJoin(hash);
 }
 window.handleLogout=function(){
@@ -346,13 +346,8 @@ function listenMyTrips(){
     $('my-trips-list').innerHTML=rl(owned,'ยังไม่มี Trip ที่สร้าง');$('joined-trips-list').innerHTML=rl(joined,'ยังไม่ได้เข้าร่วม Trip ใด');
   });
 }
-async function loadAllTrips(){
-  const sel=$('join-select');if(!sel||!db)return;
-  try{const snap=await db.ref('trips').get();if(!snap.exists()){sel.innerHTML='<option value="">— ยังไม่มี Trip —</option>';return;}const trips=[];snap.forEach(c=>{const d=c.val();trips.push({id:c.key,name:d.name||c.key,createdAt:d.createdAt||0});});trips.sort((a,b)=>b.createdAt-a.createdAt);sel.innerHTML='<option value="">— เลือก Trip —</option>'+trips.map(t=>`<option value="${esc(t.id)}">${esc(t.name)} · ${esc(t.id)}</option>`).join('');sel.onchange=()=>{if(sel.value)$('join-code').value=sel.value;};}
-  catch(e){sel.innerHTML='<option value="">— โหลดไม่สำเร็จ —</option>';}
-}
 window.showCreateModal=()=>{openModal('modal-create');setTimeout(()=>$('new-trip-name').focus(),120);};
-window.showJoinModal=()=>{openModal('modal-join');loadAllTrips();};
+window.showJoinModal=()=>{openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);};
 window.doCreateTrip=async function(){
   const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!liffProfile)return toast('กรุณา login ก่อน');
   const code=mkCode(name),uid=liffProfile.userId,mid='line_'+uid.slice(0,16);
@@ -361,8 +356,8 @@ window.doCreateTrip=async function(){
   closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');openTrip(code);
 };
 window.doJoinTrip=async function(){
-  const code=san($('join-code').value||$('join-select').value,20).toUpperCase();if(!code)return toast('เลือกหรือใส่รหัสก่อน');
-  const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้');
+  const code=san($('join-code').value,20).toUpperCase();if(!code)return toast('ใส่รหัส Trip ก่อน');
+  const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้ — ตรวจสอบรหัสอีกครั้ง');
   const data=snap.val(),uid=liffProfile.userId,mid='line_'+uid.slice(0,16);
   let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
   if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lineUserId:uid});
