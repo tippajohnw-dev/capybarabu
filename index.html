@@ -715,7 +715,13 @@ async function boot(){
   setAuthStatus('checking');
 
   if(liffAvailable && typeof liff !== 'undefined'){
-    if(liff.isLoggedIn()){
+    // Check explicit logout first — liff.logout() may not work inside LINE client,
+    // so isLoggedIn() can still be true. Honour the flag regardless.
+    if(localStorage.getItem('explicit_logout')){
+      localStorage.removeItem('explicit_logout');
+      AUTH.status = 'unauthenticated';
+      showLogin();
+    } else if(liff.isLoggedIn()){
       try {
         await loadProfile();
         AUTH.status = 'authenticated';
@@ -725,15 +731,9 @@ async function boot(){
         handleAuthError(e);
       }
     } else if(liff.isInClient()){
-      if(localStorage.getItem('explicit_logout')){
-        localStorage.removeItem('explicit_logout');
-        AUTH.status = 'unauthenticated';
-        showLogin();
-      } else {
-        setAuthStatus('logging_in');
-        if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
-        liff.login();
-      }
+      setAuthStatus('logging_in');
+      if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
+      liff.login();
     } else {
       AUTH.status = 'unauthenticated';
       if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
