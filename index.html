@@ -472,10 +472,9 @@ function handleAuthError(e){
   console.error('[Auth Error]', e);
   const msg = e?.message || '';
   if(msg.includes('invalid path') || msg.includes('child failed')){
-    sessionStorage.removeItem('pending_trip_hash');
+    sessionStorage.clear();
     cleanAuthRedirectUrl('');
-    showScr('screen-splash');
-    setAuthStatus('error', 'ข้อมูลลิงก์หรือ session ไม่ถูกต้อง กรุณาลองเข้าสู่ระบบใหม่');
+    showLogin();
     return;
   }
   showScr('screen-splash');
@@ -565,7 +564,9 @@ function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if
 function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.database();}
 async function saveUser(){
   if(!AUTH.user||!db)return;
-  await db.ref('users/'+safeKey(AUTH.user.lineUserId)).update({
+  const _uk=safeKey(AUTH.user.lineUserId);
+  if(!_uk){console.error('[saveUser] empty key for uid:',AUTH.user.lineUserId);return;}
+  await db.ref('users/'+_uk).update({
     displayName: AUTH.user.displayName,
     pictureUrl:  AUTH.user.pictureUrl || '',
     lastSeen:    Date.now()
@@ -606,6 +607,7 @@ async function handleHashJoin(hash){
   if(!db || !AUTH.user){ showScr('screen-trips'); return; }
   const uid = AUTH.user.lineUserId;
   const suid = safeKey(uid);
+  if(!suid){console.error('[handleHashJoin] empty suid for uid:',uid);showScr('screen-trips');return;}
   const ex = await db.ref('userTrips/' + suid + '/' + safeHash).get();
   if(ex.exists()){ openTrip(safeHash); return; }
   const ts = await db.ref('trips/' + safeHash).get();
@@ -732,7 +734,7 @@ async function boot(){
   } else {
     AUTH.status = 'unauthenticated';
     if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
-    showScr('screen-login');
+    showLogin();
   }
 }
 boot();
