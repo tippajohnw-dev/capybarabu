@@ -351,7 +351,8 @@ function safeTripCode(v){
   if(raw.includes('#')) raw = raw.split('#').pop();
   raw = raw.replace(/^#/, '').trim().toUpperCase();
   // Drop OAuth / LIFF redirect fragments such as access_token=..., code=..., liff.state=...
-  if(!raw || /^(access_token|id_token|code|state|liff\.|error)=/i.test(raw) || raw.includes('=')) return '';
+  // Also reject strings with '.' (JWT separator) or suspiciously long (access tokens have no '=' but are very long)
+  if(!raw || /^(access_token|id_token|code|state|liff\.|error)=/i.test(raw) || raw.includes('=') || raw.includes('.') || raw.length > 25) return '';
   raw = raw.replace(/[^A-Z0-9ก-๙_-]/g,'').slice(0,20);
   return raw;
 }
@@ -408,7 +409,7 @@ function setAuthStatus(status, errorMsg){
   AUTH.status = status;
   const msg   = $('splash-msg');
   const errEl = $('splash-error');
-  const spinner = document.querySelector('#screen-splash > div:last-child');
+  const spinner = document.querySelector('#screen-splash > div:nth-last-child(2)');
 
   if(status === 'error'){
     if(spinner) spinner.style.display = 'none';
