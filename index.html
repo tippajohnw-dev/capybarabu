@@ -77,7 +77,48 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 </head>
 <body>
 
-<!-- SCREEN 1: LOGIN -->
+<!-- LOADING SCREEN — Auth Gate (แสดงระหว่างทุก auth transition) -->
+<div id="screen-splash" class="screen" style="align-items:center;justify-content:center;background:linear-gradient(170deg,#F2FBF5 0%,#E6F9EE 100%);gap:20px;position:relative">
+  <div style="position:fixed;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:#06C75514;pointer-events:none"></div>
+  <div style="position:fixed;bottom:80px;left:-40px;width:120px;height:120px;border-radius:50%;background:#06C75510;pointer-events:none"></div>
+  <svg width="90" height="90" viewBox="0 0 210 210" fill="none" style="animation:bob 2.4s ease-in-out infinite">
+    <ellipse cx="105" cy="192" rx="62" ry="11" fill="#00000014"/>
+    <ellipse cx="105" cy="146" rx="60" ry="53" fill="#C4843A"/>
+    <ellipse cx="105" cy="150" rx="48" ry="42" fill="#D4924A"/>
+    <ellipse cx="78" cy="178" rx="13" ry="8" fill="#D4924A"/><ellipse cx="132" cy="178" rx="13" ry="8" fill="#D4924A"/>
+    <ellipse cx="105" cy="115" rx="46" ry="44" fill="#D4924A"/>
+    <ellipse cx="69" cy="81" rx="8" ry="9" fill="#E8B07A"/><ellipse cx="141" cy="81" rx="8" ry="9" fill="#E8B07A"/>
+    <ellipse cx="105" cy="118" rx="32" ry="30" fill="#E8A85C"/>
+    <ellipse cx="90" cy="107" rx="8.5" ry="9.5" fill="white"/><ellipse cx="120" cy="107" rx="8.5" ry="9.5" fill="white"/>
+    <circle cx="92" cy="108" r="5.5" fill="#2C1810"/><circle cx="122" cy="108" r="5.5" fill="#2C1810"/>
+    <circle cx="93.5" cy="106.5" r="1.8" fill="white"/><circle cx="123.5" cy="106.5" r="1.8" fill="white"/>
+    <path d="M96 131 Q105 138 114 131" stroke="#A06830" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <rect x="65" y="55" width="80" height="44" rx="22" fill="#06C755"/>
+    <ellipse cx="105" cy="49" rx="31" ry="9" fill="#06C755"/>
+    <text x="105" y="80" text-anchor="middle" font-size="10" font-weight="700" fill="white" font-family="sans-serif">หารกันเอง</text>
+    <circle cx="147" cy="60" r="9.5" fill="#FFD700"/><text x="147" y="65" text-anchor="middle" font-size="11" fill="#B8860B" font-weight="700" font-family="sans-serif">฿</text>
+  </svg>
+  <div style="text-align:center">
+    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px">หารกันเอง</div>
+    <div style="font-size:11px;color:var(--line);font-weight:600;letter-spacing:2px;text-transform:uppercase">capybarabu</div>
+  </div>
+  <!-- Status message — เปลี่ยนตาม auth state -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+    <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--line);border-radius:50%;animation:spin .7s linear infinite"></div>
+    <div id="splash-msg" style="font-size:13px;color:var(--ink-3);min-height:20px;text-align:center">กำลังเปิด LINE...</div>
+  </div>
+  <!-- Error state — ซ่อนไว้ก่อน -->
+  <div id="splash-error" style="display:none;flex-direction:column;align-items:center;gap:12px;max-width:280px;text-align:center">
+    <div style="font-size:32px">😢</div>
+    <div id="splash-error-msg" style="font-size:14px;color:var(--bad);font-weight:600"></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="retryAuth()" style="padding:10px 20px;border-radius:10px;background:var(--line);color:white;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">ลองใหม่</button>
+      <button onclick="showLoginFallback()" style="padding:10px 20px;border-radius:10px;background:var(--surface);color:var(--ink-2);border:1.5px solid var(--border);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit">หน้าแรก</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 1: LOGIN (fallback สำหรับ external browser) -->
 <div id="screen-login" class="screen" style="align-items:center;justify-content:space-between;padding:52px 24px 48px;background:linear-gradient(170deg,#F2FBF5 0%,#E6F9EE 100%)">
   <div style="position:fixed;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:#06C75514;pointer-events:none"></div>
   <div style="position:fixed;bottom:100px;left:-40px;width:140px;height:140px;border-radius:50%;background:#06C75510;pointer-events:none"></div>
@@ -301,41 +342,190 @@ const ini=n=>n?n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2
 const san=(s,m)=>String(s||'').trim().slice(0,m);
 function mkCode(n){const s=(n||'').toUpperCase().replace(/[^A-Z0-9ก-๙]/g,'').slice(0,3).padEnd(3,'X');return s+Math.random().toString(36).slice(2,5).toUpperCase();}
 function toast(msg,d=2200){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',d);}
-function showScr(id){['screen-login','screen-trips','screen-main'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
+function showScr(id){['screen-splash','screen-login','screen-trips','screen-main'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
 function openModal(id){const m=$(id);if(!m)return;m.style.display='flex';m.onclick=e=>{if(e.target===m)closeModal(id);};}
 window.closeModal=id=>{const m=$(id);if(m)m.style.display='none';};
 function mkAv(n,sz,pic){if(pic)return`<img src="${esc(pic)}" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'"/>`;const h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%360;return`<div class="avatar" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.36)}px;background:hsl(${h},55%,42%)">${ini(n)}</div>`;}
 
-async function initLiff(){
-  if(typeof liff==='undefined'||window.__liffFailed){return;}
-  try{await liff.init({liffId:LIFF_ID});if(liff.isLoggedIn()){liffProfile=await liff.getProfile();}else if(liff.isInClient()){liff.login();}}
-  catch(e){console.warn('[LIFF]',e.message);}
-}
-window.loginWithLine=function(){
-  const s=$('login-status'),b=$('btn-login');
-  if(typeof liff!=='undefined'&&!window.__liffFailed&&liff.isInClient&&liff.isInClient()){if(!liff.isLoggedIn()){s.textContent='กำลังเชื่อมต่อ...';liff.login();return;}}
-  s.textContent='⏳ กำลังเปิด LINE...';if(b)b.disabled=true;
-  setTimeout(()=>{window.location.href=`https://liff.line.me/${LIFF_ID}`;},300);
+/* ═══════════════════════════════════════
+   AUTH STATE MACHINE
+   States: initializing | checking | logging_in |
+           authenticated | unauthenticated | logging_out | error
+═══════════════════════════════════════ */
+const AUTH = {
+  status: 'initializing',
+  user: null, // { lineUserId, displayName, pictureUrl }
 };
+
+const SPLASH_MSGS = {
+  initializing: 'กำลังเปิด LINE...',
+  checking:     'กำลังตรวจสอบบัญชี...',
+  logging_in:   'กำลังพาเข้าสู่ระบบ...',
+  authenticated:'กำลังโหลดข้อมูล...',
+  logging_out:  'กำลังออกจากระบบ...',
+  error:        '',
+};
+
+function setAuthStatus(status, errorMsg){
+  AUTH.status = status;
+  const msg   = $('splash-msg');
+  const errEl = $('splash-error');
+  const spinner = document.querySelector('#screen-splash > div:last-child');
+
+  if(status === 'error'){
+    if(spinner) spinner.style.display = 'none';
+    if(errEl){ errEl.style.display = 'flex'; $('splash-error-msg').textContent = errorMsg || 'เกิดข้อผิดพลาด'; }
+  } else {
+    if(spinner) spinner.style.display = 'flex';
+    if(errEl) errEl.style.display = 'none';
+    if(msg) msg.textContent = SPLASH_MSGS[status] || '';
+  }
+}
+
+/* ── LIFF init ─────────────────────────────── */
+async function initLiff(){
+  if(typeof liff === 'undefined' || window.__liffFailed){
+    console.warn('[LIFF] SDK not available — browser mode');
+    return false;
+  }
+  setAuthStatus('initializing');
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    return true;
+  } catch(e){
+    console.warn('[LIFF] init failed:', e.message);
+    return false;
+  }
+}
+
+/* ── Auto-login (ใช้ใน LIFF browser เท่านั้น) ── */
+async function autoLogin(){
+  // ถ้าไม่ได้อยู่ใน LINE browser → ไม่ auto-login
+  if(!(typeof liff !== 'undefined' && liff.isInClient && liff.isInClient())) return false;
+  setAuthStatus('logging_in');
+  if(!liff.isLoggedIn()){
+    liff.login(); // redirect ไป LINE auth → กลับมาที่ app
+    return true;  // return ก่อน redirect
+  }
+  return false;
+}
+
+/* ── Load user profile หลัง login ─────────── */
+async function loadProfile(){
+  setAuthStatus('checking');
+  liffProfile = await liff.getProfile();
+  AUTH.user = {
+    lineUserId:  liffProfile.userId,
+    displayName: liffProfile.displayName,
+    pictureUrl:  liffProfile.pictureUrl || '',
+  };
+  // Clean redirect params ออกจาก URL
+  if(location.search.includes('liff.state') || location.search.includes('code=')){
+    history.replaceState(null, '', location.pathname + location.hash);
+  }
+}
+
+/* ── Login button (fallback สำหรับ external browser) ── */
+window.loginWithLine = function(){
+  const s = $('login-status'), b = $('btn-login');
+  // อยู่ใน LINE browser → login โดยตรง
+  if(typeof liff !== 'undefined' && !window.__liffFailed && liff.isInClient && liff.isInClient()){
+    showScr('screen-splash');
+    setAuthStatus('logging_in');
+    if(!liff.isLoggedIn()){ liff.login(); return; }
+    // login แล้ว → โหลด profile
+    loadProfile().then(() => { AUTH.status = 'authenticated'; enterApp(); }).catch(handleAuthError);
+    return;
+  }
+  // External browser → redirect ไป LIFF URL
+  if(s) s.textContent = '⏳ กำลังเปิด LINE...';
+  if(b) b.disabled = true;
+  setTimeout(() => { window.location.href = `https://liff.line.me/${LIFF_ID}`; }, 300);
+};
+
+/* ── Error handler ─────────────────────────── */
+function handleAuthError(e){
+  console.error('[Auth Error]', e);
+  showScr('screen-splash');
+  setAuthStatus('error', e?.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+}
+
+/* ── Retry ─────────────────────────────────── */
+window.retryAuth = function(){
+  // Reset error state แล้วรัน boot ใหม่
+  setAuthStatus('initializing');
+  $('splash-error').style.display = 'none';
+  boot();
+};
+
+/* ── Show login fallback ────────────────────── */
+window.showLoginFallback = function(){
+  showScr('screen-login');
+};
+
+/* ── Enter app หลัง authenticated ─────────── */
+async function enterApp(){
+  setAuthStatus('authenticated');
+  await saveUser();
+  // Update UI
+  const av = $('trips-avatar'), nm = $('trips-name');
+  if(av){ if(AUTH.user.pictureUrl) av.innerHTML = `<img src="${esc(AUTH.user.pictureUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`; else av.textContent = ini(AUTH.user.displayName); }
+  if(nm) nm.textContent = AUTH.user.displayName;
+  const ta = $('topbar-av'), tw = $('topbar-aw');
+  if(ta && AUTH.user.pictureUrl){ ta.src = AUTH.user.pictureUrl; if(tw) tw.style.display = 'block'; }
+  state.lineUserId = AUTH.user.lineUserId;
+  showScr('screen-trips');
+  listenMyTrips();
+  // Deep link
+  const hash = location.hash.replace(/^#/, '').trim().toUpperCase();
+  if(hash) handleHashJoin(hash);
+}
+
+/* ── Logout (ตาม spec AC4) ─────────────────── */
+window.handleLogout = async function(){
+  // Confirmation modal
+  if(!confirm('ต้องการออกจากระบบใช่ไหม?')) return;
+  // Show loading + logging_out state
+  showScr('screen-splash');
+  setAuthStatus('logging_out');
+  // 1. Clear Firebase listeners
+  if(tripRef){ tripRef.off(); tripRef = null; }
+  if(tripsRef){ tripsRef.off(); tripsRef = null; }
+  // 2. Clear app state
+  AUTH.user = null; AUTH.status = 'unauthenticated';
+  liffProfile = null;
+  Object.assign(state, { lineUserId: null, tripId: null, tripName: null, me: null, members: [], expenses: [] });
+  // 3. Clear localStorage keys ที่เกี่ยวกับ auth/user
+  ['haargun_trip_v1', 'haargun_recent_trips_v1'].forEach(k => localStorage.removeItem(k));
+  // 4. LIFF logout → redirect กลับหน้าแรก (ป้องกัน auto-login กลับ)
+  await new Promise(r => setTimeout(r, 600)); // ให้ user เห็น "กำลังออกจากระบบ..."
+  if(typeof liff !== 'undefined' && !window.__liffFailed){
+    try {
+      if(liff.isLoggedIn()){
+        liff.logout(); // LIFF จะ clear token แล้ว redirect
+        return;
+      }
+    } catch(e){ console.warn('[LIFF logout]', e); }
+  }
+  // Fallback: reload หน้าแรก (ป้องกัน redirect loop)
+  window.location.replace(location.origin + location.pathname.replace(/[^/]*$/, ''));
+};
+
+/* ── afterLogin (legacy wrapper — ยังใช้จาก handleHashJoin) ─ */
+async function afterLogin(){
+  await enterApp();
+}
 function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if(window.__fbError)return j(window.__fbError);const t=setTimeout(()=>j(new Error('timeout')),ms);window.addEventListener('fb-ready',()=>{clearTimeout(t);r()},{once:true});window.addEventListener('fb-failed',()=>{clearTimeout(t);j(window.__fbError)},{once:true});});}
 function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.database();}
-async function saveUser(){if(!liffProfile||!db)return;await db.ref('users/'+liffProfile.userId).update({displayName:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lastSeen:Date.now()});}
-async function afterLogin(){
-  if(!liffProfile){showScr('screen-login');return;}
-  state.lineUserId=liffProfile.userId;await saveUser();
-  const av=$('trips-avatar'),nm=$('trips-name');
-  if(av){if(liffProfile.pictureUrl)av.innerHTML=`<img src="${esc(liffProfile.pictureUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;else av.textContent=ini(liffProfile.displayName);}
-  if(nm)nm.textContent=liffProfile.displayName;
-  const ta=$('topbar-av'),tw=$('topbar-aw');if(ta&&liffProfile.pictureUrl){ta.src=liffProfile.pictureUrl;if(tw)tw.style.display='block';}
-  showScr('screen-trips');listenMyTrips();
-  const hash=location.hash.replace(/^#/,'').trim().toUpperCase();if(hash)handleHashJoin(hash);
+async function saveUser(){
+  if(!AUTH.user||!db)return;
+  await db.ref('users/'+AUTH.user.lineUserId).update({
+    displayName: AUTH.user.displayName,
+    pictureUrl:  AUTH.user.pictureUrl || '',
+    lastSeen:    Date.now()
+  });
 }
-window.handleLogout=function(){
-  if(typeof liff!=='undefined'&&!window.__liffFailed&&liff.isLoggedIn&&liff.isLoggedIn())liff.logout();
-  liffProfile=null;state.lineUserId=null;
-  if(tripRef){tripRef.off();tripRef=null;}if(tripsRef){tripsRef.off();tripsRef=null;}
-  showScr('screen-login');const b=$('btn-login');if(b)b.disabled=false;const s=$('login-status');if(s)s.textContent='';
-};
+/* handleLogout ย้ายไปอยู่ใน Auth State Machine ด้านบนแล้ว */
 function listenMyTrips(){
   if(!state.lineUserId||!db)return;if(tripsRef)tripsRef.off();
   tripsRef=db.ref('userTrips/'+state.lineUserId);
@@ -349,27 +539,27 @@ function listenMyTrips(){
 window.showCreateModal=()=>{openModal('modal-create');setTimeout(()=>$('new-trip-name').focus(),120);};
 window.showJoinModal=()=>{openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);};
 window.doCreateTrip=async function(){
-  const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!liffProfile)return toast('กรุณา login ก่อน');
-  const code=mkCode(name),uid=liffProfile.userId,mid='line_'+uid.slice(0,16);
-  await db.ref('trips/'+code).set({name,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lineUserId:uid}},expenses:{}});
+  const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!AUTH.user)return toast('กรุณา login ก่อน');
+  const code=mkCode(name),uid=AUTH.user.lineUserId,mid='line_'+uid.slice(0,16);
+  await db.ref('trips/'+code).set({name,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid}},expenses:{}});
   await db.ref('userTrips/'+uid+'/'+code).set({role:'owner',tripName:name,joinedAt:Date.now()});
   closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');openTrip(code);
 };
 window.doJoinTrip=async function(){
   const code=san($('join-code').value,20).toUpperCase();if(!code)return toast('ใส่รหัส Trip ก่อน');
   const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้ — ตรวจสอบรหัสอีกครั้ง');
-  const data=snap.val(),uid=liffProfile.userId,mid='line_'+uid.slice(0,16);
+  const data=snap.val(),uid=AUTH.user.lineUserId,mid='line_'+uid.slice(0,16);
   let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
-  if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lineUserId:uid});
+  if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
   await db.ref('userTrips/'+uid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,joinedAt:Date.now()});
   closeModal('modal-join');$('join-code').value='';openTrip(code);
 };
 async function handleHashJoin(hash){
-  if(!db||!liffProfile)return;const uid=liffProfile.userId;
+  if(!db||!AUTH.user)return;const uid=AUTH.user.lineUserId;
   const ex=await db.ref('userTrips/'+uid+'/'+hash).get();if(ex.exists()){openTrip(hash);return;}
   const ts=await db.ref('trips/'+hash).get();if(!ts.exists())return;
   const data=ts.val(),mid='line_'+uid.slice(0,16);
-  if(!data.members?.[mid])await db.ref(`trips/${hash}/members/${mid}`).set({id:mid,name:liffProfile.displayName,pictureUrl:liffProfile.pictureUrl||'',lineUserId:uid});
+  if(!data.members?.[mid])await db.ref(`trips/${hash}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
   await db.ref('userTrips/'+uid+'/'+hash).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||hash,joinedAt:Date.now()});
   openTrip(hash);
 }
@@ -381,7 +571,7 @@ window.openTrip=function(code){
   tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
 };
 window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}history.replaceState(null,'','./');showScr('screen-trips');};
-window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(liffProfile&&state.tripId)await db.ref('userTrips/'+liffProfile.userId+'/'+state.tripId).remove();closeModal('modal-settings');backToTrips();};
+window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+AUTH.user.lineUserId+'/'+state.tripId).remove();closeModal('modal-settings');backToTrips();};
 function setupTopbar(){
   $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
   $$('.tab').forEach(t=>{t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.tab-pane').forEach(p=>p.classList.add('hidden'));$('tab-'+t.dataset.tab).classList.remove('hidden');const f=$('fab');if(f)f.style.display=t.dataset.tab==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});};});
@@ -430,12 +620,58 @@ window.saveExpense=async function(){
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+id).remove();toast('ลบแล้ว');};
 window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+state.tripId;navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
-window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(liffProfile&&state.tripId)await db.ref('userTrips/'+liffProfile.userId+'/'+state.tripId+'/tripName').set(n);closeModal('modal-settings');toast('บันทึกแล้ว');};
+window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(AUTH.user&&state.tripId)await db.ref('userTrips/'+AUTH.user.lineUserId+'/'+state.tripId+'/tripName').set(n);closeModal('modal-settings');toast('บันทึกแล้ว');};
 
+/* ═══════════════════════════════════════
+   BOOT — Auth Gate ตาม spec
+   Flow: initializing → checking → authenticated → Main Page
+         initializing → checking → logging_in   → LINE Login → กลับมา → checking → Main Page
+═══════════════════════════════════════ */
 async function boot(){
-  const[,fb]=await Promise.allSettled([initLiff(),(async()=>{await waitFb(15000);initFb();})()]);
-  if(fb.status==='rejected'){toast('Firebase โหลดไม่ได้ — เช็ค internet แล้ว refresh');return;}
-  await afterLogin();
+  showScr('screen-splash');
+  setAuthStatus('initializing');
+
+  // 1. โหลด Firebase (parallel กับ LIFF)
+  const [liffOk, fbResult] = await Promise.allSettled([
+    initLiff(),
+    (async()=>{ await waitFb(15000); initFb(); })()
+  ]);
+
+  // Firebase ล้มเหลว
+  if(fbResult.status === 'rejected'){
+    handleAuthError(new Error('Firebase โหลดไม่ได้ — เช็ค internet แล้วกด ลองใหม่'));
+    return;
+  }
+
+  const liffAvailable = liffOk.status === 'fulfilled' && liffOk.value === true;
+
+  setAuthStatus('checking');
+
+  // 2. ตรวจสอบ login state
+  if(liffAvailable && typeof liff !== 'undefined'){
+    if(liff.isLoggedIn()){
+      // ── Case 1 & 3: Login แล้ว (ครั้งแรกหรือ session ยังอยู่) ──
+      try {
+        await loadProfile();
+        AUTH.status = 'authenticated';
+        await enterApp();
+      } catch(e){
+        handleAuthError(e);
+      }
+    } else if(liff.isInClient()){
+      // ── Case 2: อยู่ใน LINE browser แต่ยังไม่ login → auto-login ──
+      setAuthStatus('logging_in');
+      liff.login(); // redirect → กลับมา boot ใหม่ → isLoggedIn() = true
+    } else {
+      // ── External browser + ยังไม่ login → แสดงหน้า Login ──
+      AUTH.status = 'unauthenticated';
+      showScr('screen-login');
+    }
+  } else {
+    // ── LIFF ไม่พร้อม (browser ปกติ ไม่มี SDK) ──
+    AUTH.status = 'unauthenticated';
+    showScr('screen-login');
+  }
 }
 boot();
 
