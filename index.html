@@ -233,6 +233,10 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
     <div id="tab-members" class="tab-pane hidden">
       <div class="card" style="margin-bottom:12px">
         <div style="font-size:13px;color:var(--ink-2);margin-bottom:10px">เชิญเพื่อน — แชร์รหัส <strong id="trip-code-display"></strong></div>
+        <button class="btn btn-primary" style="width:100%;border-radius:10px;font-size:13px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="inviteViaLine()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          เชิญผ่าน LINE
+        </button>
         <button class="btn btn-ghost" style="width:100%;border-radius:10px;font-size:13px" onclick="copyTripLink()">📋 คัดลอก link เชิญ</button>
       </div>
       <div id="member-list"><div class="empty small muted">กำลังโหลด...</div></div>
@@ -681,6 +685,61 @@ window.saveExpense=async function(){
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');};
 window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+safeTripCode(state.tripId);navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
+window.inviteViaLine=async function(){
+  const tripCode=safeTripCode(state.tripId);
+  if(!tripCode)return;
+  const url=location.origin+location.pathname+'#'+tripCode;
+  const inviterName=AUTH.user?.displayName||'เพื่อน';
+  const tripName=state.tripName||tripCode;
+
+  const flexMsg={
+    type:'flex',
+    altText:`${inviterName} เชิญคุณเข้า Trip "${tripName}" — กดเพื่อเข้าร่วม`,
+    contents:{
+      type:'bubble',
+      size:'kilo',
+      header:{
+        type:'box',layout:'vertical',
+        backgroundColor:'#06C755',paddingAll:'14px',
+        contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]
+      },
+      body:{
+        type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',
+        contents:[
+          {type:'text',text:`${inviterName} ชวนคุณเข้า Trip`,size:'sm',color:'#5C6E63'},
+          {type:'text',text:tripName,weight:'bold',size:'lg',color:'#1F2D24',wrap:true},
+          {type:'separator',margin:'md'},
+          {type:'box',layout:'horizontal',margin:'md',contents:[
+            {type:'text',text:'รหัส Trip',size:'sm',color:'#94A89C',flex:1},
+            {type:'text',text:tripCode,size:'sm',weight:'bold',color:'#1F2D24',align:'end'}
+          ]}
+        ]
+      },
+      footer:{
+        type:'box',layout:'vertical',paddingAll:'12px',
+        contents:[{
+          type:'button',style:'primary',color:'#06C755',height:'sm',
+          action:{type:'uri',label:'เข้าร่วม Trip',uri:url}
+        }]
+      }
+    }
+  };
+
+  const canShare=typeof liff!=='undefined'&&!window.__liffFailed&&typeof liff.isApiAvailable==='function'&&liff.isApiAvailable('shareTargetPicker');
+  if(canShare){
+    try{
+      const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});
+      if(res?.status==='success')toast('ส่งคำเชิญแล้ว');
+    }catch(e){
+      console.warn('[shareTargetPicker]',e);
+      navigator.clipboard.writeText(url).then(()=>toast('คัดลอก link แล้ว'));
+    }
+  }else if(navigator.share){
+    navigator.share({title:'หารกันเอง · '+tripName,url});
+  }else{
+    navigator.clipboard.writeText(url).then(()=>toast('คัดลอก link แล้ว'));
+  }
+};
 window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(AUTH.user&&state.tripId)await db.ref('userTrips/'+safeKey(AUTH.user.lineUserId)+'/'+safeTripCode(state.tripId)+'/tripName').set(n);state.tripName=n;$('trip-chip').textContent=n+' · '+state.tripId;closeModal('modal-settings');toast('บันทึกแล้ว');};
 
 /* ═══════════════════════════════════════
