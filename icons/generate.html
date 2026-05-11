@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<title>Icon Generator — capybarabu</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:sans-serif;background:#F2FBF5;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:40px 20px}
+  h2{font-size:18px;color:#1F2D24}
+  .preview{border-radius:20px;box-shadow:0 6px 30px #0003}
+  .btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  button{padding:11px 22px;border-radius:10px;border:none;background:#06C755;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  button:hover{background:#04A847}
+  p{font-size:12px;color:#94A89C;text-align:center;max-width:320px;line-height:1.6}
+</style>
+</head>
+<body>
+<h2>capybarabu · Icon Generator</h2>
+<canvas id="preview" class="preview" width="256" height="256"></canvas>
+<div class="btns">
+  <button onclick="dl(512,'icon-512.png')">⬇ icon-512.png</button>
+  <button onclick="dl(192,'icon-192.png')">⬇ icon-192.png</button>
+</div>
+<p>หลังดาวน์โหลดแล้ว ให้วางไฟล์ icon-192.png และ icon-512.png ไว้ในโฟลเดอร์ icons/ นี้</p>
+
+<script>
+const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#06C755"/>
+  <g transform="translate(39, 14) scale(2.07)">
+    <ellipse cx="105" cy="192" rx="62" ry="11" fill="#00000018"/>
+    <ellipse cx="105" cy="146" rx="60" ry="53" fill="#C4843A"/>
+    <ellipse cx="105" cy="150" rx="48" ry="42" fill="#D4924A"/>
+    <ellipse cx="78" cy="178" rx="19" ry="12" fill="#C4843A"/>
+    <ellipse cx="132" cy="178" rx="19" ry="12" fill="#C4843A"/>
+    <ellipse cx="78" cy="178" rx="13" ry="8" fill="#D4924A"/>
+    <ellipse cx="132" cy="178" rx="13" ry="8" fill="#D4924A"/>
+    <ellipse cx="72" cy="186" rx="9" ry="5" fill="#A06830"/>
+    <ellipse cx="138" cy="186" rx="9" ry="5" fill="#A06830"/>
+    <ellipse cx="105" cy="115" rx="46" ry="44" fill="#D4924A"/>
+    <ellipse cx="69" cy="81" rx="13" ry="15" fill="#C4843A"/>
+    <ellipse cx="141" cy="81" rx="13" ry="15" fill="#C4843A"/>
+    <ellipse cx="69" cy="81" rx="8" ry="9" fill="#E8B07A"/>
+    <ellipse cx="141" cy="81" rx="8" ry="9" fill="#E8B07A"/>
+    <ellipse cx="105" cy="118" rx="32" ry="30" fill="#E8A85C"/>
+    <ellipse cx="90" cy="107" rx="8.5" ry="9.5" fill="white"/>
+    <ellipse cx="120" cy="107" rx="8.5" ry="9.5" fill="white"/>
+    <circle cx="92" cy="108" r="5.5" fill="#2C1810"/>
+    <circle cx="122" cy="108" r="5.5" fill="#2C1810"/>
+    <circle cx="93.5" cy="106.5" r="1.8" fill="white"/>
+    <circle cx="123.5" cy="106.5" r="1.8" fill="white"/>
+    <ellipse cx="105" cy="123" rx="11" ry="7.5" fill="#C4843A"/>
+    <ellipse cx="99.5" cy="120.5" rx="3" ry="2.2" fill="#D4924A"/>
+    <ellipse cx="110.5" cy="120.5" rx="3" ry="2.2" fill="#D4924A"/>
+    <ellipse cx="102.5" cy="125" rx="2.2" ry="1.8" fill="#8B5A2B"/>
+    <ellipse cx="107.5" cy="125" rx="2.2" ry="1.8" fill="#8B5A2B"/>
+    <path d="M96 131 Q105 138 114 131" stroke="#A06830" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <rect x="65" y="55" width="80" height="44" rx="22" fill="#04A847"/>
+    <rect x="74" y="49" width="62" height="27" rx="13.5" fill="#04A847"/>
+    <ellipse cx="105" cy="49" rx="31" ry="9" fill="#05C050"/>
+    <text x="105" y="80" text-anchor="middle" font-size="10" font-weight="700" fill="white" font-family="sans-serif" letter-spacing="0.3">หารกันเอง</text>
+    <circle cx="147" cy="60" r="12" fill="#FFD700"/>
+    <circle cx="147" cy="60" r="9.5" fill="#F0C000"/>
+    <text x="147" y="65" text-anchor="middle" font-size="12" fill="#B8860B" font-weight="700" font-family="sans-serif">฿</text>
+  </g>
+</svg>`;
+
+function render(canvas, size, cb) {
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const blob = new Blob([SVG], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => { ctx.drawImage(img, 0, 0, size, size); URL.revokeObjectURL(url); if (cb) cb(); };
+  img.onerror = () => { URL.revokeObjectURL(url); alert('render failed'); };
+  img.src = url;
+}
+
+function dl(size, filename) {
+  const c = document.createElement('canvas');
+  render(c, size, () => {
+    const a = document.createElement('a');
+    a.download = filename;
+    a.href = c.toDataURL('image/png');
+    a.click();
+  });
+}
+
+render(document.getElementById('preview'), 256);
+</script>
+</body>
+</html>
