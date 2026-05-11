@@ -275,7 +275,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 
 <!-- MODAL: EXPENSE -->
 <div id="modal-expense" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;overflow-y:auto">
-  <div style="min-height:100%;display:flex;align-items:flex-end;justify-content:center">
+  <div style="min-height:100%;display:flex;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeModal('modal-expense')">
     <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;animation:slideUp .25s ease">
       <div style="font-weight:700;font-size:17px;margin-bottom:16px" id="ef-title-label">เพิ่มค่าใช้จ่าย</div>
       <div class="field"><label>ชื่อรายการ</label><input id="ef-title" placeholder="ค่าอาหาร, โรงแรม..." maxlength="80"/></div>
@@ -580,16 +580,16 @@ window.openTrip=function(code){
   history.replaceState(null,'','#'+code);showScr('screen-main');setupTopbar();
   if(tripRef)tripRef.off();
   tripRef=db.ref('trips/'+code);
-  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
+  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;$('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
 };
-window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}history.replaceState(null,'','./');showScr('screen-trips');};
+window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;}history.replaceState(null,'','./');showScr('screen-trips');};
 window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+AUTH.user.lineUserId+'/'+state.tripId).remove();closeModal('modal-settings');backToTrips();};
 function setupTopbar(){
   $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
   $$('.tab').forEach(t=>{t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.tab-pane').forEach(p=>p.classList.add('hidden'));$('tab-'+t.dataset.tab).classList.remove('hidden');const f=$('fab');if(f)f.style.display=t.dataset.tab==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});};});
   $('open-share').onclick=()=>{const u=location.origin+location.pathname+'#'+state.tripId;if(navigator.share)navigator.share({title:'หารกันเอง · '+state.tripName,url:u});else navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
   $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;openModal('modal-settings');};
-  const tb=$('topbar');window.onscroll=()=>tb.classList.toggle('scrolled',window.scrollY>4);
+  const tb=$('topbar');if(window._scrollHandler)window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=()=>tb.classList.toggle('scrolled',window.scrollY>4);window.addEventListener('scroll',window._scrollHandler);
 }
 function setConn(ok){const d=$('conn-dot'),t=$('conn-text');if(!d)return;d.className='conn-dot '+(ok?'ok':'bad');t.textContent=ok?'เชื่อมต่อแล้ว':'การเชื่อมต่อมีปัญหา';}
 function calcBal(){const paid={},owed={};let total=0;state.members.forEach(m=>{paid[m.id]=0;owed[m.id]=0;});state.expenses.forEach(e=>{const a=+e.amount||0;total+=a;if(paid[e.payer]!==undefined)paid[e.payer]+=a;const b=e.beneficiaries||[];const sh=a/(b.length||1);b.forEach(id=>{if(owed[id]!==undefined)owed[id]+=sh;});});return{paid,owed,total};}
@@ -632,7 +632,7 @@ window.saveExpense=async function(){
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+id).remove();toast('ลบแล้ว');};
 window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+state.tripId;navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
-window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(AUTH.user&&state.tripId)await db.ref('userTrips/'+AUTH.user.lineUserId+'/'+state.tripId+'/tripName').set(n);closeModal('modal-settings');toast('บันทึกแล้ว');};
+window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(AUTH.user&&state.tripId)await db.ref('userTrips/'+AUTH.user.lineUserId+'/'+state.tripId+'/tripName').set(n);state.tripName=n;$('trip-chip').textContent=n+' · '+state.tripId;closeModal('modal-settings');toast('บันทึกแล้ว');};
 
 /* ═══════════════════════════════════════
    BOOT — Auth Gate ตาม spec
