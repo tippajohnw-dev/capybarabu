@@ -340,6 +340,7 @@ const uuid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const ini=n=>n?n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2):'?';
 const san=(s,m)=>String(s||'').trim().slice(0,m);
+const sanitizeFirebaseKey=uid=>String(uid||'').replace(/[.$[\]#/]/g,c=>'%'+c.charCodeAt(0).toString(16).padStart(2,'0').toUpperCase());
 function mkCode(n){const s=(n||'').toUpperCase().replace(/[^A-Z0-9ก-๙]/g,'').slice(0,3).padEnd(3,'X');return s+Math.random().toString(36).slice(2,5).toUpperCase();}
 function toast(msg,d=2200){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',d);}
 function showScr(id){['screen-splash','screen-login','screen-trips','screen-main'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
@@ -531,7 +532,7 @@ function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if
 function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.database();}
 async function saveUser(){
   if(!AUTH.user||!db)return;
-  await db.ref('users/'+AUTH.user.lineUserId).update({
+  await db.ref('users/'+sanitizeFirebaseKey(AUTH.user.lineUserId)).update({
     displayName: AUTH.user.displayName,
     pictureUrl:  AUTH.user.pictureUrl || '',
     lastSeen:    Date.now()
@@ -540,7 +541,7 @@ async function saveUser(){
 /* handleLogout ย้ายไปอยู่ใน Auth State Machine ด้านบนแล้ว */
 function listenMyTrips(){
   if(!state.lineUserId||!db)return;if(tripsRef)tripsRef.off();
-  tripsRef=db.ref('userTrips/'+state.lineUserId);
+  tripsRef=db.ref('userTrips/'+sanitizeFirebaseKey(state.lineUserId));
   tripsRef.on('value',snap=>{
     const data=snap.val()||{};const owned=[],joined=[];
     Object.entries(data).forEach(([id,info])=>{(info.role==='owner'?owned:joined).push({tripId:id,...info});});
@@ -552,38 +553,38 @@ window.showCreateModal=()=>{openModal('modal-create');setTimeout(()=>$('new-trip
 window.showJoinModal=()=>{openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);};
 window.doCreateTrip=async function(){
   const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!AUTH.user)return toast('กรุณา login ก่อน');
-  const code=mkCode(name),uid=AUTH.user.lineUserId,mid='line_'+uid.slice(0,16);
+  const code=mkCode(name),uid=AUTH.user.lineUserId,suid=sanitizeFirebaseKey(uid),mid='line_'+suid.slice(0,16);
   await db.ref('trips/'+code).set({name,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid}},expenses:{}});
-  await db.ref('userTrips/'+uid+'/'+code).set({role:'owner',tripName:name,joinedAt:Date.now()});
+  await db.ref('userTrips/'+suid+'/'+code).set({role:'owner',tripName:name,joinedAt:Date.now()});
   closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');openTrip(code);
 };
 window.doJoinTrip=async function(){
   const code=san($('join-code').value,20).toUpperCase();if(!code)return toast('ใส่รหัส Trip ก่อน');
   const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้ — ตรวจสอบรหัสอีกครั้ง');
-  const data=snap.val(),uid=AUTH.user.lineUserId,mid='line_'+uid.slice(0,16);
+  const data=snap.val(),uid=AUTH.user.lineUserId,suid=sanitizeFirebaseKey(uid),mid='line_'+suid.slice(0,16);
   let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
   if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
-  await db.ref('userTrips/'+uid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,joinedAt:Date.now()});
+  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,joinedAt:Date.now()});
   closeModal('modal-join');$('join-code').value='';openTrip(code);
 };
 async function handleHashJoin(hash){
-  if(!db||!AUTH.user)return;const uid=AUTH.user.lineUserId;
-  const ex=await db.ref('userTrips/'+uid+'/'+hash).get();if(ex.exists()){openTrip(hash);return;}
+  if(!db||!AUTH.user)return;const uid=AUTH.user.lineUserId,suid=sanitizeFirebaseKey(uid);
+  const ex=await db.ref('userTrips/'+suid+'/'+hash).get();if(ex.exists()){openTrip(hash);return;}
   const ts=await db.ref('trips/'+hash).get();if(!ts.exists())return;
-  const data=ts.val(),mid='line_'+uid.slice(0,16);
+  const data=ts.val(),mid='line_'+suid.slice(0,16);
   if(!data.members?.[mid])await db.ref(`trips/${hash}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
-  await db.ref('userTrips/'+uid+'/'+hash).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||hash,joinedAt:Date.now()});
+  await db.ref('userTrips/'+suid+'/'+hash).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||hash,joinedAt:Date.now()});
   openTrip(hash);
 }
 window.openTrip=function(code){
-  state.tripId=code;state.me='line_'+(state.lineUserId||'').slice(0,16);
+  state.tripId=code;state.me='line_'+sanitizeFirebaseKey(state.lineUserId||'').slice(0,16);
   history.replaceState(null,'','#'+code);showScr('screen-main');setupTopbar();
   if(tripRef)tripRef.off();
   tripRef=db.ref('trips/'+code);
   tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;$('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
 };
 window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;}history.replaceState(null,'','./');showScr('screen-trips');};
-window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+AUTH.user.lineUserId+'/'+state.tripId).remove();closeModal('modal-settings');backToTrips();};
+window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+sanitizeFirebaseKey(AUTH.user.lineUserId)+'/'+state.tripId).remove();closeModal('modal-settings');backToTrips();};
 function setupTopbar(){
   $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
   $$('.tab').forEach(t=>{t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.tab-pane').forEach(p=>p.classList.add('hidden'));$('tab-'+t.dataset.tab).classList.remove('hidden');const f=$('fab');if(f)f.style.display=t.dataset.tab==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});};});
@@ -632,7 +633,7 @@ window.saveExpense=async function(){
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+id).remove();toast('ลบแล้ว');};
 window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+state.tripId;navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
-window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(AUTH.user&&state.tripId)await db.ref('userTrips/'+AUTH.user.lineUserId+'/'+state.tripId+'/tripName').set(n);state.tripName=n;$('trip-chip').textContent=n+' · '+state.tripId;closeModal('modal-settings');toast('บันทึกแล้ว');};
+window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(AUTH.user&&state.tripId)await db.ref('userTrips/'+sanitizeFirebaseKey(AUTH.user.lineUserId)+'/'+state.tripId+'/tripName').set(n);state.tripName=n;$('trip-chip').textContent=n+' · '+state.tripId;closeModal('modal-settings');toast('บันทึกแล้ว');};
 
 /* ═══════════════════════════════════════
    BOOT — Auth Gate ตาม spec
