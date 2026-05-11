@@ -557,6 +557,7 @@ window.handleLogout = async function(){
   // ใช้ replace เพื่อป้องกัน back button กลับมา Main Page
   await new Promise(r => setTimeout(r, 800));
   sessionStorage.clear();
+  localStorage.setItem('explicit_logout', '1');
   const cleanUrl = location.origin + location.pathname.split('#')[0];
   window.location.replace(cleanUrl);
 };
@@ -724,9 +725,15 @@ async function boot(){
         handleAuthError(e);
       }
     } else if(liff.isInClient()){
-      setAuthStatus('logging_in');
-      if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
-      liff.login();
+      if(localStorage.getItem('explicit_logout')){
+        localStorage.removeItem('explicit_logout');
+        AUTH.status = 'unauthenticated';
+        showLogin();
+      } else {
+        setAuthStatus('logging_in');
+        if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
+        liff.login();
+      }
     } else {
       AUTH.status = 'unauthenticated';
       if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
