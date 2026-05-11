@@ -428,16 +428,18 @@ async function loadProfile(){
 /* ── Login button (fallback สำหรับ external browser) ── */
 window.loginWithLine = function(){
   const s = $('login-status'), b = $('btn-login');
-  // อยู่ใน LINE browser → login โดยตรง
+  // บันทึก pending hash ก่อน redirect เสมอ
+  const hash = location.hash.replace(/^#/,'').trim().toUpperCase()
+             || sessionStorage.getItem('pending_trip_hash') || '';
+  if(hash) sessionStorage.setItem('pending_trip_hash', hash);
+
   if(typeof liff !== 'undefined' && !window.__liffFailed && liff.isInClient && liff.isInClient()){
     showScr('screen-splash');
     setAuthStatus('logging_in');
     if(!liff.isLoggedIn()){ liff.login(); return; }
-    // login แล้ว → โหลด profile
     loadProfile().then(() => { AUTH.status = 'authenticated'; enterApp(); }).catch(handleAuthError);
     return;
   }
-  // External browser → redirect ไป LIFF URL
   if(s) s.textContent = '⏳ กำลังเปิด LINE...';
   if(b) b.disabled = true;
   setTimeout(() => { window.location.href = `https://liff.line.me/${LIFF_ID}`; }, 300);
@@ -464,51 +466,61 @@ window.showLoginFallback = function(){
 };
 
 /* ── Enter app หลัง authenticated ─────────── */
-async function enterApp(){
+async function enterApp(pendingHash){
   setAuthStatus('authenticated');
   await saveUser();
-  // Update UI
   const av = $('trips-avatar'), nm = $('trips-name');
   if(av){ if(AUTH.user.pictureUrl) av.innerHTML = `<img src="${esc(AUTH.user.pictureUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`; else av.textContent = ini(AUTH.user.displayName); }
   if(nm) nm.textContent = AUTH.user.displayName;
   const ta = $('topbar-av'), tw = $('topbar-aw');
   if(ta && AUTH.user.pictureUrl){ ta.src = AUTH.user.pictureUrl; if(tw) tw.style.display = 'block'; }
   state.lineUserId = AUTH.user.lineUserId;
-  showScr('screen-trips');
-  listenMyTrips();
-  // Deep link
-  const hash = location.hash.replace(/^#/, '').trim().toUpperCase();
-  if(hash) handleHashJoin(hash);
+
+  // ถ้ามี pending hash (trip link) → เข้า trip เลย
+  const hash = pendingHash
+    || location.hash.replace(/^#/, '').trim().toUpperCase()
+    || sessionStorage.getItem('pending_trip_hash') || '';
+  if(hash){
+    sessionStorage.removeItem('pending_trip_hash');
+    // โหลด trips screen ก่อน (listenMyTrips) แล้วค่อย join/open trip
+    listenMyTrips();
+    await handleHashJoin(hash);
+  } else {
+    showScr('screen-trips');
+    listenMyTrips();
+  }
 }
 
 /* ── Logout (ตาม spec AC4) ─────────────────── */
 window.handleLogout = async function(){
-  // Confirmation modal
   if(!confirm('ต้องการออกจากระบบใช่ไหม?')) return;
-  // Show loading + logging_out state
   showScr('screen-splash');
   setAuthStatus('logging_out');
-  // 1. Clear Firebase listeners
+
+  // Clear Firebase listeners
   if(tripRef){ tripRef.off(); tripRef = null; }
   if(tripsRef){ tripsRef.off(); tripsRef = null; }
-  // 2. Clear app state
+
+  // Clear app state
   AUTH.user = null; AUTH.status = 'unauthenticated';
   liffProfile = null;
   Object.assign(state, { lineUserId: null, tripId: null, tripName: null, me: null, members: [], expenses: [] });
-  // 3. Clear localStorage keys ที่เกี่ยวกับ auth/user
+
+  // Clear localStorage
   ['haargun_trip_v1', 'haargun_recent_trips_v1'].forEach(k => localStorage.removeItem(k));
-  // 4. LIFF logout → redirect กลับหน้าแรก (ป้องกัน auto-login กลับ)
-  await new Promise(r => setTimeout(r, 600)); // ให้ user เห็น "กำลังออกจากระบบ..."
-  if(typeof liff !== 'undefined' && !window.__liffFailed){
-    try {
-      if(liff.isLoggedIn()){
-        liff.logout(); // LIFF จะ clear token แล้ว redirect
-        return;
-      }
-    } catch(e){ console.warn('[LIFF logout]', e); }
-  }
-  // Fallback: reload หน้าแรก (ป้องกัน redirect loop)
-  window.location.replace(location.origin + location.pathname.replace(/[^/]*$/, ''));
+
+  // LIFF logout
+  try {
+    if(typeof liff !== 'undefined' && !window.__liffFailed && liff.isLoggedIn()){
+      liff.logout();
+    }
+  } catch(e){ console.warn('[LIFF logout]', e); }
+
+  // ให้ user เห็น "กำลังออกจากระบบ..." แล้ว redirect
+  // ใช้ replace เพื่อป้องกัน back button กลับมา Main Page
+  await new Promise(r => setTimeout(r, 800));
+  const cleanUrl = location.origin + location.pathname.split('#')[0];
+  window.location.replace(cleanUrl);
 };
 
 /* ── afterLogin (legacy wrapper — ยังใช้จาก handleHashJoin) ─ */
@@ -631,45 +643,48 @@ async function boot(){
   showScr('screen-splash');
   setAuthStatus('initializing');
 
-  // 1. โหลด Firebase (parallel กับ LIFF)
+  // บันทึก hash ก่อน (อาจหายหลัง LIFF redirect)
+  const pendingHash = location.hash.replace(/^#/, '').trim().toUpperCase()
+                   || sessionStorage.getItem('pending_trip_hash') || '';
+
   const [liffOk, fbResult] = await Promise.allSettled([
     initLiff(),
     (async()=>{ await waitFb(15000); initFb(); })()
   ]);
 
-  // Firebase ล้มเหลว
   if(fbResult.status === 'rejected'){
     handleAuthError(new Error('Firebase โหลดไม่ได้ — เช็ค internet แล้วกด ลองใหม่'));
     return;
   }
 
   const liffAvailable = liffOk.status === 'fulfilled' && liffOk.value === true;
-
   setAuthStatus('checking');
 
-  // 2. ตรวจสอบ login state
   if(liffAvailable && typeof liff !== 'undefined'){
     if(liff.isLoggedIn()){
-      // ── Case 1 & 3: Login แล้ว (ครั้งแรกหรือ session ยังอยู่) ──
       try {
         await loadProfile();
         AUTH.status = 'authenticated';
-        await enterApp();
+        // restore pending hash ถ้ามี
+        if(pendingHash) sessionStorage.removeItem('pending_trip_hash');
+        await enterApp(pendingHash);
       } catch(e){
         handleAuthError(e);
       }
     } else if(liff.isInClient()){
-      // ── Case 2: อยู่ใน LINE browser แต่ยังไม่ login → auto-login ──
       setAuthStatus('logging_in');
-      liff.login(); // redirect → กลับมา boot ใหม่ → isLoggedIn() = true
+      // บันทึก hash ไว้ใน sessionStorage ก่อน redirect
+      if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
+      liff.login();
     } else {
-      // ── External browser + ยังไม่ login → แสดงหน้า Login ──
       AUTH.status = 'unauthenticated';
+      // บันทึก hash ไว้ก่อน แสดงหน้า login
+      if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
       showScr('screen-login');
     }
   } else {
-    // ── LIFF ไม่พร้อม (browser ปกติ ไม่มี SDK) ──
     AUTH.status = 'unauthenticated';
+    if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
     showScr('screen-login');
   }
 }
