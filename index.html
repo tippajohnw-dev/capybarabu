@@ -160,7 +160,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
       <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
       เข้าสู่ระบบด้วย LINE
     </button>
-    <div id="login-status" style="text-align:center;font-size:12px;color:var(--ink-3);margin-top:10px;min-height:18px"></div>
+    <div id="login-status" style="display:none;text-align:center;font-size:12px;color:var(--ink-3);margin-top:10px;min-height:18px"></div>
     <div style="text-align:center;font-size:11px;color:var(--ink-3);margin-top:6px">ต้องเข้าสู่ระบบเพื่อสร้างและจัดการ Trip</div>
   </div>
 </div>
@@ -340,7 +340,7 @@ const uuid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const ini=n=>n?n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2):'?';
 const san=(s,m)=>String(s||'').trim().slice(0,m);
-const sanitizeFirebaseKey=uid=>String(uid||'').replace(/[.$[\]#/]/g,c=>'%'+c.charCodeAt(0).toString(16).padStart(2,'0').toUpperCase());
+const sanitizeFirebaseKey=s=>String(s||'').replace(/[.#$[\]/]/g,'_');
 function mkCode(n){const s=(n||'').toUpperCase().replace(/[^A-Z0-9ก-๙]/g,'').slice(0,3).padEnd(3,'X');return s+Math.random().toString(36).slice(2,5).toUpperCase();}
 function toast(msg,d=2200){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',d);}
 function showScr(id){['screen-splash','screen-login','screen-trips','screen-main'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
@@ -429,7 +429,7 @@ window.loginWithLine = function(){
     loadProfile().then(() => { AUTH.status = 'authenticated'; enterApp(); }).catch(handleAuthError);
     return;
   }
-  if(s) s.textContent = '⏳ กำลังเปิด LINE...';
+  if(s){s.style.display='block';s.textContent='⏳ กำลังเปิด LINE...';}
   if(b) b.disabled = true;
   setTimeout(() => { window.location.href = `https://liff.line.me/${LIFF_ID}`; }, 300);
 };
@@ -437,8 +437,14 @@ window.loginWithLine = function(){
 /* ── Error handler ─────────────────────────── */
 function handleAuthError(e){
   console.error('[Auth Error]', e);
+  const msg = e?.message || '';
+  if(msg.includes('invalid path') || msg.includes('child failed')){
+    sessionStorage.clear();
+    showLogin();
+    return;
+  }
   showScr('screen-splash');
-  setAuthStatus('error', e?.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+  setAuthStatus('error', msg || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
 }
 
 /* ── Retry ─────────────────────────────────── */
@@ -449,10 +455,14 @@ window.retryAuth = function(){
   boot();
 };
 
-/* ── Show login fallback ────────────────────── */
-window.showLoginFallback = function(){
+/* ── Show login (reset state + switch screen) ── */
+function showLogin(){
+  const s=$('login-status'),b=$('btn-login');
+  if(s){s.style.display='none';s.textContent='';}
+  if(b)b.disabled=false;
   showScr('screen-login');
-};
+}
+window.showLoginFallback = function(){ showLogin(); };
 
 /* ── Enter app หลัง authenticated ─────────── */
 async function enterApp(pendingHash){
@@ -512,6 +522,7 @@ window.handleLogout = async function(){
   // ให้ user เห็น "กำลังออกจากระบบ..." แล้ว redirect
   // ใช้ replace เพื่อป้องกัน back button กลับมา Main Page
   await new Promise(r => setTimeout(r, 800));
+  sessionStorage.clear();
   const cleanUrl = location.origin + location.pathname.split('#')[0];
   window.location.replace(cleanUrl);
 };
@@ -672,7 +683,7 @@ async function boot(){
     } else {
       AUTH.status = 'unauthenticated';
       if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
-      showScr('screen-login');
+      showLogin();
     }
   } else {
     AUTH.status = 'unauthenticated';
