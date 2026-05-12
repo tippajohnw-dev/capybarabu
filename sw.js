@@ -1,5 +1,5 @@
-const CACHE = 'capybarabu-v1.0.7';
-const SHELL = ['./index.html', './manifest.json', './capybarabu%20inc.png'];
+const CACHE = 'capybarabu-v1.0.8';
+const SHELL = ['./index.html', './manifest.json', './capybarabu%20inc.png', './Icon%20Emotional.png'];
 
 const SKIP_HOSTS = [
   'firebasedatabase.app',
