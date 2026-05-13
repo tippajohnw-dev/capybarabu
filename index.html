@@ -72,6 +72,8 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 .lb-exp-row:last-child{border-bottom:0}
 .conn-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
 .conn-dot.ok{background:var(--good)}.conn-dot.bad{background:var(--bad)}
+.theme-btn{border:2px solid var(--border);border-radius:var(--r-full);padding:6px 12px;font-size:12px;font-weight:700;background:var(--surface-2);color:var(--ink-2);cursor:pointer;font-family:inherit;transition:all .15s}
+.theme-btn.active{border-color:var(--line);background:var(--line-soft);color:var(--line-dark)}
 .trip-chip{background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -249,6 +251,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
     <div style="font-weight:700;font-size:17px;margin-bottom:16px">✨ สร้าง Trip ใหม่</div>
     <div class="field"><label>ชื่อ Trip</label><input id="new-trip-name" placeholder="เช่น เที่ยวหัวหิน พ.ค. 68" maxlength="60"/></div>
+    <div class="field"><label>ธีมทริป</label><div data-theme-group="create" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="theme-btn active" data-key="" onclick="selectTheme('',this,'create')">🏝 ทั่วไป</button><button type="button" class="theme-btn" data-key="beach" onclick="selectTheme('beach',this,'create')">🏖 ทะเล</button><button type="button" class="theme-btn" data-key="cafe" onclick="selectTheme('cafe',this,'create')">☕ คาเฟ่</button><button type="button" class="theme-btn" data-key="mookata" onclick="selectTheme('mookata',this,'create')">🍖 หมูกะทะ</button><button type="button" class="theme-btn" data-key="roadtrip" onclick="selectTheme('roadtrip',this,'create')">🚗 โรดทริป</button></div></div>
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-create')">ยกเลิก</button>
       <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doCreateTrip()">สร้างเลย 🎉</button>
@@ -302,6 +305,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
     <div style="font-weight:700;font-size:17px;margin-bottom:16px">⚙️ ตั้งค่า Trip</div>
     <div class="field"><label>ชื่อ Trip</label><input id="settings-name"/></div>
+    <div class="field"><label>ธีมทริป</label><div data-theme-group="settings" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="theme-btn" data-key="" onclick="selectTheme('',this,'settings')">🏝 ทั่วไป</button><button type="button" class="theme-btn" data-key="beach" onclick="selectTheme('beach',this,'settings')">🏖 ทะเล</button><button type="button" class="theme-btn" data-key="cafe" onclick="selectTheme('cafe',this,'settings')">☕ คาเฟ่</button><button type="button" class="theme-btn" data-key="mookata" onclick="selectTheme('mookata',this,'settings')">🍖 หมูกะทะ</button><button type="button" class="theme-btn" data-key="roadtrip" onclick="selectTheme('roadtrip',this,'settings')">🚗 โรดทริป</button></div></div>
     <button class="btn btn-ghost" style="width:100%;border-radius:12px;margin-bottom:10px;padding:12px;font-size:13px;color:var(--bad);border-color:var(--bad)" onclick="doLeaveTrip()">🚪 ออกจาก Trip นี้</button>
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-settings')">ยกเลิก</button>
@@ -328,7 +332,12 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 const FB_CFG={apiKey:"AIzaSyBdfX2rxBuL2Jqm6DZn5yHFm250LD1Rabc",authDomain:"capybarabu-dec37.firebaseapp.com",databaseURL:"https://capybarabu-dec37-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"capybarabu-dec37",storageBucket:"capybarabu-dec37.firebasestorage.app",messagingSenderId:"830992073454",appId:"1:830992073454:web:7b29bc4a8c89edbb7d29ff"};
 const LIFF_ID='2009992040-aXIvOY23';
 let db=null,tripRef=null,tripsRef=null,liffProfile=null;
-const state={lineUserId:null,tripId:null,tripName:null,me:null,members:[],expenses:[]};
+const THEMES={beach:{emoji:'🏖',label:'ทะเล',color:'#0099CC',dark:'#007AA3',soft:'#D0F0FF',tint:'#E8F9FF'},cafe:{emoji:'☕',label:'คาเฟ่',color:'#A0622A',dark:'#7A4A1E',soft:'#FFE8D0',tint:'#FFF3E8'},mookata:{emoji:'🍖',label:'หมูกะทะ',color:'#E06000',dark:'#B84D00',soft:'#FFE0C0',tint:'#FFF4E8'},roadtrip:{emoji:'🚗',label:'โรดทริป',color:'#6B4EE6',dark:'#5438CC',soft:'#E0D8FF',tint:'#F0EEFF'}};
+const _DEF={color:'#06C755',dark:'#05A648',soft:'#E6F9EE',tint:'#F2FBF5'};
+function applyTheme(key){const t=key&&THEMES[key],c=t||_DEF,r=document.documentElement.style;r.setProperty('--line',c.color);r.setProperty('--line-dark',c.dark);r.setProperty('--line-soft',c.soft);r.setProperty('--line-tint',c.tint);}
+let _newTripTheme='',_settingsTheme='';
+function selectTheme(key,btn,group){if(group==='settings')_settingsTheme=key;else _newTripTheme=key;const g=btn.closest('[data-theme-group]');if(g)g.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active',b===btn));}
+const state={lineUserId:null,tripId:null,tripName:null,tripTheme:'',me:null,members:[],expenses:[]};
 const $=id=>document.getElementById(id);const $$=s=>document.querySelectorAll(s);
 const fmt=n=>'฿'+Math.abs(n).toLocaleString('th-TH',{maximumFractionDigits:0});
 const today=()=>new Date().toISOString().split('T')[0];
@@ -587,7 +596,7 @@ function listenMyTrips(){
   tripsRef.on('value',snap=>{
     const data=snap.val()||{};const owned=[],joined=[];
     Object.entries(data).forEach(([id,info])=>{(info.role==='owner'?owned:joined).push({tripId:id,...info});});
-    const tc=t=>`<div class="trip-card" onclick="openTrip('${esc(t.tripId)}')"><div class="trip-icon">${t.role==='owner'?'🏝':'🤝'}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div class="small muted">รหัส: ${esc(t.tripId)}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>`;
+    const tc=t=>`<div class="trip-card" onclick="openTrip('${esc(t.tripId)}')"><div class="trip-icon">${t.theme&&THEMES[t.theme]?THEMES[t.theme].emoji:(t.role==='owner'?'🏝':'🤝')}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div class="small muted">รหัส: ${esc(t.tripId)}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>`;
     $('my-trips-list').innerHTML=owned.length?owned.map(tc).join(''):`<div class="empty" style="padding:24px 0">${mkEmoji(7,80)}<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มี Trip เลยนะ</div><div style="font-size:13px;color:var(--ink-3)">กด <strong style="color:var(--line)">สร้าง Trip ใหม่</strong> ด้านล่างได้เลย 🏝</div></div></div>`;
     $('joined-trips-list').innerHTML=joined.length?joined.map(tc).join(''):`<div class="empty" style="padding:16px 0;flex-direction:row;gap:10px;justify-content:flex-start">${mkEmoji(6,40)}<div style="text-align:left"><div style="font-size:13px;font-weight:700;color:var(--ink)">ยังไม่ได้เข้าร่วม Trip ใด</div><div style="font-size:12px;color:var(--ink-3)">รอเพื่อนส่ง link เชิญมาเลย</div></div></div>`;
     // Recent trip banner
@@ -601,13 +610,13 @@ function listenMyTrips(){
     }
   });
 }
-window.showCreateModal=()=>{openModal('modal-create');setTimeout(()=>$('new-trip-name').focus(),120);};
+window.showCreateModal=()=>{_newTripTheme='';document.querySelectorAll('[data-theme-group="create"] .theme-btn').forEach((b,i)=>b.classList.toggle('active',i===0));openModal('modal-create');setTimeout(()=>$('new-trip-name').focus(),120);};
 window.showJoinModal=()=>{openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);};
 window.doCreateTrip=async function(){
   const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!AUTH.user)return toast('กรุณา login ก่อน');
   const code=mkCode(name),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16);
-  await db.ref('trips/'+code).set({name,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid}},expenses:{}});
-  await db.ref('userTrips/'+suid+'/'+code).set({role:'owner',tripName:name,joinedAt:Date.now()});
+  await db.ref('trips/'+code).set({name,theme:_newTripTheme,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid}},expenses:{}});
+  await db.ref('userTrips/'+suid+'/'+code).set({role:'owner',tripName:name,theme:_newTripTheme,joinedAt:Date.now()});
   closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');openTrip(code);
 };
 window.doJoinTrip=async function(){
@@ -616,7 +625,7 @@ window.doJoinTrip=async function(){
   const data=snap.val(),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16);
   let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
   if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
-  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,joinedAt:Date.now()});
+  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now()});
   closeModal('modal-join');$('join-code').value='';openTrip(code);
 };
 let _pendingJoin=null;
@@ -625,7 +634,7 @@ window.confirmJoinTrip=async function(){
   const{code,data,uid,suid,mid}=_pendingJoin;_pendingJoin=null;
   showScr('screen-splash');
   if(!data.members?.[mid])await db.ref('trips/'+code+'/members/'+mid).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
-  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,joinedAt:Date.now()});
+  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now()});
   toast('เข้าร่วม Trip แล้ว 🎉');openTrip(code);
 };
 window.cancelJoinPreview=function(){
@@ -662,15 +671,15 @@ window.openTrip=function(code){
   history.replaceState(null,'','#'+safeCode);showScr('screen-main');setupTopbar();
   if(tripRef)tripRef.off();
   tripRef=db.ref('trips/'+safeCode);
-  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;$('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
+  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.tripTheme=d.theme||'';applyTheme(state.tripTheme);const te=state.tripTheme&&THEMES[state.tripTheme]?THEMES[state.tripTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+state.tripName+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
 };
-window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;window._scrollRAF=null;}history.replaceState(null,'','./');showScr('screen-trips');};
+window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;window._scrollRAF=null;}applyTheme('');history.replaceState(null,'','./');showScr('screen-trips');};
 window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+safeKey(AUTH.user.lineUserId)+'/'+safeTripCode(state.tripId)).remove();closeModal('modal-settings');backToTrips();};
 function setupTopbar(){
   $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
   $$('.tab').forEach(t=>{t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.tab-pane').forEach(p=>p.classList.add('hidden'));$('tab-'+t.dataset.tab).classList.remove('hidden');const f=$('fab');if(f)f.style.display=t.dataset.tab==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});renderTab(t.dataset.tab);};});
   $('open-share').onclick=()=>{const u=location.origin+location.pathname+'#'+state.tripId;if(navigator.share)navigator.share({title:'หารกันเอง · '+state.tripName,url:u});else navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
-  $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;openModal('modal-settings');};
+  $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;_settingsTheme=state.tripTheme||'';document.querySelectorAll('[data-theme-group="settings"] .theme-btn').forEach(b=>b.classList.toggle('active',(b.dataset.key||'')===_settingsTheme));openModal('modal-settings');};
   const tb=$('topbar');if(window._scrollHandler)window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=()=>{if(window._scrollRAF)return;window._scrollRAF=requestAnimationFrame(()=>{window._scrollRAF=null;tb.classList.toggle('scrolled',window.scrollY>4);});};window.addEventListener('scroll',window._scrollHandler);
 }
 function setConn(ok){const d=$('conn-dot'),t=$('conn-text');if(!d)return;d.className='conn-dot '+(ok?'ok':'bad');t.textContent=ok?'เชื่อมต่อแล้ว':'การเชื่อมต่อมีปัญหา';}
@@ -887,7 +896,7 @@ window.inviteViaLine=async function(){
     navigator.clipboard.writeText(url).then(()=>toast('คัดลอก link แล้ว'));
   }
 };
-window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;await tripRef.child('name').set(n);if(AUTH.user&&state.tripId)await db.ref('userTrips/'+safeKey(AUTH.user.lineUserId)+'/'+safeTripCode(state.tripId)+'/tripName').set(n);state.tripName=n;$('trip-chip').textContent=n+' · '+state.tripId;closeModal('modal-settings');toast('บันทึกแล้ว');};
+window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;const suid=safeKey(AUTH.user?.lineUserId||''),code=safeTripCode(state.tripId||'');if(!code)return;await tripRef.child('name').set(n);await tripRef.child('theme').set(_settingsTheme);if(suid){await db.ref('userTrips/'+suid+'/'+code+'/tripName').set(n);await db.ref('userTrips/'+suid+'/'+code+'/theme').set(_settingsTheme);}state.tripName=n;state.tripTheme=_settingsTheme;applyTheme(_settingsTheme);const te=_settingsTheme&&THEMES[_settingsTheme]?THEMES[_settingsTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+n+' · '+state.tripId;closeModal('modal-settings');toast('บันทึกแล้ว');};
 
 /* ═══════════════════════════════════════
    BOOT — Auth Gate ตาม spec
