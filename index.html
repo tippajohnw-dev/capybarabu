@@ -201,6 +201,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
       </div>
       <div class="card"><h3 style="font-size:14px;margin-bottom:12px">🏆 Leaderboard</h3><div id="all-members-summary"><div class="empty small muted">เพิ่มสมาชิกเพื่อเริ่ม</div></div></div>
       <div class="card" id="cat-chart-card" style="display:none"><h3 style="font-size:14px;margin-bottom:12px">📊 หมวดหมู่</h3><div id="cat-chart"></div></div>
+      <div class="card" id="trip-summary-card" style="display:none"></div>
     </div>
     <div id="tab-expenses" class="tab-pane hidden">
       <button class="btn btn-primary" style="width:100%;border-radius:12px;padding:13px;font-size:15px;margin-bottom:12px" onclick="openExpenseForm()">+ เพิ่มค่าใช้จ่าย</button>
@@ -658,6 +659,8 @@ function renderTab(tab,bal){
     if(!state.members.length){le.innerHTML=`<div class="empty" style="padding:20px 16px">${mkEmoji(7,60)}<div style="margin-top:10px"><div style="font-weight:700;font-size:14px;color:var(--ink);margin-bottom:3px">ยังไม่มีสมาชิก</div><div style="font-size:12px;color:var(--ink-3)">เชิญเพื่อนเพื่อเริ่มหารกัน</div></div></div>`;}
     else{const sorted=[...state.members].map(m=>({m,o:owed[m.id]||0,n:(paid[m.id]||0)-(owed[m.id]||0)})).sort((a,b)=>b.o-a.o);const ri=['🥇','🥈','🥉'],rc=['gold','silver','bronze'];le.innerHTML=sorted.map(({m,o,n},i)=>{const pct=total>0?Math.round(o/total*100):0;const rows=memExp[m.id].map(e=>{const s=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="lb-exp-row"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.category||'')} ${esc(e.title||'')}</span><span class="num" style="flex-shrink:0">${fmt(s)}</span></div>`;}).join('')||'<div class="small muted">ยังไม่มีรายการ</div>';return`<div><div class="lb-row" id="lbr-${m.id}" onclick="tlb('${m.id}')"><div class="lb-rank ${rc[i]||''}">${ri[i]||i+1}</div>${mkAv(m.name,34,m.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:600;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</span><span class="num" style="font-weight:700;font-size:14px;flex-shrink:0">${fmt(o)}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:3px"><div class="bar-track" style="flex:1"><div class="bar-fill" style="transform:scaleX(${pct/100});background:var(--line)"></div></div><span class="small muted" style="flex-shrink:0;min-width:26px;text-align:right">${pct}%</span><span class="num small" style="color:${n>=0?'var(--good)':'var(--bad)'};flex-shrink:0">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</span></div></div><div class="lb-chevron" id="lbc-${m.id}">▼</div></div><div class="lb-detail" id="lbd-${m.id}"><div style="font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:4px">รายการของ ${esc(m.name)}</div>${rows}</div></div>`;}).join('');}
     const cm={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';cm[k]=(cm[k]||0)+(+e.amount||0);});const cc=$('cat-chart'),ck=$('cat-chart-card');if(Object.keys(cm).length&&cc){ck.style.display='block';cc.innerHTML=Object.entries(cm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const p=total>0?Math.round(v/total*100):0;return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span>${esc(k)}</span><span class="num" style="font-weight:600">${fmt(v)} <span class="muted">${p}%</span></span></div><div class="bar-track"><div class="bar-fill" style="transform:scaleX(${p/100});background:var(--line)"></div></div></div>`;}).join('');}else if(ck)ck.style.display='none';
+    // Trip Summary Card
+    const sc=$('trip-summary-card');if(sc){if(state.expenses.length&&state.members.length){const bigSpender=state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]);const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];sc.style.display='block';sc.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font-size:14px;margin:0">✨ สรุปทริปนี้</h3>${mkEmoji(5,40)}</div><div style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">💰 ยอดรวม</span><span class="num" style="font-weight:700">${fmt(total)}</span></div><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👑 จ่ายเยอะสุด</span><span style="font-weight:700;font-size:13px">${esc(bigSpender.name)} <span class="num">${fmt(paid[bigSpender.id]||0)}</span></span></div>${topCat?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">🔥 หมวดฮิต</span><span style="font-weight:700;font-size:13px">${esc(topCat[0])}</span></div>`:''}<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👥 สมาชิก</span><span style="font-weight:700;font-size:13px">${state.members.length} คน · เฉลี่ย <span class="num">${fmt(total/state.members.length)}</span></span></div></div><button onclick="shareTripSummary()" class="btn btn-primary" style="width:100%;border-radius:10px;font-size:13px;padding:10px">📤 แชร์สรุปทริป</button>`;}else sc.style.display='none';}
   }
   else if(tab==='expenses'){
     const el=$('expense-list');el.innerHTML=!state.expenses.length?'<div class="empty" style="padding:32px 20px">'+mkEmoji(4,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มีรายจ่ายเลยนะ</div><div style="font-size:13px;color:var(--ink-3)">แตะ <strong style="color:var(--line);font-size:15px">+</strong> เพื่อเพิ่มรายจ่ายได้เลย</div></div></div>':state.expenses.map(e=>{const pr=state.members.find(m=>m.id===e.payer),ph=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="card" style="padding:13px 14px;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start">${mkAv(pr?.name||'?',36,pr?.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-weight:700;font-size:14px">${esc(e.category||'')} ${esc(e.title||'')}</div><div class="small muted" style="margin-top:2px">${esc(pr?.name||'?')} จ่าย · ${esc(e.date||'')}</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div class="num" style="font-weight:700;font-size:16px">${fmt(+e.amount||0)}</div><div class="small muted">÷${(e.beneficiaries||[]).length}=${fmt(ph)}/คน</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><div style="display:flex;gap:4px;flex-wrap:wrap">${(e.beneficiaries||[]).map(bid=>{const bm=state.members.find(m=>m.id===bid);return bm?`<span class="badge" style="font-size:10px">${esc(bm.name)}</span>`:''}).join('')}</div><button onclick="delExp('${esc(e.id)}')" style="font-size:11px;color:var(--bad);background:#F2555510;border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">ลบ</button></div></div></div></div>`;}).join('');
@@ -695,6 +698,26 @@ window.saveExpense=async function(){
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');};
 window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+safeTripCode(state.tripId);navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
+window.shareTripSummary=async function(){
+  const tripName=state.tripName||state.tripId;
+  const{paid,total}=calcBal();
+  const bigSpender=state.members.length?state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]):null;
+  const cm={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';cm[k]=(cm[k]||0)+(+e.amount||0);});
+  const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];
+  const avg=state.members.length?total/state.members.length:0;
+  const lines=[
+    `✨ สรุปทริป "${tripName}"`,
+    ``,
+    `💰 ยอดรวม: ${fmt(total)}`,
+    `👥 สมาชิก: ${state.members.length} คน · เฉลี่ย ${fmt(avg)}`,
+    bigSpender?`👑 จ่ายเยอะสุด: ${bigSpender.name} (${fmt(paid[bigSpender.id]||0)})`:'',
+    topCat?`🔥 หมวดฮิต: ${topCat[0]}`:'',
+    ``,
+    `📱 หารกันเอง · capybarabu`,
+  ].filter(Boolean).join('\n');
+  if(navigator.share){navigator.share({title:'สรุปทริป '+tripName,text:lines});}
+  else if(navigator.clipboard){await navigator.clipboard.writeText(lines);toast('คัดลอกสรุปแล้ว ✓');}
+};
 window.inviteViaLine=async function(){
   const tripCode=safeTripCode(state.tripId);
   if(!tripCode)return;
