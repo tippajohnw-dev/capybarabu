@@ -671,7 +671,7 @@ function renderTab(tab,bal){
   else if(tab==='settle'){
     const net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});
     $('net-balances').innerHTML=state.members.map(m=>{const n=net[m.id]||0;return`<div class="settle-row">${mkAv(m.name,32,m.pictureUrl)}<div style="flex:1;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</div><div class="num" style="font-weight:700;color:${n>=0?'var(--good)':'var(--bad)'}">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;}).join('');
-    const txns=calcSettle(net);$('settle-list').innerHTML=!txns.length?`<div class="empty" style="padding:32px 20px">${state.members.length?mkEmoji(3,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">เคลียร์กันหมดแล้ว! 🎉</div><div style="font-size:13px;color:var(--ink-3)">ทุกคนสบายใจได้เลย</div></div>':'<div style="font-weight:700;font-size:15px;color:var(--ink-3);margin-top:8px">ยังไม่มีสมาชิก</div>'}</div>`:txns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to);return`<div class="settle-row">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>`;}).join('');
+    const txns=calcSettle(net);$('settle-list').innerHTML=!txns.length?`<div class="empty" style="padding:32px 20px">${state.members.length?mkEmoji(3,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">เคลียร์กันหมดแล้ว! 🎉</div><div style="font-size:13px;color:var(--ink-3);margin-bottom:16px">ทุกคนสบายใจได้เลย</div><button onclick="shareSettlementCard()" style="background:var(--line);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🎊 แชร์ให้ทุกคนรู้</button></div>':'<div style="font-weight:700;font-size:15px;color:var(--ink-3);margin-top:8px">ยังไม่มีสมาชิก</div>'}</div>`:txns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to);return`<div class="settle-row">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>`;}).join('');
   }
 }
 window.tlb=function(id){const d=$('lbd-'+id),r=$('lbr-'+id),c=$('lbc-'+id);if(!d)return;const o=d.classList.contains('open');d.classList.toggle('open',!o);r&&r.classList.toggle('expanded',!o);c&&c.classList.toggle('open',!o);};
@@ -698,6 +698,33 @@ window.saveExpense=async function(){
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');};
 window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+safeTripCode(state.tripId);navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
+window.shareSettlementCard=async function(){
+  const tripName=state.tripName||state.tripId;
+  const{paid,owed,total}=calcBal();
+  const url=location.origin+location.pathname+'#'+(state.tripId||'');
+  const netRows=state.members.map(m=>{const n=(paid[m.id]||0)-(owed[m.id]||0);return{type:'box',layout:'horizontal',contents:[{type:'text',text:m.name,size:'sm',flex:1,color:'#1F2D24'},{type:'text',text:(n>=0?'+':'')+Math.round(n).toLocaleString()+'฿',size:'sm',weight:'bold',align:'end',color:n>=0?'#06C755':'#F25555'}]};});
+  const flexMsg={type:'flex',altText:`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!`,contents:{type:'bubble',size:'kilo',
+    header:{type:'box',layout:'vertical',backgroundColor:'#06C755',paddingAll:'14px',contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]},
+    body:{type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',contents:[
+      {type:'text',text:'✨ ทริปเคลียร์แล้ว!',weight:'bold',size:'lg',color:'#1F2D24'},
+      {type:'text',text:tripName,size:'sm',color:'#5C6E63',wrap:true},
+      {type:'separator',margin:'md'},
+      {type:'box',layout:'horizontal',margin:'md',contents:[
+        {type:'text',text:'ยอดรวม',size:'sm',color:'#94A89C',flex:1},
+        {type:'text',text:Math.round(total).toLocaleString()+'฿',size:'sm',weight:'bold',color:'#1F2D24',align:'end'}
+      ]},
+      {type:'separator',margin:'md'},
+      ...netRows
+    ]},
+    footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
+  }};
+  const canShare=typeof liff!=='undefined'&&!window.__liffFailed&&typeof liff.isApiAvailable==='function'&&liff.isApiAvailable('shareTargetPicker');
+  if(canShare){
+    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success')toast('แชร์แล้ว ✓');}
+    catch(e){const t=`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!\n💰 ยอดรวม ${Math.round(total).toLocaleString()}฿\n📱 หารกันเอง · capybarabu`;navigator.clipboard?.writeText(t).then(()=>toast('คัดลอกแล้ว ✓'));}
+  }else if(navigator.share){navigator.share({title:'ทริปเคลียร์แล้ว!',text:`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!`});}
+  else{const t=`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!\n💰 ยอดรวม ${Math.round(total).toLocaleString()}฿`;navigator.clipboard?.writeText(t).then(()=>toast('คัดลอกแล้ว ✓'));}
+};
 window.shareTripSummary=async function(){
   const tripName=state.tripName||state.tripId;
   const{paid,total}=calcBal();
