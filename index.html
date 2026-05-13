@@ -44,7 +44,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:52px;z-index:19}
 .tab{flex:1;padding:12px 4px 10px;background:none;border:none;font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;transition:all .15s}
 .tab.active{color:var(--line);border-bottom-color:var(--line)}
-.trip-card{background:var(--surface);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 4px #00000010;transition:transform .15s}
+.trip-card{background:var(--surface);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 4px #00000010;transition:transform .15s;animation:fadeIn .2s ease}
 .trip-card:active{transform:scale(.98)}
 .trip-icon{width:44px;height:44px;border-radius:12px;background:var(--line-soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
@@ -274,7 +274,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 <div id="modal-join" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
     <div style="font-weight:700;font-size:17px;margin-bottom:16px">🔗 เข้าร่วม Trip</div>
-    <div class="field"><label>รหัส Trip</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
+    <div class="field"><label>รหัส Trip</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" autocomplete="off" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
     <div style="background:var(--line-tint);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--ink-2)">💡 ขอรหัส Trip จากเพื่อนที่สร้าง หรือกดลิงก์ที่เพื่อนแชร์มา</div>
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-join')">ยกเลิก</button>
@@ -290,7 +290,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
       <div style="font-weight:700;font-size:17px;margin-bottom:16px" id="ef-title-label">เพิ่มค่าใช้จ่าย</div>
       <div class="field"><label>ชื่อรายการ</label><input id="ef-title" placeholder="ค่าอาหาร, โรงแรม..." maxlength="80"/></div>
       <div style="display:flex;gap:10px">
-        <div class="field" style="flex:1"><label>จำนวนเงิน (฿)</label><input id="ef-amount" type="number" placeholder="0" min="0" max="1000000"/></div>
+        <div class="field" style="flex:1"><label>จำนวนเงิน (฿)</label><input id="ef-amount" type="number" inputmode="decimal" placeholder="0" min="0" max="1000000" autocomplete="off"/></div>
         <div class="field" style="flex:1"><label>หมวด</label><select id="ef-cat"><option>🍽️ อาหาร</option><option>🏨 ที่พัก</option><option>🚗 เดินทาง</option><option>🎫 กิจกรรม</option><option>🛒 ของฝาก</option><option>💧 น้ำ/ขนม</option><option>📦 อื่นๆ</option></select></div>
       </div>
       <div class="field"><label>วันที่</label><input id="ef-date" type="date"/></div>
@@ -536,7 +536,7 @@ window.showLoginFallback = function(){ showLogin(); };
 /* ── Enter app หลัง authenticated ─────────── */
 async function enterApp(pendingHash){
   setAuthStatus('authenticated');
-  await saveUser();
+  await saveUser();trackEvent('app_open');
   const av = $('trips-avatar'), nm = $('trips-name');
   if(av){ if(AUTH.user.pictureUrl) av.innerHTML = `<img src="${esc(AUTH.user.pictureUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`; else av.textContent = ini(AUTH.user.displayName); }
   if(nm) nm.textContent = AUTH.user.displayName;
@@ -640,19 +640,23 @@ window.showCreateModal=()=>{_newTripTheme='';document.querySelectorAll('[data-th
 window.showJoinModal=()=>{openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);};
 window.doCreateTrip=async function(){
   const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!AUTH.user)return toast('กรุณา login ก่อน');
+  const _cb=document.querySelector('#modal-create .btn-primary');if(_cb){_cb.disabled=true;_cb.textContent='กำลังสร้าง...';}
+  try{
   const code=mkCode(name),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16);
   await db.ref('trips/'+code).set({name,theme:_newTripTheme,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid}},expenses:{}});
-  await db.ref('userTrips/'+suid+'/'+code).set({role:'owner',tripName:name,theme:_newTripTheme,joinedAt:Date.now()});
-  closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');openTrip(code);
+  await db.ref('userTrips/'+suid+'/'+code).set({role:'owner',tripName:name,theme:_newTripTheme,joinedAt:Date.now(),joinedVia:'owner'});
+  closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');trackEvent('trip_created');openTrip(code);}catch(e){toast('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');console.error(e);}finally{if(_cb){_cb.disabled=false;_cb.textContent='สร้างเลย 🎉';}}
 };
 window.doJoinTrip=async function(){
   const code=safeTripCode(san($('join-code').value,20));if(!code)return toast('ใส่รหัส Trip ก่อน');
+  const _jb=document.querySelector('#modal-join .btn-primary');if(_jb){_jb.disabled=true;_jb.textContent='กำลังเข้าร่วม...';}
+  try{
   const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้ — ตรวจสอบรหัสอีกครั้ง');
   const data=snap.val(),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16);
   let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
   if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
-  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now()});
-  closeModal('modal-join');$('join-code').value='';openTrip(code);
+  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'code'});
+  closeModal('modal-join');$('join-code').value='';trackEvent('join_via_code');openTrip(code);}catch(e){toast('ไม่พบ Trip หรือเกิดข้อผิดพลาด');console.error(e);}finally{if(_jb){_jb.disabled=false;_jb.textContent='เข้าร่วม';}}
 };
 let _pendingJoin=null;
 window.confirmJoinTrip=async function(){
@@ -660,8 +664,8 @@ window.confirmJoinTrip=async function(){
   const{code,data,uid,suid,mid}=_pendingJoin;_pendingJoin=null;
   showScr('screen-splash');
   if(!data.members?.[mid])await db.ref('trips/'+code+'/members/'+mid).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
-  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now()});
-  toast('เข้าร่วม Trip แล้ว 🎉');openTrip(code);
+  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'link'});
+  toast('เข้าร่วม Trip แล้ว 🎉');trackEvent('join_via_link');openTrip(code);
 };
 window.cancelJoinPreview=function(){
   _pendingJoin=null;history.replaceState(null,'','./');showScr('screen-trips');
@@ -697,6 +701,7 @@ async function handleHashJoin(hash){
       show.map(m=>`<span style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-full);padding:4px 10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px">${mkAv(m.name,18,m.pictureUrl)}<span>${esc(m.name)}</span></span>`).join('')+
       (more>0?`<span style="background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:4px 10px;font-size:12px;font-weight:700">+${more}</span>`:'');
   }
+  trackEvent('invite_link_opened');
   showScr('screen-join-preview');
 }
 window.openTrip=function(code){
@@ -707,15 +712,56 @@ window.openTrip=function(code){
   history.replaceState(null,'','#'+safeCode);showScr('screen-main');setupTopbar();
   ListenerMgr.off(tripRef);
   tripRef=ListenerMgr.add(db.ref('trips/'+safeCode));
-  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.tripTheme=d.theme||'';applyTheme(state.tripTheme);const te=state.tripTheme&&THEMES[state.tripTheme]?THEMES[state.tripTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+state.tripName+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;if(_smartReopen){_smartReopen=false;toast('🐾 กลับมาต่อจากเดิม');const{paid,owed}=calcBal(),net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});const txns=calcSettle(net);if(txns.some(t=>t.from===state.me||t.to===state.me))switchTab('settle');}},()=>setConn(false));
+  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.tripTheme=d.theme||'';applyTheme(state.tripTheme);const te=state.tripTheme&&THEMES[state.tripTheme]?THEMES[state.tripTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+state.tripName+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));
+  // In-app notification events (skip on first load)
+  if(_tripLoaded){
+    const newM=state.members.find(m=>m.id!==state.me&&!_prevTripIds.has('m_'+m.id));
+    if(newM)toast(`🎉 ${newM.name} เข้าร่วมทริปแล้ว!`,3000);
+    else{const newE=state.expenses.find(e=>!_prevTripIds.has('e_'+e.id)&&e.payer!==state.me);if(newE){const pr=state.members.find(m=>m.id===newE.payer);toast(`💸 ${pr?.name||'เพื่อน'} เพิ่ม "${newE.title}" ${fmt(+newE.amount||0)}`,3000);}}
+  }
+  _prevTripIds=new Set([...state.members.map(m=>'m_'+m.id),...state.expenses.map(e=>'e_'+e.id)]);
+  _tripLoaded=true;
+  renderAll();setConn(true);$('trip-code-display').textContent=code;if(_smartReopen){_smartReopen=false;toast('🐾 กลับมาต่อจากเดิม');const{paid,owed}=calcBal(),net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});const txns=calcSettle(net);if(txns.some(t=>t.from===state.me||t.to===state.me))switchTab('settle');}},()=>setConn(false));
 };
 window.backToTrips=function(){ListenerMgr.off(tripRef);tripRef=null;if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;window._scrollRAF=null;}applyTheme('');history.replaceState(null,'','./');showScr('screen-trips');};
 window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+safeKey(AUTH.user.lineUserId)+'/'+safeTripCode(state.tripId)).remove();closeModal('modal-settings');backToTrips();};
 let _smartReopen=false;
-function switchTab(name){$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));$$('.tab-pane').forEach(p=>p.classList.add('hidden'));const pn=$('tab-'+name);if(pn)pn.classList.remove('hidden');const f=$('fab');if(f)f.style.display=name==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});renderTab(name);}
+let _tripLoaded=false,_prevTripIds=new Set();
+let _settleViewed=false;
+// Analytics — silent daily counters in Firebase
+function trackEvent(name){
+  if(!db)return;
+  try{const d=new Date().toISOString().slice(0,10);db.ref('analytics/'+d+'/'+name).transaction(n=>(n||0)+1);}catch(e){}
+}
+
+// ── Monetization Architecture ─────────────────────────────────────────────
+// MONO_ENABLED=false → nothing renders, no tracking, zero user impact.
+// Flip to true + fill affiliate URLs when ready to activate.
+const MONO_ENABLED=false;
+const MONO={
+  agoda:{
+    label:'จองโรงแรมราคาดี',sub:'ดีลพิเศษสำหรับกลุ่มเพื่อน',icon:'🏨',
+    url:'https://www.agoda.com/?cid=REPLACE_AGODA_AFF_ID',
+    key:'agoda',
+  },
+  insurance:{
+    label:'ประกันการเดินทาง',sub:'คุ้มครองทุกคนในทริป',icon:'🛡️',
+    url:'https://REPLACE_INSURANCE_URL',
+    key:'insurance',
+  },
+};
+function monoCard(key){
+  if(!MONO_ENABLED)return'';
+  const m=MONO[key];if(!m)return'';
+  trackEvent('mono_imp_'+key);
+  return`<div class="card" style="border:1.5px solid var(--line-soft);background:var(--line-tint)"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:26px">${m.icon}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--ink)">${m.label}</div><div style="font-size:11px;color:var(--ink-3)">${m.sub}</div></div><a href="${m.url}" target="_blank" rel="noopener" onclick="trackEvent('mono_click_${key}')" style="background:var(--line);color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0">ดูเลย</a></div></div>`;
+}
+// ─────────────────────────────────────────────────────────────────────────
+function switchTab(name){$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));$$('.tab-pane').forEach(p=>p.classList.add('hidden'));const pn=$('tab-'+name);if(pn)pn.classList.remove('hidden');const f=$('fab');if(f)f.style.display=name==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});renderTab(name);if(name==='settle'&&!_settleViewed){_settleViewed=true;trackEvent('settle_viewed');}}
 function setupTopbar(){
   $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
-  // Reset to dashboard tab and list view on every trip open
+  // Reset notification tracking + tab/view state on every trip open
+  _tripLoaded=false;_prevTripIds=new Set();_settleViewed=false;
   $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='dashboard'));
   $$('.tab-pane').forEach(p=>p.classList.toggle('hidden',p.id!=='tab-dashboard'));
   const f=$('fab');if(f)f.style.display='none';
@@ -754,7 +800,7 @@ function renderTab(tab,bal){
     // Fun Stats Card
     const fsc=$('fun-stats-card');if(fsc){if(state.expenses.length>=2&&state.members.length>=2){const payCount={};state.expenses.forEach(e=>{payCount[e.payer]=(payCount[e.payer]||0)+1;});const topPayer=state.members.reduce((b,m)=>(payCount[m.id]||0)>(payCount[b.id]||0)?m:b,state.members[0]);const topPayCount=payCount[topPayer.id]||0;const netVals=state.members.map(m=>({m,n:(paid[m.id]||0)-(owed[m.id]||0)}));const generous=netVals.reduce((b,x)=>x.n>b.n?x:b,netVals[0]);const catCount={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';catCount[k]=(catCount[k]||0)+1;});const topCatCnt=Object.entries(catCount).sort((a,b)=>b[1]-a[1])[0];const lines=[];if(topPayCount>=2)lines.push(`💳 <strong>${esc(topPayer.name)}</strong> จ่ายก่อนเพื่อน ${topPayCount} ครั้งแล้วนะ 👀`);if(generous.n>100)lines.push(`🫶 <strong>${esc(generous.m.name)}</strong> ใจป้ำสุดในทริป จ่ายเกินส่วน ${fmt(generous.n)}`);if(topCatCnt&&topCatCnt[1]>=2)lines.push(`🔁 ${esc(topCatCnt[0])} ถูกสั่ง ${topCatCnt[1]} ครั้ง... จัดหนักมาก`);if(lines.length){fsc.style.display='block';fsc.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">${mkEmoji(1,36)}<span style="font-weight:700;font-size:13px;color:var(--ink-2)">🐹 สถิติน่ารู้</span></div><div style="display:flex;flex-direction:column;gap:8px">${lines.map(l=>`<div style="font-size:13px;color:var(--ink);line-height:1.5">${l}</div>`).join('')}</div>`;}else fsc.style.display='none';}else fsc.style.display='none';}
     // Trip Summary Card
-    const sc=$('trip-summary-card');if(sc){if(state.expenses.length&&state.members.length){const bigSpender=state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]);const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];sc.style.display='block';sc.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font-size:14px;margin:0">✨ สรุปทริปนี้</h3>${mkEmoji(5,40)}</div><div style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">💰 ยอดรวม</span><span class="num" style="font-weight:700">${fmt(total)}</span></div><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👑 จ่ายเยอะสุด</span><span style="font-weight:700;font-size:13px">${esc(bigSpender.name)} <span class="num">${fmt(paid[bigSpender.id]||0)}</span></span></div>${topCat?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">🔥 หมวดฮิต</span><span style="font-weight:700;font-size:13px">${esc(topCat[0])}</span></div>`:''}<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👥 สมาชิก</span><span style="font-weight:700;font-size:13px">${state.members.length} คน · เฉลี่ย <span class="num">${fmt(total/state.members.length)}</span></span></div></div><button onclick="shareTripSummary()" class="btn btn-primary" style="width:100%;border-radius:10px;font-size:13px;padding:10px">📤 แชร์สรุปทริป</button>`;}else sc.style.display='none';}
+    const sc=$('trip-summary-card');if(sc){if(state.expenses.length&&state.members.length){const bigSpender=state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]);const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];sc.style.display='block';sc.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font-size:14px;margin:0">✨ สรุปทริปนี้</h3>${mkEmoji(5,40)}</div><div style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">💰 ยอดรวม</span><span class="num" style="font-weight:700">${fmt(total)}</span></div><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👑 จ่ายเยอะสุด</span><span style="font-weight:700;font-size:13px">${esc(bigSpender.name)} <span class="num">${fmt(paid[bigSpender.id]||0)}</span></span></div>${topCat?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">🔥 หมวดฮิต</span><span style="font-weight:700;font-size:13px">${esc(topCat[0])}</span></div>`:''}<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👥 สมาชิก</span><span style="font-weight:700;font-size:13px">${state.members.length} คน · เฉลี่ย <span class="num">${fmt(total/state.members.length)}</span></span></div></div><button onclick="shareTripSummary()" class="btn btn-primary" style="width:100%;border-radius:10px;font-size:13px;padding:10px">📤 แชร์สรุปทริป</button>${monoCard('agoda')}`;}else sc.style.display='none';}
   }
   else if(tab==='expenses'){
     const el=$('expense-list');
@@ -793,7 +839,8 @@ function renderTab(tab,bal){
   else if(tab==='settle'){
     const net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});
     $('net-balances').innerHTML=!state.members.length?`<div style="padding:8px 0;font-size:13px;color:var(--ink-3)">เชิญสมาชิกเข้าร่วม Trip ก่อนเลย</div>`:state.members.map(m=>{const n=net[m.id]||0;return`<div class="settle-row">${mkAv(m.name,32,m.pictureUrl)}<div style="flex:1;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</div><div class="num" style="font-weight:700;color:${n>=0?'var(--good)':'var(--bad)'}">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;}).join('');
-    const txns=calcSettle(net);$('settle-list').innerHTML=!txns.length?`<div class="empty" style="padding:32px 20px">${state.members.length?mkEmoji(3,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">เคลียร์กันหมดแล้ว! 🎉</div><div style="font-size:13px;color:var(--ink-3);margin-bottom:16px">ทุกคนสบายใจได้เลย</div><button onclick="shareSettlementCard()" style="background:var(--line);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🎊 แชร์ให้ทุกคนรู้</button></div>':`${mkEmoji(7,72)}<div style="margin-top:12px"><div style="font-weight:700;font-size:15px;color:var(--ink)">ยังไม่มีสมาชิก</div><div style="font-size:13px;color:var(--ink-3)">เชิญเพื่อนผ่าน Tab สมาชิกได้เลย</div></div>`}</div>`:txns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to),isRecip=t.to===state.me;return`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>${isRecip?`<div style="padding-top:8px"><button onclick="sendPoliteReminder('${esc(t.from)}',${t.amount})" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink-2);cursor:pointer;font-family:inherit">${mkEmoji(1,22)}<span>ทวงแบบเกรงใจ</span></button></div>`:''}</div>`;}).join('');
+    const txns=calcSettle(net);const _sl=$('settle-list');_sl.innerHTML=!txns.length?`<div class="empty" style="padding:32px 20px">${state.members.length?mkEmoji(3,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">เคลียร์กันหมดแล้ว! 🎉</div><div style="font-size:13px;color:var(--ink-3);margin-bottom:16px">ทุกคนสบายใจได้เลย</div><button onclick="shareSettlementCard()" style="background:var(--line);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🎊 แชร์ให้ทุกคนรู้</button></div>':`${mkEmoji(7,72)}<div style="margin-top:12px"><div style="font-weight:700;font-size:15px;color:var(--ink)">ยังไม่มีสมาชิก</div><div style="font-size:13px;color:var(--ink-3)">เชิญเพื่อนผ่าน Tab สมาชิกได้เลย</div></div>`}</div>`:txns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to),isRecip=t.to===state.me;return`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>${isRecip?`<div style="padding-top:8px"><button onclick="sendPoliteReminder('${esc(t.from)}',${t.amount})" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink-2);cursor:pointer;font-family:inherit">${mkEmoji(1,22)}<span>ทวงแบบเกรงใจ</span></button></div>`:''}</div>`;}).join('');
+    if(!txns.length&&state.members.length){const mc=monoCard('insurance');if(mc)_sl.insertAdjacentHTML('beforeend',mc);}
   }
 }
 window.tlb=function(id){const d=$('lbd-'+id),r=$('lbr-'+id),c=$('lbc-'+id);if(!d)return;const o=d.classList.contains('open');d.classList.toggle('open',!o);r&&r.classList.toggle('expanded',!o);c&&c.classList.toggle('open',!o);};
@@ -818,9 +865,9 @@ window.saveExpense=async function(){
   if(!t)return toast('ใส่ชื่อรายการก่อน');if(!a||a<=0)return toast('ใส่จำนวนเงินก่อน');if(!_pay)return toast('เลือกคนที่จ่ายก่อน');if(!_ben.size)return toast('เลือกคนร่วมหารก่อน');
   const id=safeKey($('ef-id').value||('e_'+Date.now()+'_'+uuid()));
   await tripRef.child('expenses/'+safeKey(id)).set({id,title:t,amount:a,category:$('ef-cat').value,date:$('ef-date').value,payer:_pay,beneficiaries:[..._ben],splitMode:'equal',createdAt:Date.now()});
-  _pay=null;_ben=new Set();closeModal('modal-expense');toast('บันทึกแล้ว ✓');
+  _pay=null;_ben=new Set();closeModal('modal-expense');toast('บันทึกแล้ว ✓');trackEvent('expense_added');
 };
-window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');};
+window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');trackEvent('expense_deleted');};
 window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+safeTripCode(state.tripId);const txt=`🐾 มาหารค่าเที่ยว "${state.tripName||state.tripId}" ด้วยกันเลย!\n${u}`;navigator.clipboard.writeText(txt).then(()=>toast('คัดลอก link แล้ว ✓'));};
 window.sendPoliteReminder=async function(fromId,amount){
   const fm=state.members.find(m=>m.id===fromId);
@@ -839,7 +886,7 @@ window.sendPoliteReminder=async function(fromId,amount){
     footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
   }};
   const canShare=liffCanShare();
-  if(canShare){try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:false});if(res?.status==='success')toast('ส่งทวงแบบเกรงใจแล้ว 🐹');}catch(e){navigator.clipboard?.writeText(`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`).then(()=>toast('คัดลอกแล้ว ✓'));}}
+  if(canShare){try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:false});if(res?.status==='success'){toast('ส่งทวงแบบเกรงใจแล้ว 🐹');trackEvent('reminder_sent');}}catch(e){navigator.clipboard?.writeText(`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`).then(()=>toast('คัดลอกแล้ว ✓'));}}
   else if(navigator.share){navigator.share({title:'ทวงแบบเกรงใจ',text:`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`});}
   else{navigator.clipboard?.writeText(`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`).then(()=>toast('คัดลอกแล้ว ✓'));}
 };
@@ -865,7 +912,7 @@ window.shareSettlementCard=async function(){
   }};
   const canShare=liffCanShare();
   if(canShare){
-    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success')toast('แชร์แล้ว ✓');}
+    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success'){toast('แชร์แล้ว ✓');trackEvent('share_settled');}}
     catch(e){const t=`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!\n💰 ยอดรวม ${Math.round(total).toLocaleString()}฿\n📱 หารกันเอง · capybarabu`;navigator.clipboard?.writeText(t).then(()=>toast('คัดลอกแล้ว ✓'));}
   }else if(navigator.share){navigator.share({title:'ทริปเคลียร์แล้ว!',text:`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!`});}
   else{const t=`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!\n💰 ยอดรวม ${Math.round(total).toLocaleString()}฿`;navigator.clipboard?.writeText(t).then(()=>toast('คัดลอกแล้ว ✓'));}
@@ -894,7 +941,7 @@ window.shareTripSummary=async function(){
   }};
   const fallbackText=[`✨ สรุปทริป "${tripName}"`,``,`💰 ยอดรวม: ${fmt(total)}`,`👥 สมาชิก: ${state.members.length} คน · เฉลี่ย ${fmt(avg)}`,bigSpender?`👑 จ่ายเยอะสุด: ${bigSpender.name}`:'',topCat?`🔥 หมวดฮิต: ${topCat[0]}`:'',``,`📱 หารกันเอง · capybarabu`].filter(Boolean).join('\n');
   if(liffCanShare()){
-    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success')toast('แชร์สรุปแล้ว ✓');}
+    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success'){toast('แชร์สรุปแล้ว ✓');trackEvent('share_trip');}}
     catch(e){navigator.clipboard?.writeText(fallbackText).then(()=>toast('คัดลอกสรุปแล้ว ✓'));}
   }else if(navigator.share){navigator.share({title:'สรุปทริป '+tripName,text:fallbackText});}
   else{navigator.clipboard?.writeText(fallbackText).then(()=>toast('คัดลอกสรุปแล้ว ✓'));}
@@ -951,7 +998,7 @@ window.inviteViaLine=async function(){
   if(canShare){
     try{
       const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});
-      if(res?.status==='success')toast('ส่งคำเชิญแล้ว');
+      if(res?.status==='success'){toast('ส่งคำเชิญแล้ว');trackEvent('invite_sent');}
     }catch(e){
       console.warn('[shareTargetPicker]',e);
       navigator.clipboard.writeText(url).then(()=>toast('คัดลอก link แล้ว'));
