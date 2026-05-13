@@ -349,6 +349,13 @@ function applyTheme(key){const t=key&&THEMES[key],c=t||_DEF,r=document.documentE
 let _newTripTheme='',_settingsTheme='';
 function selectTheme(key,btn,group){if(group==='settings')_settingsTheme=key;else _newTripTheme=key;const g=btn.closest('[data-theme-group]');if(g)g.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active',b===btn));}
 const state={lineUserId:null,tripId:null,tripName:null,tripTheme:'',me:null,members:[],expenses:[]};
+// Centralized Firebase listener manager — prevents listener leaks
+const ListenerMgr={
+  _refs:new Set(),
+  add(ref){this._refs.add(ref);return ref;},
+  off(ref){if(ref){ref.off();this._refs.delete(ref);}},
+  offAll(){this._refs.forEach(r=>r.off());this._refs.clear();}
+};
 const $=id=>document.getElementById(id);const $$=s=>document.querySelectorAll(s);
 const fmt=n=>'฿'+Math.abs(n).toLocaleString('th-TH',{maximumFractionDigits:0});
 const today=()=>new Date().toISOString().split('T')[0];
@@ -568,9 +575,9 @@ window.handleLogout = async function(){
   showScr('screen-splash');
   setAuthStatus('logging_out');
 
-  // Clear Firebase listeners
-  if(tripRef){ tripRef.off(); tripRef = null; }
-  if(tripsRef){ tripsRef.off(); tripsRef = null; }
+  // Clear all Firebase listeners
+  ListenerMgr.offAll();
+  tripRef=null;tripsRef=null;
 
   // Clear app state
   AUTH.user = null; AUTH.status = 'unauthenticated';
@@ -610,8 +617,8 @@ async function saveUser(){
 }
 /* handleLogout ย้ายไปอยู่ใน Auth State Machine ด้านบนแล้ว */
 function listenMyTrips(){
-  if(!state.lineUserId||!db)return;if(tripsRef)tripsRef.off();
-  tripsRef=db.ref('userTrips/'+safeKey(state.lineUserId));
+  if(!state.lineUserId||!db)return;ListenerMgr.off(tripsRef);
+  tripsRef=ListenerMgr.add(db.ref('userTrips/'+safeKey(state.lineUserId)));
   tripsRef.on('value',snap=>{
     const data=snap.val()||{};const owned=[],joined=[];
     Object.entries(data).forEach(([id,info])=>{(info.role==='owner'?owned:joined).push({tripId:id,...info});});
@@ -698,16 +705,24 @@ window.openTrip=function(code){
   state.tripId=safeCode;state.me='line_'+safeKey(state.lineUserId||'').slice(0,16);
   try{localStorage.setItem('last_trip',JSON.stringify({id:safeCode,ts:Date.now()}));}catch(e){}
   history.replaceState(null,'','#'+safeCode);showScr('screen-main');setupTopbar();
-  if(tripRef)tripRef.off();
-  tripRef=db.ref('trips/'+safeCode);
+  ListenerMgr.off(tripRef);
+  tripRef=ListenerMgr.add(db.ref('trips/'+safeCode));
   tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.tripTheme=d.theme||'';applyTheme(state.tripTheme);const te=state.tripTheme&&THEMES[state.tripTheme]?THEMES[state.tripTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+state.tripName+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;if(_smartReopen){_smartReopen=false;toast('🐾 กลับมาต่อจากเดิม');const{paid,owed}=calcBal(),net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});const txns=calcSettle(net);if(txns.some(t=>t.from===state.me||t.to===state.me))switchTab('settle');}},()=>setConn(false));
 };
-window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;window._scrollRAF=null;}applyTheme('');history.replaceState(null,'','./');showScr('screen-trips');};
+window.backToTrips=function(){ListenerMgr.off(tripRef);tripRef=null;if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;window._scrollRAF=null;}applyTheme('');history.replaceState(null,'','./');showScr('screen-trips');};
 window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+safeKey(AUTH.user.lineUserId)+'/'+safeTripCode(state.tripId)).remove();closeModal('modal-settings');backToTrips();};
 let _smartReopen=false;
 function switchTab(name){$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));$$('.tab-pane').forEach(p=>p.classList.add('hidden'));const pn=$('tab-'+name);if(pn)pn.classList.remove('hidden');const f=$('fab');if(f)f.style.display=name==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});renderTab(name);}
 function setupTopbar(){
   $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
+  // Reset to dashboard tab and list view on every trip open
+  $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='dashboard'));
+  $$('.tab-pane').forEach(p=>p.classList.toggle('hidden',p.id!=='tab-dashboard'));
+  const f=$('fab');if(f)f.style.display='none';
+  _expView='list';
+  const el=$('exp-view-list'),et=$('exp-view-tl');
+  if(el){el.style.background='var(--line)';el.style.color='#fff';}
+  if(et){et.style.background='transparent';et.style.color='var(--ink-3)';}
   $$('.tab').forEach(t=>{t.onclick=()=>switchTab(t.dataset.tab);});
   $('open-share').onclick=()=>{const u=location.origin+location.pathname+'#'+state.tripId;if(navigator.share)navigator.share({title:'หารกันเอง · '+state.tripName,url:u});else navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
   $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;_settingsTheme=state.tripTheme||'';document.querySelectorAll('[data-theme-group="settings"] .theme-btn').forEach(b=>b.classList.toggle('active',(b.dataset.key||'')===_settingsTheme));openModal('modal-settings');};
