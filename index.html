@@ -10,7 +10,11 @@
 <link rel="manifest" href="./manifest.json"/>
 <link rel="apple-touch-icon" href="./icons/icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Mali:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://static.line-scdn.net">
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=Mali:wght@600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=Mali:wght@600;700&display=swap" rel="stylesheet"></noscript>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js" onerror="window.__liffFailed=true"></script>
 <style>
 :root{
@@ -305,7 +309,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
     ['https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-database-compat.js'],
     ['https://unpkg.com/firebase@10.12.5/firebase-app-compat.js','https://unpkg.com/firebase@10.12.5/firebase-database-compat.js'],
   ];
-  (async()=>{for(const p of cdns){try{await ls(p[0]);await ls(p[1]);if(typeof firebase!=='undefined'&&firebase.initializeApp){window.__fbReady=true;window.dispatchEvent(new Event('fb-ready'));return;}}catch(e){console.warn('[FB CDN]',e);}}window.__fbError=new Error('Firebase โหลดไม่ได้');window.dispatchEvent(new Event('fb-failed'));})();
+  (async()=>{for(const p of cdns){try{await Promise.all([ls(p[0]),ls(p[1])]);if(typeof firebase!=='undefined'&&firebase.initializeApp){window.__fbReady=true;window.dispatchEvent(new Event('fb-ready'));return;}}catch(e){console.warn('[FB CDN]',e);}}window.__fbError=new Error('Firebase โหลดไม่ได้');window.dispatchEvent(new Event('fb-failed'));})();
 })();
 </script>
 
@@ -574,7 +578,7 @@ function listenMyTrips(){
     Object.entries(data).forEach(([id,info])=>{(info.role==='owner'?owned:joined).push({tripId:id,...info});});
     const tc=t=>`<div class="trip-card" onclick="openTrip('${esc(t.tripId)}')"><div class="trip-icon">${t.role==='owner'?'🏝':'🤝'}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div class="small muted">รหัส: ${esc(t.tripId)}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>`;
     $('my-trips-list').innerHTML=owned.length?owned.map(tc).join(''):`<div class="empty" style="padding:24px 0">${mkEmoji(7,80)}<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มี Trip เลยนะ</div><div style="font-size:13px;color:var(--ink-3)">กด <strong style="color:var(--line)">สร้าง Trip ใหม่</strong> ด้านล่างได้เลย 🏝</div></div></div>`;
-    $('joined-trips-list').innerHTML=joined.length?joined.map(tc).join(''):`<div class="empty small muted" style="padding:14px 0">ยังไม่ได้เข้าร่วม Trip ใด</div>`;
+    $('joined-trips-list').innerHTML=joined.length?joined.map(tc).join(''):`<div class="empty" style="padding:16px 0;flex-direction:row;gap:10px;justify-content:flex-start">${mkEmoji(6,40)}<div style="text-align:left"><div style="font-size:13px;font-weight:700;color:var(--ink)">ยังไม่ได้เข้าร่วม Trip ใด</div><div style="font-size:12px;color:var(--ink-3)">รอเพื่อนส่ง link เชิญมาเลย</div></div></div>`;
     // Recent trip banner
     const rtBanner=$('recent-trip-banner');
     if(rtBanner){
@@ -676,8 +680,8 @@ function renderTab(tab,bal){
   }
   else if(tab==='settle'){
     const net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});
-    $('net-balances').innerHTML=state.members.map(m=>{const n=net[m.id]||0;return`<div class="settle-row">${mkAv(m.name,32,m.pictureUrl)}<div style="flex:1;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</div><div class="num" style="font-weight:700;color:${n>=0?'var(--good)':'var(--bad)'}">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;}).join('');
-    const txns=calcSettle(net);$('settle-list').innerHTML=!txns.length?`<div class="empty" style="padding:32px 20px">${state.members.length?mkEmoji(3,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">เคลียร์กันหมดแล้ว! 🎉</div><div style="font-size:13px;color:var(--ink-3);margin-bottom:16px">ทุกคนสบายใจได้เลย</div><button onclick="shareSettlementCard()" style="background:var(--line);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🎊 แชร์ให้ทุกคนรู้</button></div>':'<div style="font-weight:700;font-size:15px;color:var(--ink-3);margin-top:8px">ยังไม่มีสมาชิก</div>'}</div>`:txns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to),isRecip=t.to===state.me;return`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>${isRecip?`<div style="padding-top:8px"><button onclick="sendPoliteReminder('${esc(t.from)}',${t.amount})" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink-2);cursor:pointer;font-family:inherit">${mkEmoji(1,22)}<span>ทวงแบบเกรงใจ</span></button></div>`:''}</div>`;}).join('');
+    $('net-balances').innerHTML=!state.members.length?`<div style="padding:8px 0;font-size:13px;color:var(--ink-3)">เชิญสมาชิกเข้าร่วม Trip ก่อนเลย</div>`:state.members.map(m=>{const n=net[m.id]||0;return`<div class="settle-row">${mkAv(m.name,32,m.pictureUrl)}<div style="flex:1;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</div><div class="num" style="font-weight:700;color:${n>=0?'var(--good)':'var(--bad)'}">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;}).join('');
+    const txns=calcSettle(net);$('settle-list').innerHTML=!txns.length?`<div class="empty" style="padding:32px 20px">${state.members.length?mkEmoji(3,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">เคลียร์กันหมดแล้ว! 🎉</div><div style="font-size:13px;color:var(--ink-3);margin-bottom:16px">ทุกคนสบายใจได้เลย</div><button onclick="shareSettlementCard()" style="background:var(--line);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🎊 แชร์ให้ทุกคนรู้</button></div>':`${mkEmoji(7,72)}<div style="margin-top:12px"><div style="font-weight:700;font-size:15px;color:var(--ink)">ยังไม่มีสมาชิก</div><div style="font-size:13px;color:var(--ink-3)">เชิญเพื่อนผ่าน Tab สมาชิกได้เลย</div></div>`}</div>`:txns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to),isRecip=t.to===state.me;return`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>${isRecip?`<div style="padding-top:8px"><button onclick="sendPoliteReminder('${esc(t.from)}',${t.amount})" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink-2);cursor:pointer;font-family:inherit">${mkEmoji(1,22)}<span>ทวงแบบเกรงใจ</span></button></div>`:''}</div>`;}).join('');
   }
 }
 window.tlb=function(id){const d=$('lbd-'+id),r=$('lbr-'+id),c=$('lbc-'+id);if(!d)return;const o=d.classList.contains('open');d.classList.toggle('open',!o);r&&r.classList.toggle('expanded',!o);c&&c.classList.toggle('open',!o);};
@@ -854,7 +858,7 @@ async function boot(){
 
   const [liffOk, fbResult] = await Promise.allSettled([
     initLiff(),
-    (async()=>{ await waitFb(15000); initFb(); })()
+    (async()=>{ await waitFb(10000); initFb(); })()
   ]);
 
   if(fbResult.status === 'rejected'){
