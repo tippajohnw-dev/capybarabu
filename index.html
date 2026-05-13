@@ -74,6 +74,10 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 .conn-dot.ok{background:var(--good)}.conn-dot.bad{background:var(--bad)}
 .theme-btn{border:2px solid var(--border);border-radius:var(--r-full);padding:6px 12px;font-size:12px;font-weight:700;background:var(--surface-2);color:var(--ink-2);cursor:pointer;font-family:inherit;transition:all .15s}
 .theme-btn.active{border-color:var(--line);background:var(--line-soft);color:var(--line-dark)}
+.tl-day{position:relative;padding-left:20px;margin-bottom:4px}
+.tl-day::before{content:'';position:absolute;left:6px;top:32px;bottom:0;width:2px;background:var(--border)}
+.tl-dot{position:absolute;left:0;top:10px;width:14px;height:14px;border-radius:50%;background:var(--line);border:2.5px solid var(--surface)}
+.tl-day:last-child::before{display:none}
 .trip-chip{background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -211,7 +215,13 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
       <div class="card" id="trip-summary-card" style="display:none"></div>
     </div>
     <div id="tab-expenses" class="tab-pane hidden">
-      <button class="btn btn-primary" style="width:100%;border-radius:12px;padding:13px;font-size:15px;margin-bottom:12px" onclick="openExpenseForm()">+ เพิ่มค่าใช้จ่าย</button>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-size:15px" onclick="openExpenseForm()">+ เพิ่มค่าใช้จ่าย</button>
+        <div style="display:flex;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface);flex-shrink:0">
+          <button id="exp-view-list" onclick="setExpView('list')" style="padding:0 12px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:var(--line);color:#fff">รายการ</button>
+          <button id="exp-view-tl" onclick="setExpView('timeline')" style="padding:0 12px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:transparent;color:var(--ink-3)">ไทม์ไลน์</button>
+        </div>
+      </div>
       <div id="expense-list"><div class="empty small muted">ยังไม่มีรายการ</div></div>
     </div>
     <div id="tab-members" class="tab-pane hidden">
@@ -538,8 +548,16 @@ async function enterApp(pendingHash){
       showScr('screen-trips');
     }
   } else {
-    showScr('screen-trips');
     listenMyTrips();
+    // Smart Reopen: ถ้าเปิด Trip ล่าสุดไม่เกิน 24h → auto-open เข้าไปเลย
+    try{
+      const lt=JSON.parse(localStorage.getItem('last_trip')||'null');
+      if(lt&&lt.id&&(Date.now()-(lt.ts||0))<86400000){
+        const sc=safeTripCode(lt.id);
+        if(sc){_smartReopen=true;openTrip(sc);return;}
+      }
+    }catch(_e){}
+    showScr('screen-trips');
   }
 }
 
@@ -671,13 +689,15 @@ window.openTrip=function(code){
   history.replaceState(null,'','#'+safeCode);showScr('screen-main');setupTopbar();
   if(tripRef)tripRef.off();
   tripRef=db.ref('trips/'+safeCode);
-  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.tripTheme=d.theme||'';applyTheme(state.tripTheme);const te=state.tripTheme&&THEMES[state.tripTheme]?THEMES[state.tripTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+state.tripName+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;},()=>setConn(false));
+  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.tripTheme=d.theme||'';applyTheme(state.tripTheme);const te=state.tripTheme&&THEMES[state.tripTheme]?THEMES[state.tripTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+state.tripName+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));renderAll();setConn(true);$('trip-code-display').textContent=code;if(_smartReopen){_smartReopen=false;toast('🐾 กลับมาต่อจากเดิม');const{paid,owed}=calcBal(),net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});const txns=calcSettle(net);if(txns.some(t=>t.from===state.me||t.to===state.me))switchTab('settle');}},()=>setConn(false));
 };
 window.backToTrips=function(){if(tripRef){tripRef.off();tripRef=null;}if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;window._scrollRAF=null;}applyTheme('');history.replaceState(null,'','./');showScr('screen-trips');};
 window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;if(AUTH.user&&state.tripId)await db.ref('userTrips/'+safeKey(AUTH.user.lineUserId)+'/'+safeTripCode(state.tripId)).remove();closeModal('modal-settings');backToTrips();};
+let _smartReopen=false;
+function switchTab(name){$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));$$('.tab-pane').forEach(p=>p.classList.add('hidden'));const pn=$('tab-'+name);if(pn)pn.classList.remove('hidden');const f=$('fab');if(f)f.style.display=name==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});renderTab(name);}
 function setupTopbar(){
   $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
-  $$('.tab').forEach(t=>{t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.tab-pane').forEach(p=>p.classList.add('hidden'));$('tab-'+t.dataset.tab).classList.remove('hidden');const f=$('fab');if(f)f.style.display=t.dataset.tab==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});renderTab(t.dataset.tab);};});
+  $$('.tab').forEach(t=>{t.onclick=()=>switchTab(t.dataset.tab);});
   $('open-share').onclick=()=>{const u=location.origin+location.pathname+'#'+state.tripId;if(navigator.share)navigator.share({title:'หารกันเอง · '+state.tripName,url:u});else navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
   $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;_settingsTheme=state.tripTheme||'';document.querySelectorAll('[data-theme-group="settings"] .theme-btn').forEach(b=>b.classList.toggle('active',(b.dataset.key||'')===_settingsTheme));openModal('modal-settings');};
   const tb=$('topbar');if(window._scrollHandler)window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=()=>{if(window._scrollRAF)return;window._scrollRAF=requestAnimationFrame(()=>{window._scrollRAF=null;tb.classList.toggle('scrolled',window.scrollY>4);});};window.addEventListener('scroll',window._scrollHandler);
@@ -711,7 +731,17 @@ function renderTab(tab,bal){
     const sc=$('trip-summary-card');if(sc){if(state.expenses.length&&state.members.length){const bigSpender=state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]);const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];sc.style.display='block';sc.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font-size:14px;margin:0">✨ สรุปทริปนี้</h3>${mkEmoji(5,40)}</div><div style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">💰 ยอดรวม</span><span class="num" style="font-weight:700">${fmt(total)}</span></div><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👑 จ่ายเยอะสุด</span><span style="font-weight:700;font-size:13px">${esc(bigSpender.name)} <span class="num">${fmt(paid[bigSpender.id]||0)}</span></span></div>${topCat?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">🔥 หมวดฮิต</span><span style="font-weight:700;font-size:13px">${esc(topCat[0])}</span></div>`:''}<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👥 สมาชิก</span><span style="font-weight:700;font-size:13px">${state.members.length} คน · เฉลี่ย <span class="num">${fmt(total/state.members.length)}</span></span></div></div><button onclick="shareTripSummary()" class="btn btn-primary" style="width:100%;border-radius:10px;font-size:13px;padding:10px">📤 แชร์สรุปทริป</button>`;}else sc.style.display='none';}
   }
   else if(tab==='expenses'){
-    const el=$('expense-list');el.innerHTML=!state.expenses.length?'<div class="empty" style="padding:32px 20px">'+mkEmoji(4,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มีรายจ่ายเลยนะ</div><div style="font-size:13px;color:var(--ink-3)">แตะ <strong style="color:var(--line);font-size:15px">+</strong> เพื่อเพิ่มรายจ่ายได้เลย</div></div></div>':state.expenses.map(e=>{const pr=state.members.find(m=>m.id===e.payer),ph=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="card" style="padding:13px 14px;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start">${mkAv(pr?.name||'?',36,pr?.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-weight:700;font-size:14px">${esc(e.category||'')} ${esc(e.title||'')}</div><div class="small muted" style="margin-top:2px">${esc(pr?.name||'?')} จ่าย · ${esc(e.date||'')}</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div class="num" style="font-weight:700;font-size:16px">${fmt(+e.amount||0)}</div><div class="small muted">÷${(e.beneficiaries||[]).length}=${fmt(ph)}/คน</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><div style="display:flex;gap:4px;flex-wrap:wrap">${(e.beneficiaries||[]).map(bid=>{const bm=state.members.find(m=>m.id===bid);return bm?`<span class="badge" style="font-size:10px">${esc(bm.name)}</span>`:''}).join('')}</div><button onclick="delExp('${esc(e.id)}')" style="font-size:11px;color:var(--bad);background:#F2555510;border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">ลบ</button></div></div></div></div>`;}).join('');
+    const el=$('expense-list');
+    const mkExpCard=(e,compact)=>{const pr=state.members.find(m=>m.id===e.payer),ph=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="card" style="padding:${compact?'10px 12px':'13px 14px'};margin-bottom:${compact?'6px':'8px'}"><div style="display:flex;gap:10px;align-items:flex-start">${mkAv(pr?.name||'?',32,pr?.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.category||'')} ${esc(e.title||'')}</div><div class="small muted" style="margin-top:1px">${esc(pr?.name||'?')} จ่าย</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div class="num" style="font-weight:700;font-size:15px">${fmt(+e.amount||0)}</div><div class="small muted">÷${(e.beneficiaries||[]).length}=${fmt(ph)}/คน</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px"><div style="display:flex;gap:4px;flex-wrap:wrap">${(e.beneficiaries||[]).map(bid=>{const bm=state.members.find(m=>m.id===bid);return bm?`<span class="badge" style="font-size:10px">${esc(bm.name)}</span>`:''}).join('')}</div><button onclick="delExp('${esc(e.id)}')" style="font-size:11px;color:var(--bad);background:#F2555510;border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">ลบ</button></div></div></div></div>`;};
+    if(!state.expenses.length){el.innerHTML='<div class="empty" style="padding:32px 20px">'+mkEmoji(4,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มีรายจ่ายเลยนะ</div><div style="font-size:13px;color:var(--ink-3)">แตะ <strong style="color:var(--line);font-size:15px">+</strong> เพื่อเพิ่มรายจ่ายได้เลย</div></div></div>';return;}
+    if(_expView==='timeline'){
+      const fmt2=d=>{try{const[y,m,dd]=d.split('-');const th=new Date(+y,+m-1,+dd);return th.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});}catch{return d;}};
+      const byDate={};[...state.expenses].sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.createdAt||0)-(b.createdAt||0)).forEach(e=>{const k=e.date||'ไม่ระบุวัน';if(!byDate[k])byDate[k]=[];byDate[k].push(e);});
+      const dayAmt=d=>byDate[d].reduce((s,e)=>s+(+e.amount||0),0);
+      el.innerHTML=Object.keys(byDate).map(d=>`<div class="tl-day"><div class="tl-dot"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-left:4px"><div style="font-weight:700;font-size:13px;color:var(--line-dark)">${fmt2(d)}</div><div class="num" style="font-size:12px;color:var(--ink-3);font-weight:600">${fmt(dayAmt(d))}</div></div>${byDate[d].map(e=>mkExpCard(e,true)).join('')}</div>`).join('');
+    }else{
+      el.innerHTML=state.expenses.map(e=>mkExpCard(e,false)).join('');
+    }
   }
   else if(tab==='members'){
     const ml=$('member-list');ml.innerHTML=!state.members.length?`<div class="empty" style="padding:28px 20px">${mkEmoji(6,72)}<div style="margin-top:12px"><div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:4px">ยังไม่มีเพื่อนในทริปนี้</div><div style="font-size:13px;color:var(--ink-3)">กด <strong style="color:var(--line)">เชิญผ่าน LINE</strong> ด้านบนได้เลย</div></div></div>`:(()=>{
@@ -741,6 +771,8 @@ function renderTab(tab,bal){
   }
 }
 window.tlb=function(id){const d=$('lbd-'+id),r=$('lbr-'+id),c=$('lbc-'+id);if(!d)return;const o=d.classList.contains('open');d.classList.toggle('open',!o);r&&r.classList.toggle('expanded',!o);c&&c.classList.toggle('open',!o);};
+let _expView='list';
+window.setExpView=function(v){_expView=v;const onL=v==='list';$('exp-view-list').style.background=onL?'var(--line)':'transparent';$('exp-view-list').style.color=onL?'#fff':'var(--ink-3)';$('exp-view-tl').style.background=onL?'transparent':'var(--line)';$('exp-view-tl').style.color=onL?'var(--ink-3)':'#fff';renderTab('expenses');};
 let _pay=null,_ben=new Set();
 window.openExpenseForm=function(id){
   $('ef-date').value=today();$('ef-id').value=id||'';$('ef-title-label').textContent=id?'แก้ไขค่าใช้จ่าย':'เพิ่มค่าใช้จ่าย';
