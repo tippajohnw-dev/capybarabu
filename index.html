@@ -249,12 +249,13 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 <!-- MODAL: CREATE -->
 <!-- SCREEN 4: JOIN PREVIEW -->
 <div id="screen-join-preview" class="screen hidden" style="background:linear-gradient(170deg,#F2FBF5 0%,#E6F9EE 100%);align-items:center;justify-content:center;padding:40px 28px">
-  <div id="jp-mascot" style="margin-bottom:20px"></div>
-  <div style="font-size:13px;color:var(--line-dark);font-weight:700;margin-bottom:8px;text-align:center">คุณได้รับคำเชิญ</div>
-  <div id="jp-name" style="font-weight:700;font-size:24px;color:var(--ink);margin-bottom:10px;text-align:center;line-height:1.3"></div>
-  <div id="jp-meta" style="font-size:14px;color:var(--ink-3);margin-bottom:36px;text-align:center;line-height:1.8"></div>
-  <button onclick="confirmJoinTrip()" class="btn btn-primary" style="width:100%;max-width:320px;border-radius:14px;padding:15px;font-size:16px;font-weight:700;margin-bottom:12px">เข้าร่วม Trip เลย</button>
-  <button onclick="cancelJoinPreview()" class="btn btn-ghost" style="width:100%;max-width:320px;border-radius:14px;padding:13px;font-size:14px">ยกเลิก</button>
+  <div id="jp-mascot" style="margin-bottom:16px"></div>
+  <div style="font-size:12px;color:var(--line-dark);font-weight:700;margin-bottom:6px;text-align:center;letter-spacing:1px;text-transform:uppercase">คุณได้รับคำเชิญ</div>
+  <div id="jp-name" style="font-weight:700;font-size:26px;color:var(--ink);margin-bottom:6px;text-align:center;line-height:1.3"></div>
+  <div id="jp-meta" style="font-size:13px;color:var(--ink-3);margin-bottom:16px;text-align:center;line-height:1.8"></div>
+  <div id="jp-members" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:320px;margin-bottom:28px"></div>
+  <button onclick="confirmJoinTrip()" class="btn btn-primary" style="width:100%;max-width:320px;border-radius:14px;padding:15px;font-size:16px;font-weight:700;margin-bottom:10px">เข้าร่วม Trip เลย 🎉</button>
+  <button onclick="cancelJoinPreview()" class="btn btn-ghost" style="width:100%;max-width:320px;border-radius:14px;padding:12px;font-size:13px">ยังไม่เข้าร่วม</button>
 </div>
 
 <div id="modal-create" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
@@ -673,12 +674,22 @@ async function handleHashJoin(hash){
   const mid = 'line_' + suid.slice(0,16);
   // Show join preview for new members
   _pendingJoin = {code:safeHash, data, uid, suid, mid};
-  const memberCount = Object.keys(data.members||{}).length;
+  const members = Object.values(data.members||{});
+  const memberCount = members.length;
   const expCount = Object.keys(data.expenses||{}).length;
-  const creatorM = data.members && Object.values(data.members).find(m=>m.lineUserId===data.createdBy);
+  const creatorM = members.find(m=>m.lineUserId===data.createdBy);
   $('jp-mascot').innerHTML = mkEmoji(6,80);
   $('jp-name').textContent = data.name || safeHash;
-  $('jp-meta').innerHTML = `👥 ${memberCount} สมาชิก · 🧾 ${expCount} รายการ${creatorM?`<br>สร้างโดย <strong>${esc(creatorM.name)}</strong>`:''}`;
+  $('jp-meta').innerHTML = `🧾 ${expCount} รายการ${creatorM?` · สร้างโดย <strong>${esc(creatorM.name)}</strong>`:''}`;
+  // Member pills — show up to 6, "+N" if more
+  const jpm=$('jp-members');
+  if(jpm){
+    const show=members.slice(0,6);
+    const more=memberCount-show.length;
+    jpm.innerHTML=(memberCount?`<div style="font-size:11px;font-weight:700;color:var(--ink-3);width:100%;text-align:center;margin-bottom:4px">${memberCount} คนรอคุณอยู่ 👋</div>`:'')+
+      show.map(m=>`<span style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-full);padding:4px 10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px">${mkAv(m.name,18,m.pictureUrl)}<span>${esc(m.name)}</span></span>`).join('')+
+      (more>0?`<span style="background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:4px 10px;font-size:12px;font-weight:700">+${more}</span>`:'');
+  }
   showScr('screen-join-preview');
 }
 window.openTrip=function(code){
@@ -795,7 +806,7 @@ window.saveExpense=async function(){
   _pay=null;_ben=new Set();closeModal('modal-expense');toast('บันทึกแล้ว ✓');
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');};
-window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+safeTripCode(state.tripId);navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
+window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+safeTripCode(state.tripId);const txt=`🐾 มาหารค่าเที่ยว "${state.tripName||state.tripId}" ด้วยกันเลย!\n${u}`;navigator.clipboard.writeText(txt).then(()=>toast('คัดลอก link แล้ว ✓'));};
 window.sendPoliteReminder=async function(fromId,amount){
   const fm=state.members.find(m=>m.id===fromId);
   const fromName=fm?.name||'เพื่อน';
@@ -879,10 +890,14 @@ window.inviteViaLine=async function(){
   const url=location.origin+location.pathname+'#'+tripCode;
   const inviterName=AUTH.user?.displayName||'เพื่อน';
   const tripName=state.tripName||tripCode;
+  // Social proof: show member names
+  const otherMembers=state.members.filter(m=>m.id!==state.me);
+  const nameList=otherMembers.slice(0,3).map(m=>m.name).join(', ')+(otherMembers.length>3?` +${otherMembers.length-3}`:' ');
+  const memberLine=state.members.length>0?`👥 ${state.members.length} คน · ${nameList}`:`👥 ยังไม่มีสมาชิก`;
 
   const flexMsg={
     type:'flex',
-    altText:`${inviterName} เชิญคุณเข้า Trip "${tripName}" — กดเพื่อเข้าร่วม`,
+    altText:`🐾 ${inviterName} ชวนคุณหารค่าเที่ยว "${tripName}" — กดเพื่อเข้าร่วม`,
     contents:{
       type:'bubble',
       size:'kilo',
@@ -894,12 +909,16 @@ window.inviteViaLine=async function(){
       body:{
         type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',
         contents:[
-          {type:'text',text:`${inviterName} ชวนคุณเข้า Trip`,size:'sm',color:'#5C6E63'},
-          {type:'text',text:tripName,weight:'bold',size:'lg',color:'#1F2D24',wrap:true},
+          {type:'text',text:`🐾 ${inviterName} ชวนมาหารค่าเที่ยวด้วยกัน!`,size:'sm',color:'#5C6E63',wrap:true},
+          {type:'text',text:tripName,weight:'bold',size:'xl',color:'#1F2D24',wrap:true,margin:'sm'},
           {type:'separator',margin:'md'},
           {type:'box',layout:'horizontal',margin:'md',contents:[
+            {type:'text',text:'สมาชิก',size:'sm',color:'#94A89C',flex:1},
+            {type:'text',text:memberLine,size:'sm',weight:'bold',color:'#1F2D24',align:'end',wrap:true,flex:2}
+          ]},
+          {type:'box',layout:'horizontal',contents:[
             {type:'text',text:'รหัส Trip',size:'sm',color:'#94A89C',flex:1},
-            {type:'text',text:tripCode,size:'sm',weight:'bold',color:'#1F2D24',align:'end'}
+            {type:'text',text:tripCode,size:'sm',weight:'bold',color:'#06C755',align:'end'}
           ]}
         ]
       },
@@ -907,7 +926,7 @@ window.inviteViaLine=async function(){
         type:'box',layout:'vertical',paddingAll:'12px',
         contents:[{
           type:'button',style:'primary',color:'#06C755',height:'sm',
-          action:{type:'uri',label:'เข้าร่วม Trip',uri:url}
+          action:{type:'uri',label:'เข้าร่วม Trip เลย 🎉',uri:url}
         }]
       }
     }
