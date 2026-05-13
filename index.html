@@ -372,8 +372,8 @@ function mkAv(n,sz,pic){if(pic)return`<img src="${esc(pic)}" style="width:${sz}p
 // ถ้า LIFF โหลดสำเร็จและอยู่ใน LINE → ลอง shareTargetPicker เสมอ (แม้ isApiAvailable=false)
 function liffCanShare(){
   if(typeof liff==='undefined'||window.__liffFailed)return false;
-  if(typeof liff.isApiAvailable==='function'&&liff.isApiAvailable('shareTargetPicker'))return true;
-  return !!(liff.isInClient&&liff.isInClient());
+  if(typeof liff.isApiAvailable!=='function')return false;
+  return liff.isApiAvailable('shareTargetPicker');
 }
 function mkEmoji(idx,sz){const col=idx%4,row=Math.floor(idx/4),cellH=Math.round(sz*4/3),h=Math.round(sz*1.08);return`<div style="width:${sz}px;height:${h}px;overflow:hidden;background:url('./Icon%20Emotional.png') -${col*sz}px -${row*cellH}px/${4*sz}px ${Math.round(8*sz/3)}px no-repeat;flex-shrink:0"></div>`;}
 
