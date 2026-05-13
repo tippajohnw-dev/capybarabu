@@ -369,6 +369,12 @@ function mkAv(n,sz,pic){if(pic)return`<img src="${esc(pic)}" style="width:${sz}p
 // Emotion icon sprite: 4×2 grid (192×256 per cell at 768×512 file)
 // idx: 0=Ready to Pay, 1=Polite Reminder, 2=Waiting for Payment, 3=Settlement Complete
 //      4=Expense Empty, 5=Celebrating, 6=Share the Trip, 7=Here to Help
+// ถ้า LIFF โหลดสำเร็จและอยู่ใน LINE → ลอง shareTargetPicker เสมอ (แม้ isApiAvailable=false)
+function liffCanShare(){
+  if(typeof liff==='undefined'||window.__liffFailed)return false;
+  if(typeof liff.isApiAvailable==='function'&&liff.isApiAvailable('shareTargetPicker'))return true;
+  return !!(liff.isInClient&&liff.isInClient());
+}
 function mkEmoji(idx,sz){const col=idx%4,row=Math.floor(idx/4),cellH=Math.round(sz*4/3),h=Math.round(sz*1.08);return`<div style="width:${sz}px;height:${h}px;overflow:hidden;background:url('./Icon%20Emotional.png') -${col*sz}px -${row*cellH}px/${4*sz}px ${Math.round(8*sz/3)}px no-repeat;flex-shrink:0"></div>`;}
 
 /* ═══════════════════════════════════════
@@ -714,7 +720,7 @@ window.sendPoliteReminder=async function(fromId,amount){
     ]},
     footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
   }};
-  const canShare=typeof liff!=='undefined'&&!window.__liffFailed&&typeof liff.isApiAvailable==='function'&&liff.isApiAvailable('shareTargetPicker');
+  const canShare=liffCanShare();
   if(canShare){try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:false});if(res?.status==='success')toast('ส่งทวงแบบเกรงใจแล้ว 🐹');}catch(e){navigator.clipboard?.writeText(`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`).then(()=>toast('คัดลอกแล้ว ✓'));}}
   else if(navigator.share){navigator.share({title:'ทวงแบบเกรงใจ',text:`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`});}
   else{navigator.clipboard?.writeText(`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`).then(()=>toast('คัดลอกแล้ว ✓'));}
@@ -739,7 +745,7 @@ window.shareSettlementCard=async function(){
     ]},
     footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
   }};
-  const canShare=typeof liff!=='undefined'&&!window.__liffFailed&&typeof liff.isApiAvailable==='function'&&liff.isApiAvailable('shareTargetPicker');
+  const canShare=liffCanShare();
   if(canShare){
     try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success')toast('แชร์แล้ว ✓');}
     catch(e){const t=`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!\n💰 ยอดรวม ${Math.round(total).toLocaleString()}฿\n📱 หารกันเอง · capybarabu`;navigator.clipboard?.writeText(t).then(()=>toast('คัดลอกแล้ว ✓'));}
@@ -753,18 +759,27 @@ window.shareTripSummary=async function(){
   const cm={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';cm[k]=(cm[k]||0)+(+e.amount||0);});
   const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];
   const avg=state.members.length?total/state.members.length:0;
-  const lines=[
-    `✨ สรุปทริป "${tripName}"`,
-    ``,
-    `💰 ยอดรวม: ${fmt(total)}`,
-    `👥 สมาชิก: ${state.members.length} คน · เฉลี่ย ${fmt(avg)}`,
-    bigSpender?`👑 จ่ายเยอะสุด: ${bigSpender.name} (${fmt(paid[bigSpender.id]||0)})`:'',
-    topCat?`🔥 หมวดฮิต: ${topCat[0]}`:'',
-    ``,
-    `📱 หารกันเอง · capybarabu`,
-  ].filter(Boolean).join('\n');
-  if(navigator.share){navigator.share({title:'สรุปทริป '+tripName,text:lines});}
-  else if(navigator.clipboard){await navigator.clipboard.writeText(lines);toast('คัดลอกสรุปแล้ว ✓');}
+  const url=location.origin+location.pathname+'#'+(state.tripId||'');
+  const bodyContents=[
+    {type:'text',text:'✨ สรุปทริปนี้',weight:'bold',size:'lg',color:'#1F2D24'},
+    {type:'text',text:tripName,size:'sm',color:'#5C6E63',wrap:true},
+    {type:'separator',margin:'md'},
+    {type:'box',layout:'horizontal',margin:'md',contents:[{type:'text',text:'💰 ยอดรวม',size:'sm',color:'#94A89C',flex:1},{type:'text',text:fmt(total),size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]},
+    {type:'box',layout:'horizontal',contents:[{type:'text',text:'👥 สมาชิก',size:'sm',color:'#94A89C',flex:1},{type:'text',text:`${state.members.length} คน · เฉลี่ย ${fmt(avg)}`,size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]},
+    bigSpender?{type:'box',layout:'horizontal',contents:[{type:'text',text:'👑 จ่ายเยอะสุด',size:'sm',color:'#94A89C',flex:1},{type:'text',text:bigSpender.name,size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]}:null,
+    topCat?{type:'box',layout:'horizontal',contents:[{type:'text',text:'🔥 หมวดฮิต',size:'sm',color:'#94A89C',flex:1},{type:'text',text:topCat[0],size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]}:null,
+  ].filter(Boolean);
+  const flexMsg={type:'flex',altText:`✨ สรุปทริป "${tripName}" — ${fmt(total)}`,contents:{type:'bubble',size:'kilo',
+    header:{type:'box',layout:'vertical',backgroundColor:'#06C755',paddingAll:'14px',contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]},
+    body:{type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',contents:bodyContents},
+    footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
+  }};
+  const fallbackText=[`✨ สรุปทริป "${tripName}"`,``,`💰 ยอดรวม: ${fmt(total)}`,`👥 สมาชิก: ${state.members.length} คน · เฉลี่ย ${fmt(avg)}`,bigSpender?`👑 จ่ายเยอะสุด: ${bigSpender.name}`:'',topCat?`🔥 หมวดฮิต: ${topCat[0]}`:'',``,`📱 หารกันเอง · capybarabu`].filter(Boolean).join('\n');
+  if(liffCanShare()){
+    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success')toast('แชร์สรุปแล้ว ✓');}
+    catch(e){navigator.clipboard?.writeText(fallbackText).then(()=>toast('คัดลอกสรุปแล้ว ✓'));}
+  }else if(navigator.share){navigator.share({title:'สรุปทริป '+tripName,text:fallbackText});}
+  else{navigator.clipboard?.writeText(fallbackText).then(()=>toast('คัดลอกสรุปแล้ว ✓'));}
 };
 window.inviteViaLine=async function(){
   const tripCode=safeTripCode(state.tripId);
@@ -806,7 +821,7 @@ window.inviteViaLine=async function(){
     }
   };
 
-  const canShare=typeof liff!=='undefined'&&!window.__liffFailed&&typeof liff.isApiAvailable==='function'&&liff.isApiAvailable('shareTargetPicker');
+  const canShare=liffCanShare();
   if(canShare){
     try{
       const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});
