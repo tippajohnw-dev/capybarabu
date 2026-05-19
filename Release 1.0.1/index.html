@@ -632,6 +632,17 @@ window.handleLogout = async function(){
 
 function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if(window.__fbError)return j(window.__fbError);const t=setTimeout(()=>j(new Error('timeout')),ms);window.addEventListener('fb-ready',()=>{clearTimeout(t);r()},{once:true});window.addEventListener('fb-failed',()=>{clearTimeout(t);j(window.__fbError)},{once:true});});}
 function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);}
+// รอให้ RTDB WebSocket ส่ง auth token สำเร็จก่อน DB operations แรก
+// .info/authenticated เป็น true ต่อเมื่อ RTDB server รับ token แล้ว
+function waitForRtdbAuth(ms=5000){
+  if(!state.firebaseUid)return Promise.resolve(); // no auth — skip (open rules path)
+  return new Promise(resolve=>{
+    const t=setTimeout(()=>{console.warn('[RTDB] auth timeout — proceeding anyway');ref.off('value',cb);resolve();},ms);
+    const ref=db.ref('.info/authenticated');
+    const cb=snap=>{if(snap.val()===true){clearTimeout(t);ref.off('value',cb);resolve();}};
+    ref.on('value',cb);
+  });
+}
 async function signInFbAnon(){
   return new Promise(resolve=>{
     const unsub=firebase.auth().onAuthStateChanged(async user=>{
@@ -1186,7 +1197,7 @@ async function boot(){
 
   const [liffOk, fbResult] = await Promise.allSettled([
     initLiff(),
-    (async()=>{ await waitFb(10000); initFb(); await signInFbAnon(); db=firebase.database(); initConnMonitor(); perfMark('firebase_ready'); })()
+    (async()=>{ await waitFb(10000); initFb(); await signInFbAnon(); db=firebase.database(); await waitForRtdbAuth(5000); initConnMonitor(); perfMark('firebase_ready'); })()
   ]);
 
   if(fbResult.status === 'rejected'){

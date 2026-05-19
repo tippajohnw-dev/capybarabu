@@ -1,4 +1,4 @@
-const CACHE = 'capybarabu-v1.3.8';
+const CACHE = 'capybarabu-v1.3.9';
 const SHELL = ['./index.html', './manifest.json', './capybarabu%20inc.png', './Icon%20Emotional.png'];
 
 const SKIP_HOSTS = [
