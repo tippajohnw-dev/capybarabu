@@ -239,7 +239,7 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
     </div>
     <div id="tab-settle" class="tab-pane hidden">
       <div class="card">
-        <div style="font-size:12px;color:var(--ink-3);margin-bottom:10px"><span class="conn-dot ok" id="conn-dot"></span><span id="conn-text">เชื่อมต่อแล้ว</span></div>
+        <div style="font-size:12px;color:var(--ink-3);margin-bottom:10px"><span class="conn-dot ok" id="conn-dot"></span><span id="conn-text">เชื่อมต่อแล้ว</span> <span id="auth-debug" style="display:none;color:var(--bad);font-size:10px"></span></div>
         <h3 style="font-size:14px;margin-bottom:12px">ยอดสุทธิแต่ละคน</h3><div id="net-balances"></div>
       </div>
       <div class="card"><h3 style="font-size:14px;margin-bottom:12px">💸 วิธีโอนให้จบ</h3><div id="settle-list"></div></div>
@@ -276,11 +276,14 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 <div id="modal-join" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
     <div style="font-weight:700;font-size:17px;margin-bottom:16px">🔗 เข้าร่วม Trip</div>
-    <div class="field"><label>รหัส Trip</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" autocomplete="off" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
-    <div style="background:var(--line-tint);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--ink-2)">💡 ขอรหัส Trip จากเพื่อนที่สร้าง หรือกดลิงก์ที่เพื่อนแชร์มา</div>
+    <div id="join-trips-list" style="display:none;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Trip ของคุณ</div>
+      <div id="join-trips-items" style="max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <div class="field"><label id="join-code-label">รหัส Trip</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" autocomplete="off" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-join')">ยกเลิก</button>
-      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doJoinTrip()">เข้าร่วม</button>
+      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doJoinTrip()">เข้าร่วมด้วยรหัส</button>
     </div>
   </div>
 </div>
@@ -333,11 +336,11 @@ body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Not
 (function(){
   function ls(src){return new Promise((r,j)=>{const s=document.createElement('script');s.src=src;s.async=false;s.onload=()=>r(src);s.onerror=()=>j(new Error('Failed:'+src));document.head.appendChild(s);});}
   const cdns=[
-    ['https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js'],
-    ['https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-database-compat.js'],
-    ['https://unpkg.com/firebase@10.12.5/firebase-app-compat.js','https://unpkg.com/firebase@10.12.5/firebase-database-compat.js'],
+    ['https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js','https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js'],
+    ['https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-database-compat.js','https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-auth-compat.js'],
+    ['https://unpkg.com/firebase@10.12.5/firebase-app-compat.js','https://unpkg.com/firebase@10.12.5/firebase-database-compat.js','https://unpkg.com/firebase@10.12.5/firebase-auth-compat.js'],
   ];
-  (async()=>{for(const p of cdns){try{await Promise.all([ls(p[0]),ls(p[1])]);if(typeof firebase!=='undefined'&&firebase.initializeApp){window.__fbReady=true;window.dispatchEvent(new Event('fb-ready'));return;}}catch(e){console.warn('[FB CDN]',e);}}window.__fbError=new Error('Firebase โหลดไม่ได้');window.dispatchEvent(new Event('fb-failed'));})();
+  (async()=>{for(const p of cdns){try{await Promise.all([ls(p[0]),ls(p[1]),ls(p[2])]);if(typeof firebase!=='undefined'&&firebase.initializeApp){window.__fbReady=true;window.dispatchEvent(new Event('fb-ready'));return;}}catch(e){console.warn('[FB CDN]',e);}}window.__fbError=new Error('Firebase โหลดไม่ได้');window.dispatchEvent(new Event('fb-failed'));})();
 })();
 </script>
 
@@ -350,7 +353,8 @@ const _DEF={color:'#06C755',dark:'#05A648',soft:'#E6F9EE',tint:'#F2FBF5'};
 function applyTheme(key){const t=key&&THEMES[key],c=t||_DEF,r=document.documentElement.style;r.setProperty('--line',c.color);r.setProperty('--line-dark',c.dark);r.setProperty('--line-soft',c.soft);r.setProperty('--line-tint',c.tint);}
 let _newTripTheme='',_settingsTheme='';
 function selectTheme(key,btn,group){if(group==='settings')_settingsTheme=key;else _newTripTheme=key;const g=btn.closest('[data-theme-group]');if(g)g.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active',b===btn));}
-const state={lineUserId:null,tripId:null,tripName:null,tripTheme:'',me:null,members:[],expenses:[],payments:{}};
+const state={lineUserId:null,firebaseUid:null,tripId:null,tripName:null,tripTheme:'',me:null,members:[],expenses:[],payments:{}};
+let _myTrips=[];
 // Centralized Firebase listener manager — prevents listener leaks
 const ListenerMgr={
   _refs:new Set(),
@@ -627,7 +631,25 @@ window.handleLogout = async function(){
 };
 
 function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if(window.__fbError)return j(window.__fbError);const t=setTimeout(()=>j(new Error('timeout')),ms);window.addEventListener('fb-ready',()=>{clearTimeout(t);r()},{once:true});window.addEventListener('fb-failed',()=>{clearTimeout(t);j(window.__fbError)},{once:true});});}
-function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.database();}
+function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);}
+async function signInFbAnon(){
+  return new Promise(resolve=>{
+    const unsub=firebase.auth().onAuthStateChanged(async user=>{
+      unsub();
+      if(user){state.firebaseUid=user.uid;}
+      else{
+        try{
+          const c=await firebase.auth().signInAnonymously();
+          state.firebaseUid=c.user.uid;
+        }catch(e){
+          console.warn('[FB Anon]',e);
+          try{localStorage.setItem('_fb_anon_err',JSON.stringify({code:e?.code,msg:e?.message,ts:Date.now()}));}catch(_){}
+        }
+      }
+      resolve();
+    },e=>{console.warn('[FB Anon onAuthState]',e);resolve();});
+  });
+}
 async function saveUser(){
   if(!AUTH.user||!db)return;
   const _uk=safeKey(AUTH.user.lineUserId);
@@ -643,8 +665,8 @@ function listenMyTrips(){
   if(!state.lineUserId||!db)return;ListenerMgr.off(tripsRef);
   tripsRef=ListenerMgr.add(db.ref('userTrips/'+safeKey(state.lineUserId)));
   tripsRef.on('value',snap=>{
-    const data=snap.val()||{};const owned=[],joined=[];
-    Object.entries(data).forEach(([id,info])=>{(info.role==='owner'?owned:joined).push({tripId:id,...info});});
+    const data=snap.val()||{};const owned=[],joined=[];_myTrips=[];
+    Object.entries(data).forEach(([id,info])=>{const t={tripId:id,...info};(info.role==='owner'?owned:joined).push(t);_myTrips.push(t);});
     const tc=t=>`<div class="trip-card" onclick="openTrip('${esc(t.tripId)}')"><div class="trip-icon">${t.theme&&THEMES[t.theme]?THEMES[t.theme].emoji:(t.role==='owner'?'🏝':'🤝')}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div class="small muted">รหัส: ${esc(t.tripId)}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>`;
     $('my-trips-list').innerHTML=owned.length?owned.map(tc).join(''):`<div class="empty" style="padding:24px 0">${mkEmoji(7,80)}<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มี Trip เลยนะ</div><div style="font-size:13px;color:var(--ink-3)">กด <strong style="color:var(--line)">สร้าง Trip ใหม่</strong> ด้านล่างได้เลย 🏝</div></div></div>`;
     $('joined-trips-list').innerHTML=joined.length?joined.map(tc).join(''):`<div class="empty" style="padding:16px 0;flex-direction:row;gap:10px;justify-content:flex-start">${mkEmoji(6,40)}<div style="text-align:left"><div style="font-size:13px;font-weight:700;color:var(--ink)">ยังไม่ได้เข้าร่วม Trip ใด</div><div style="font-size:12px;color:var(--ink-3)">รอเพื่อนส่ง link เชิญมาเลย</div></div></div>`;
@@ -660,14 +682,35 @@ function listenMyTrips(){
   });
 }
 window.showCreateModal=()=>{_newTripTheme='';document.querySelectorAll('[data-theme-group="create"] .theme-btn').forEach((b,i)=>b.classList.toggle('active',i===0));openModal('modal-create');setTimeout(()=>$('new-trip-name').focus(),120);};
-window.showJoinModal=()=>{openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);};
+window.showJoinModal=()=>{
+  const tl=$('join-trips-items'),tw=$('join-trips-list'),lb=$('join-code-label');
+  if(tl&&tw){
+    if(_myTrips.length){
+      tw.style.display='block';
+      if(lb)lb.textContent='หรือใส่รหัส Trip ใหม่';
+      tl.innerHTML=_myTrips.map(t=>{const em=t.theme&&THEMES[t.theme]?THEMES[t.theme].emoji:'🏝';return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer" onclick="quickJoinExisting('${esc(t.tripId)}')"><span style="font-size:18px;flex-shrink:0">${em}</span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div style="font-size:11px;color:var(--ink-3)">${esc(t.tripId)}</div></div><span style="background:var(--line-soft);color:var(--line-dark);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0">เข้าร่วมแล้ว</span></div>`;}).join('');
+    }else{
+      tw.style.display='none';
+      if(lb)lb.textContent='รหัส Trip';
+    }
+  }
+  openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);
+};
+window.quickJoinExisting=function(tripId){closeModal('modal-join');openTrip(tripId);};
 window.doCreateTrip=async function(){
   const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!AUTH.user)return toast('กรุณา login ก่อน');
   const _cb=document.querySelector('#modal-create .btn-primary');if(_cb){_cb.disabled=true;_cb.textContent='กำลังสร้าง...';}
   try{
-  const code=mkCode(name),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16);
-  await db.ref('trips/'+code).set({name,theme:_newTripTheme,createdBy:uid,createdAt:Date.now(),members:{[mid]:{id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid}},expenses:{}});
-  await db.ref('userTrips/'+suid+'/'+code).set({role:'owner',tripName:name,theme:_newTripTheme,joinedAt:Date.now(),joinedVia:'owner'});
+  const code=mkCode(name),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16),fuid=state.firebaseUid||'';
+  const updates={};
+  updates[`trips/${code}/name`]=name;
+  updates[`trips/${code}/theme`]=_newTripTheme;
+  updates[`trips/${code}/createdBy`]=uid;
+  updates[`trips/${code}/createdByUid`]=fuid;
+  updates[`trips/${code}/createdAt`]=Date.now();
+  updates[`trips/${code}/members/${mid}`]={id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:fuid};
+  updates[`userTrips/${suid}/${code}`]={role:'owner',tripName:name,theme:_newTripTheme,joinedAt:Date.now(),joinedVia:'owner'};
+  await db.ref().update(updates);
   closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');trackEvent('trip_created');openTrip(code);}catch(e){toast('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');console.error(e);}finally{if(_cb){_cb.disabled=false;_cb.textContent='สร้างเลย 🎉';}}
 };
 window.doJoinTrip=async function(){
@@ -677,7 +720,7 @@ window.doJoinTrip=async function(){
   const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้ — ตรวจสอบรหัสอีกครั้ง');
   const data=snap.val(),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16);
   let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
-  if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
+  if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:state.firebaseUid||''});
   await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'code'});
   closeModal('modal-join');$('join-code').value='';trackEvent('join_via_code');openTrip(code);}catch(e){toast('ไม่พบ Trip หรือเกิดข้อผิดพลาด');console.error(e);}finally{if(_jb){_jb.disabled=false;_jb.textContent='เข้าร่วม';}}
 };
@@ -686,7 +729,7 @@ window.confirmJoinTrip=async function(){
   if(!_pendingJoin)return showScr('screen-trips');
   const{code,data,uid,suid,mid}=_pendingJoin;_pendingJoin=null;
   showScr('screen-splash');
-  if(!data.members?.[mid])await db.ref('trips/'+code+'/members/'+mid).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid});
+  if(!data.members?.[mid])await db.ref('trips/'+code+'/members/'+mid).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:state.firebaseUid||''});
   await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'link'});
   toast('เข้าร่วม Trip แล้ว 🎉');trackEvent('join_via_link');openTrip(code);
 };
@@ -700,32 +743,20 @@ async function handleHashJoin(hash){
   const uid = AUTH.user.lineUserId;
   const suid = safeKey(uid);
   if(!suid){console.error('[handleHashJoin] empty suid for uid:',uid);showScr('screen-trips');return;}
+  // สมาชิกเดิม → เข้า Trip เลย
   const ex = await db.ref('userTrips/' + suid + '/' + safeHash).get();
   if(ex.exists()){ openTrip(safeHash); return; }
   const ts = await db.ref('trips/' + safeHash).get();
   if(!ts.exists()){ showScr('screen-trips'); toast('ไม่พบ Trip: ' + safeHash); return; }
   const data = ts.val();
   const mid = 'line_' + suid.slice(0,16);
-  // Show join preview for new members
-  _pendingJoin = {code:safeHash, data, uid, suid, mid};
-  const members = Object.values(data.members||{});
-  const memberCount = members.length;
-  const expCount = Object.keys(data.expenses||{}).length;
-  const creatorM = members.find(m=>m.lineUserId===data.createdBy);
-  $('jp-mascot').innerHTML = mkEmoji(6,80);
-  $('jp-name').textContent = data.name || safeHash;
-  $('jp-meta').innerHTML = `🧾 ${expCount} รายการ${creatorM?` · สร้างโดย <strong>${esc(creatorM.name)}</strong>`:''}`;
-  // Member pills — show up to 6, "+N" if more
-  const jpm=$('jp-members');
-  if(jpm){
-    const show=members.slice(0,6);
-    const more=memberCount-show.length;
-    jpm.innerHTML=(memberCount?`<div style="font-size:11px;font-weight:700;color:var(--ink-3);width:100%;text-align:center;margin-bottom:4px">${memberCount} คนรอคุณอยู่ 👋</div>`:'')+
-      show.map(m=>`<span style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-full);padding:4px 10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px">${mkAv(m.name,18,m.pictureUrl)}<span>${esc(m.name)}</span></span>`).join('')+
-      (more>0?`<span style="background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:4px 10px;font-size:12px;font-weight:700">+${more}</span>`:'');
-  }
-  trackEvent('invite_link_opened');
-  showScr('screen-join-preview');
+  // สมาชิกใหม่ → Auto-join ทันที ไม่ต้องผ่าน preview
+  showScr('screen-splash');
+  if(!data.members?.[mid]) await db.ref('trips/'+safeHash+'/members/'+mid).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:state.firebaseUid||''});
+  await db.ref('userTrips/'+suid+'/'+safeHash).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||safeHash,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'link'});
+  trackEvent('join_via_link');
+  toast('เข้าร่วม "'+( data.name||safeHash)+'" แล้ว 🎉');
+  openTrip(safeHash);
 }
 window.openTrip=function(code){
   const safeCode = safeTripCode(code);
@@ -812,7 +843,7 @@ function setupTopbar(){
   $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;_settingsTheme=state.tripTheme||'';document.querySelectorAll('[data-theme-group="settings"] .theme-btn').forEach(b=>b.classList.toggle('active',(b.dataset.key||'')===_settingsTheme));openModal('modal-settings');};
   const tb=$('topbar');if(window._scrollHandler)window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=()=>{if(window._scrollRAF)return;window._scrollRAF=requestAnimationFrame(()=>{window._scrollRAF=null;tb.classList.toggle('scrolled',window.scrollY>4);});};window.addEventListener('scroll',window._scrollHandler);
 }
-function setConn(ok){const d=$('conn-dot'),t=$('conn-text');if(!d)return;d.className='conn-dot '+(ok?'ok':'bad');t.textContent=ok?'เชื่อมต่อแล้ว':'การเชื่อมต่อมีปัญหา';}
+function setConn(ok){const d=$('conn-dot'),t=$('conn-text');if(!d)return;d.className='conn-dot '+(ok?'ok':'bad');t.textContent=ok?'เชื่อมต่อแล้ว':'การเชื่อมต่อมีปัญหา';const ad=$('auth-debug');if(ad){try{const e=localStorage.getItem('_fb_anon_err');if(e){const p=JSON.parse(e);ad.style.display='inline';ad.textContent='auth:'+p.code;}}catch(_){}}}
 function calcBal(){const paid={},owed={};let total=0;state.members.forEach(m=>{paid[m.id]=0;owed[m.id]=0;});state.expenses.forEach(e=>{const a=+e.amount||0;total+=a;if(paid[e.payer]!==undefined)paid[e.payer]+=a;const b=e.beneficiaries||[];const sh=a/(b.length||1);b.forEach(id=>{if(owed[id]!==undefined)owed[id]+=sh;});});return{paid,owed,total};}
 function calcSettle(net){const p=Object.entries(net).filter(([,v])=>v>0).map(([n,v])=>[n,v]).sort((a,b)=>b[1]-a[1]);const n=Object.entries(net).filter(([,v])=>v<0).map(([n,v])=>[n,-v]).sort((a,b)=>b[1]-a[1]);const tx=[];let i=0,j=0;while(i<p.length&&j<n.length){const a=Math.min(p[i][1],n[j][1]);if(a>0.5)tx.push({from:n[j][0],to:p[i][0],amount:Math.round(a)});p[i][1]-=a;n[j][1]-=a;if(p[i][1]<0.5)i++;if(n[j][1]<0.5)j++;}return tx;}
 function renderAll(){
@@ -866,7 +897,7 @@ function renderTab(tab,bal){
   }
   else if(tab==='expenses'){
     const el=$('expense-list');
-    const mkExpCard=(e,compact)=>{const pr=state.members.find(m=>m.id===e.payer),ph=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="card" style="padding:${compact?'10px 12px':'13px 14px'};margin-bottom:${compact?'6px':'8px'}"><div style="display:flex;gap:10px;align-items:flex-start">${mkAv(pr?.name||'?',32,pr?.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.category||'')} ${esc(e.title||'')}</div><div class="small muted" style="margin-top:1px">${esc(pr?.name||'?')} จ่าย</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div class="num" style="font-weight:700;font-size:15px">${fmt(+e.amount||0)}</div><div class="small muted">÷${(e.beneficiaries||[]).length}=${fmt(ph)}/คน</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px"><div style="display:flex;gap:4px;flex-wrap:wrap">${(e.beneficiaries||[]).map(bid=>{const bm=state.members.find(m=>m.id===bid);return bm?`<span class="badge" style="font-size:10px">${esc(bm.name)}</span>`:''}).join('')}</div><button onclick="delExp('${esc(e.id)}')" style="font-size:11px;color:var(--bad);background:#F2555510;border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">ลบ</button></div></div></div></div>`;};
+    const mkExpCard=(e,compact)=>{const pr=state.members.find(m=>m.id===e.payer),ph=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="card" style="padding:${compact?'10px 12px':'13px 14px'};margin-bottom:${compact?'6px':'8px'}"><div style="display:flex;gap:10px;align-items:flex-start">${mkAv(pr?.name||'?',32,pr?.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.category||'')} ${esc(e.title||'')}</div><div class="small muted" style="margin-top:1px">${esc(pr?.name||'?')} จ่าย</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div class="num" style="font-weight:700;font-size:15px">${fmt(+e.amount||0)}</div><div class="small muted">÷${(e.beneficiaries||[]).length}=${fmt(ph)}/คน</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px"><div style="display:flex;gap:4px;flex-wrap:wrap">${(e.beneficiaries||[]).map(bid=>{const bm=state.members.find(m=>m.id===bid);return bm?`<span class="badge" style="font-size:10px">${esc(bm.name)}</span>`:''}).join('')}</div><div style="display:flex;gap:4px">${e.payer===state.me?`<button onclick="openExpenseForm('${esc(e.id)}')" style="font-size:11px;color:var(--line-dark);background:var(--line-soft);border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">แก้ไข</button>`:''}<button onclick="delExp('${esc(e.id)}')" style="font-size:11px;color:var(--bad);background:#F2555510;border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">ลบ</button></div></div></div></div></div>`;};
     if(!state.expenses.length){el.innerHTML='<div class="empty" style="padding:32px 20px">'+mkEmoji(4,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มีรายจ่ายเลยนะ</div><div style="font-size:13px;color:var(--ink-3)">แตะ <strong style="color:var(--line);font-size:15px">+</strong> เพื่อเพิ่มรายจ่ายได้เลย</div></div></div>';return;}
     if(_expView==='timeline'){
       const fmt2=d=>{try{const[y,m,dd]=d.split('-');const th=new Date(+y,+m-1,+dd);return th.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});}catch{return d;}};
@@ -926,8 +957,13 @@ window.saveExpense=async function(){
   if(!_connOnline)return toast('🐹 ตอนนี้เน็ตหลุด บันทึกไม่ได้ชั่วคราว ลองใหม่อีกทีนะ');
   const t=san($('ef-title').value,80),a=parseFloat($('ef-amount').value);
   if(!t)return toast('ใส่ชื่อรายการก่อน');if(!a||a<=0)return toast('ใส่จำนวนเงินก่อน');if(!_pay)return toast('เลือกคนที่จ่ายก่อน');if(!_ben.size)return toast('เลือกคนร่วมหารก่อน');
-  const id=safeKey($('ef-id').value||('e_'+Date.now()+'_'+uuid()));
-  await tripRef.child('expenses/'+safeKey(id)).set({id,title:t,amount:a,category:$('ef-cat').value,date:$('ef-date').value,payer:_pay,beneficiaries:[..._ben],splitMode:'equal',createdAt:Date.now()});
+  const efIdVal=$('ef-id').value;
+  const id=safeKey(efIdVal||('e_'+Date.now()+'_'+uuid()));
+  const existing=efIdVal?state.expenses.find(x=>x.id===efIdVal):null;
+  const payload={id,title:t,amount:a,category:$('ef-cat').value,date:$('ef-date').value,payer:_pay,beneficiaries:[..._ben],splitMode:'equal',createdAt:Date.now()};
+  if(!efIdVal&&state.firebaseUid)payload.creatorUid=state.firebaseUid;
+  if(efIdVal&&existing?.creatorUid)payload.creatorUid=existing.creatorUid;
+  await tripRef.child('expenses/'+safeKey(id)).set(payload);
   _pay=null;_ben=new Set();closeModal('modal-expense');toast('บันทึกแล้ว ✓');trackEvent('expense_added');
 };
 window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');trackEvent('expense_deleted');};
@@ -1141,7 +1177,7 @@ async function boot(){
 
   const [liffOk, fbResult] = await Promise.allSettled([
     initLiff(),
-    (async()=>{ await waitFb(10000); initFb(); initConnMonitor(); perfMark('firebase_ready'); })()
+    (async()=>{ await waitFb(10000); initFb(); await signInFbAnon(); db=firebase.database(); initConnMonitor(); perfMark('firebase_ready'); })()
   ]);
 
   if(fbResult.status === 'rejected'){
