@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"/>
+<title>หารกันเอง · capybarabu</title>
+<meta name="theme-color" content="#06C755"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="หารกันเอง"/>
+<link rel="manifest" href="./manifest.json"/>
+<link rel="apple-touch-icon" href="./icons/icon-192.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://static.line-scdn.net">
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=Mali:wght@600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=Mali:wght@600;700&display=swap" rel="stylesheet"></noscript>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js" onerror="window.__liffFailed=true"></script>
+<style>
+:root{
+  --line:#06C755;--line-dark:#05A648;--line-soft:#E6F9EE;--line-tint:#F2FBF5;
+  --bg:#F2FBF5;--surface:#fff;--surface-2:#F4F8F5;
+  --border:#E2EDE6;--ink:#1F2D24;--ink-2:#5C6E63;--ink-3:#94A89C;
+  --good:#06C755;--bad:#F25555;--r:16px;--r-sm:10px;--r-full:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai','Noto Sans Thai',sans-serif;min-height:100vh;overscroll-behavior:none}
+.hidden{display:none!important}
+.screen{min-height:100vh;display:flex;flex-direction:column}
+.card{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 4px #00000010}
+.btn{border-radius:var(--r-sm);padding:12px 20px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-line{background:var(--line);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;border-radius:var(--r);font-size:16px;font-weight:700;box-shadow:0 4px 18px rgba(6,199,85,.35)}
+.btn-ghost{background:var(--surface);color:var(--ink-2);border:1.5px solid var(--border)}
+.btn-primary{background:var(--line);color:#fff}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.field input,.field select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:inherit;background:var(--surface-2);color:var(--ink);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--line)}
+.topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;transition:box-shadow .2s}
+.topbar.scrolled{box-shadow:0 2px 12px #00000012}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;height:52px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:52px;z-index:19}
+.tab{flex:1;padding:12px 4px 10px;background:none;border:none;font-size:12px;font-weight:600;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;transition:all .15s}
+.tab.active{color:var(--line);border-bottom-color:var(--line)}
+.trip-card{background:var(--surface);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 4px #00000010;transition:transform .15s;animation:fadeIn .2s ease}
+.trip-card:active{transform:scale(.98)}
+.trip-icon{width:44px;height:44px;border-radius:12px;background:var(--line-soft);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:var(--r-full);padding:10px 22px;font-size:13px;font-weight:600;z-index:999;display:none;white-space:nowrap;box-shadow:0 4px 20px #0004}
+.badge{display:inline-block;background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:2px 8px;font-size:11px;font-weight:700}
+.num{font-family:'Mali',sans-serif}
+.small{font-size:12px}.muted{color:var(--ink-3)}.good{color:var(--good)}.bad{color:var(--bad)}
+.section-label{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase;margin:16px 0 8px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:32px 20px;color:var(--ink-3)}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--ink-2);padding:6px;border-radius:8px;display:flex;align-items:center}
+.bar-track{height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;width:100%;border-radius:999px;transition:transform .4s ease;transform-origin:left}
+.settle-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.settle-row:last-child{border-bottom:0}
+.lb-row{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:10px;transition:background .15s}
+.lb-row:last-child{border-bottom:0}
+.lb-row:hover,.lb-row.expanded{background:var(--line-tint)}
+.lb-rank{width:26px;text-align:center;font-weight:800;font-size:15px;flex-shrink:0}
+.lb-rank.gold{color:#F5A623}.lb-rank.silver{color:#9B9B9B}.lb-rank.bronze{color:#C87533}
+.lb-chevron{font-size:11px;color:var(--ink-3);transition:transform .2s}
+.lb-chevron.open{transform:rotate(180deg)}
+.lb-detail{display:none;padding:8px 14px 12px 46px;background:var(--line-tint);border-radius:0 0 10px 10px;border-bottom:1px solid var(--border)}
+.lb-detail.open{display:block}
+.lb-exp-row{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);padding:3px 0;border-bottom:1px dotted var(--border)}
+.lb-exp-row:last-child{border-bottom:0}
+.conn-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.conn-dot.ok{background:var(--good)}.conn-dot.bad{background:var(--bad)}
+.theme-btn{border:2px solid var(--border);border-radius:var(--r-full);padding:6px 12px;font-size:12px;font-weight:700;background:var(--surface-2);color:var(--ink-2);cursor:pointer;font-family:inherit;transition:all .15s}
+.theme-btn.active{border-color:var(--line);background:var(--line-soft);color:var(--line-dark)}
+.tl-day{position:relative;padding-left:20px;margin-bottom:4px}
+.tl-day::before{content:'';position:absolute;left:6px;top:32px;bottom:0;width:2px;background:var(--border)}
+.tl-dot{position:absolute;left:0;top:10px;width:14px;height:14px;border-radius:50%;background:var(--line);border:2.5px solid var(--surface)}
+.tl-day:last-child::before{display:none}
+.trip-chip{background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:3px 10px;font-size:12px;font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN — Auth Gate (แสดงระหว่างทุก auth transition) -->
+<div id="screen-splash" class="screen" style="align-items:center;justify-content:center;background:linear-gradient(170deg,#F2FBF5 0%,#E6F9EE 100%);gap:20px;position:relative">
+  <div style="position:fixed;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:#06C75514;pointer-events:none"></div>
+  <div style="position:fixed;bottom:80px;left:-40px;width:120px;height:120px;border-radius:50%;background:#06C75510;pointer-events:none"></div>
+  <svg width="90" height="90" viewBox="0 0 210 210" fill="none" style="animation:bob 2.4s ease-in-out infinite">
+    <ellipse cx="105" cy="192" rx="62" ry="11" fill="#00000014"/>
+    <ellipse cx="105" cy="146" rx="60" ry="53" fill="#C4843A"/>
+    <ellipse cx="105" cy="150" rx="48" ry="42" fill="#D4924A"/>
+    <ellipse cx="78" cy="178" rx="13" ry="8" fill="#D4924A"/><ellipse cx="132" cy="178" rx="13" ry="8" fill="#D4924A"/>
+    <ellipse cx="105" cy="115" rx="46" ry="44" fill="#D4924A"/>
+    <ellipse cx="69" cy="81" rx="8" ry="9" fill="#E8B07A"/><ellipse cx="141" cy="81" rx="8" ry="9" fill="#E8B07A"/>
+    <ellipse cx="105" cy="118" rx="32" ry="30" fill="#E8A85C"/>
+    <ellipse cx="90" cy="107" rx="8.5" ry="9.5" fill="white"/><ellipse cx="120" cy="107" rx="8.5" ry="9.5" fill="white"/>
+    <circle cx="92" cy="108" r="5.5" fill="#2C1810"/><circle cx="122" cy="108" r="5.5" fill="#2C1810"/>
+    <circle cx="93.5" cy="106.5" r="1.8" fill="white"/><circle cx="123.5" cy="106.5" r="1.8" fill="white"/>
+    <path d="M96 131 Q105 138 114 131" stroke="#A06830" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <rect x="65" y="55" width="80" height="44" rx="22" fill="#06C755"/>
+    <ellipse cx="105" cy="49" rx="31" ry="9" fill="#06C755"/>
+    <text x="105" y="80" text-anchor="middle" font-size="10" font-weight="700" fill="white" font-family="sans-serif">หารกันเอง</text>
+    <circle cx="147" cy="60" r="9.5" fill="#FFD700"/><text x="147" y="65" text-anchor="middle" font-size="11" fill="#B8860B" font-weight="700" font-family="sans-serif">฿</text>
+  </svg>
+  <div style="text-align:center">
+    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:4px">หารกันเอง</div>
+    <div style="font-size:11px;color:var(--line);font-weight:600;letter-spacing:2px;text-transform:uppercase">capybarabu</div>
+  </div>
+  <!-- Status message — เปลี่ยนตาม auth state -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+    <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--line);border-radius:50%;animation:spin .7s linear infinite"></div>
+    <div id="splash-msg" style="font-size:13px;color:var(--ink-3);min-height:20px;text-align:center">กำลังเปิด LINE...</div>
+  </div>
+  <!-- Error state — ซ่อนไว้ก่อน -->
+  <div id="splash-error" style="display:none;flex-direction:column;align-items:center;gap:12px;max-width:280px;text-align:center">
+    <div style="font-size:32px">😢</div>
+    <div id="splash-error-msg" style="font-size:14px;color:var(--bad);font-weight:600"></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="retryAuth()" style="padding:10px 20px;border-radius:10px;background:var(--line);color:white;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">ลองใหม่</button>
+      <button onclick="showLoginFallback()" style="padding:10px 20px;border-radius:10px;background:var(--surface);color:var(--ink-2);border:1.5px solid var(--border);font-weight:600;font-size:14px;cursor:pointer;font-family:inherit">หน้าแรก</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 1: LOGIN (fallback สำหรับ external browser) -->
+<div id="screen-login" class="screen" style="align-items:center;justify-content:space-between;padding:52px 24px 48px;background:linear-gradient(170deg,#F2FBF5 0%,#E6F9EE 100%)">
+  <div style="position:fixed;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:#06C75514;pointer-events:none"></div>
+  <div style="position:fixed;bottom:100px;left:-40px;width:140px;height:140px;border-radius:50%;background:#06C75510;pointer-events:none"></div>
+  <div style="text-align:center;z-index:1">
+    <div style="font-size:11px;font-weight:700;color:var(--line);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">capybarabu</div>
+    <div style="font-size:30px;font-weight:700;color:var(--ink);letter-spacing:-.5px">หารกันเอง</div>
+  </div>
+  <div style="z-index:1;animation:bob 2.8s ease-in-out infinite;display:flex;flex-direction:column;align-items:center;gap:14px">
+    <img src="./capybarabu%20inc.png" width="300" height="450" style="width:300px;max-width:90vw" alt="capybarabu mascot"/>
+    <div style="font-size:15px;color:var(--ink-2);text-align:center;line-height:1.8">คำนวณค่าใช้จ่ายร่วมกัน<br>หารง่าย จ่ายครบ ไม่งอน 🐾</div>
+  </div>
+  <div style="width:100%;max-width:360px;z-index:1">
+    <button class="btn-line" id="btn-login" onclick="loginWithLine()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+      เข้าสู่ระบบด้วย LINE
+    </button>
+    <div id="login-status" style="display:none;text-align:center;font-size:12px;color:var(--ink-3);margin-top:10px;min-height:18px"></div>
+    <div style="text-align:center;font-size:11px;color:var(--ink-3);margin-top:6px">ต้องเข้าสู่ระบบเพื่อสร้างและจัดการ Trip</div>
+  </div>
+</div>
+
+<!-- SCREEN 2: MY TRIPS -->
+<div id="screen-trips" class="screen hidden" style="background:var(--bg)">
+  <div style="background:var(--line);padding:20px 20px 26px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:#ffffff15;pointer-events:none"></div>
+    <div style="display:flex;align-items:center;gap:12px;position:relative">
+      <div id="trips-avatar" class="avatar" style="width:46px;height:46px;font-size:17px;background:#04A847;border:2.5px solid rgba(255,255,255,.45)"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;color:rgba(255,255,255,.7);margin-bottom:2px">ยินดีต้อนรับกลับ</div>
+        <div id="trips-name" style="font-weight:700;font-size:17px;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+      </div>
+      <button onclick="handleLogout()" style="background:rgba(255,255,255,.18);border:none;border-radius:8px;padding:6px 12px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">ออก</button>
+    </div>
+  </div>
+  <div style="padding:14px 16px 100px">
+    <div id="recent-trip-banner"></div>
+    <div class="section-label" style="margin-top:4px">🏝 Trip ของฉัน</div>
+    <div id="my-trips-list"><div class="empty"><div style="width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--line);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 8px"></div><div class="small muted">กำลังโหลด...</div></div></div>
+    <div class="section-label">🤝 Trip ที่เข้าร่วม</div>
+    <div id="joined-trips-list"><div class="empty small muted" style="padding:14px 0">ยังไม่ได้เข้าร่วม Trip ใด</div></div>
+  </div>
+  <div style="position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 16px 28px;display:flex;gap:10px;z-index:30">
+    <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="showJoinModal()">🔗 เข้าร่วม Trip</button>
+    <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="showCreateModal()">✨ สร้าง Trip ใหม่</button>
+  </div>
+</div>
+
+<!-- SCREEN 3: TRIP DETAIL -->
+<div id="screen-main" class="screen hidden" style="background:var(--bg)">
+  <div class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <button onclick="backToTrips()" class="icon-btn" style="margin-right:2px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="trip-chip" id="trip-chip"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <div id="topbar-aw" style="display:none"><img id="topbar-av" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--line)"/></div>
+        <button class="icon-btn" id="open-share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
+        <button class="icon-btn" id="open-settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9z"/></svg></button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard">สรุป</button>
+      <button class="tab" data-tab="expenses">รายจ่าย</button>
+      <button class="tab" data-tab="members">สมาชิก</button>
+      <button class="tab" data-tab="settle">เคลียร์</button>
+    </div>
+    <div id="offline-banner" style="display:none;align-items:center;gap:8px;background:#FFF3E0;border-bottom:1px solid #FFD54F;padding:8px 16px;font-size:12px;font-weight:600;color:#E65100"><span>📡</span><span>เน็ตหลุดนิดนึง ข้อมูลจะกลับมาเมื่อเชื่อมต่อใหม่</span></div>
+  </div>
+  <div style="padding:12px 14px 100px">
+    <div id="tab-dashboard" class="tab-pane" style="animation:fadeIn .25s ease">
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px">
+        <div><div class="small muted" style="margin-bottom:3px">ยอดรวมทริป</div><div id="dash-total" class="num" style="font-size:28px;font-weight:700">฿0</div></div>
+        <div style="text-align:right"><div class="small muted" style="margin-bottom:3px">เฉลี่ย/คน</div><div id="dash-avg" class="num" style="font-size:20px;font-weight:700;color:var(--line)">฿0</div></div>
+      </div>
+      <div class="card" id="my-status-card" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-weight:700;font-size:14px">สถานะของคุณ</div><div id="my-status-emoji"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="small muted">คุณจ่ายไป</span><span id="my-paid" class="num small" style="font-weight:700">฿0</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="small muted">ส่วนของคุณ</span><span id="my-owed" class="num small" style="font-weight:700">฿0</span></div>
+        <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border)"><span class="small" style="font-weight:600">สุทธิ</span><span id="my-net" class="num small" style="font-weight:700"></span></div>
+      </div>
+      <div class="card"><h3 style="font-size:14px;margin-bottom:12px">🏆 Leaderboard</h3><div id="all-members-summary"><div class="empty small muted">เพิ่มสมาชิกเพื่อเริ่ม</div></div></div>
+      <div class="card" id="cat-chart-card" style="display:none"><h3 style="font-size:14px;margin-bottom:12px">📊 หมวดหมู่</h3><div id="cat-chart"></div></div>
+      <div class="card" id="fun-stats-card" style="display:none"></div>
+      <div class="card" id="trip-memory-card" style="display:none"></div>
+      <div class="card" id="trip-summary-card" style="display:none"></div>
+    </div>
+    <div id="tab-expenses" class="tab-pane hidden">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-size:15px" onclick="openExpenseForm()">+ เพิ่มค่าใช้จ่าย</button>
+        <div style="display:flex;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface);flex-shrink:0">
+          <button id="exp-view-list" onclick="setExpView('list')" style="padding:0 12px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:var(--line);color:#fff">รายการ</button>
+          <button id="exp-view-tl" onclick="setExpView('timeline')" style="padding:0 12px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:transparent;color:var(--ink-3)">ไทม์ไลน์</button>
+        </div>
+      </div>
+      <div id="expense-list"><div class="empty small muted">ยังไม่มีรายการ</div></div>
+    </div>
+    <div id="tab-members" class="tab-pane hidden">
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:13px;color:var(--ink-2)">เชิญเพื่อน — แชร์รหัส <strong id="trip-code-display"></strong></div><div style="width:56px;height:61px;overflow:hidden;background:url('./Icon%20Emotional.png') -112px -75px/224px 149px no-repeat;flex-shrink:0"></div></div>
+        <button class="btn btn-primary" style="width:100%;border-radius:10px;font-size:13px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="inviteViaLine()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          เชิญผ่าน LINE
+        </button>
+        <button class="btn btn-ghost" style="width:100%;border-radius:10px;font-size:13px" onclick="copyTripLink()">📋 คัดลอก link เชิญ</button>
+      </div>
+      <div id="member-list"><div class="empty small muted">กำลังโหลด...</div></div>
+    </div>
+    <div id="tab-settle" class="tab-pane hidden">
+      <div class="card">
+        <div style="font-size:12px;color:var(--ink-3);margin-bottom:10px"><span class="conn-dot ok" id="conn-dot"></span><span id="conn-text">เชื่อมต่อแล้ว</span></div>
+        <h3 style="font-size:14px;margin-bottom:12px">ยอดสุทธิแต่ละคน</h3><div id="net-balances"></div>
+      </div>
+      <div class="card"><h3 style="font-size:14px;margin-bottom:12px">💸 วิธีโอนให้จบ</h3><div id="settle-list"></div></div>
+    </div>
+  </div>
+  <button id="fab" onclick="openExpenseForm()" style="position:fixed;bottom:24px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--line);color:white;border:none;font-size:24px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(6,199,85,.4);z-index:50">+</button>
+</div>
+
+<!-- MODAL: CREATE -->
+<!-- SCREEN 4: JOIN PREVIEW -->
+<div id="screen-join-preview" class="screen hidden" style="background:linear-gradient(170deg,#F2FBF5 0%,#E6F9EE 100%);align-items:center;justify-content:center;padding:40px 28px">
+  <div id="jp-mascot" style="margin-bottom:16px"></div>
+  <div style="font-size:12px;color:var(--line-dark);font-weight:700;margin-bottom:6px;text-align:center;letter-spacing:1px;text-transform:uppercase">คุณได้รับคำเชิญ</div>
+  <div id="jp-name" style="font-weight:700;font-size:26px;color:var(--ink);margin-bottom:6px;text-align:center;line-height:1.3"></div>
+  <div id="jp-meta" style="font-size:13px;color:var(--ink-3);margin-bottom:16px;text-align:center;line-height:1.8"></div>
+  <div id="jp-members" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:320px;margin-bottom:28px"></div>
+  <button onclick="confirmJoinTrip()" class="btn btn-primary" style="width:100%;max-width:320px;border-radius:14px;padding:15px;font-size:16px;font-weight:700;margin-bottom:10px">เข้าร่วม Trip เลย 🎉</button>
+  <button onclick="cancelJoinPreview()" class="btn btn-ghost" style="width:100%;max-width:320px;border-radius:14px;padding:12px;font-size:13px">ยังไม่เข้าร่วม</button>
+</div>
+
+<div id="modal-create" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
+    <div style="font-weight:700;font-size:17px;margin-bottom:16px">✨ สร้าง Trip ใหม่</div>
+    <div class="field"><label>ชื่อ Trip</label><input id="new-trip-name" placeholder="เช่น เที่ยวหัวหิน พ.ค. 68" maxlength="60"/></div>
+    <div class="field"><label>ธีมทริป</label><div data-theme-group="create" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="theme-btn active" data-key="" onclick="selectTheme('',this,'create')">🏝 ทั่วไป</button><button type="button" class="theme-btn" data-key="beach" onclick="selectTheme('beach',this,'create')">🏖 ทะเล</button><button type="button" class="theme-btn" data-key="cafe" onclick="selectTheme('cafe',this,'create')">☕ คาเฟ่</button><button type="button" class="theme-btn" data-key="mookata" onclick="selectTheme('mookata',this,'create')">🍖 หมูกะทะ</button><button type="button" class="theme-btn" data-key="roadtrip" onclick="selectTheme('roadtrip',this,'create')">🚗 โรดทริป</button></div></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-create')">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doCreateTrip()">สร้างเลย 🎉</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: JOIN -->
+<div id="modal-join" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
+    <div style="font-weight:700;font-size:17px;margin-bottom:16px">🔗 เข้าร่วม Trip</div>
+    <div id="join-trips-list" style="display:none;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Trip ของคุณ</div>
+      <div id="join-trips-items" style="max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <div class="field"><label id="join-code-label">รหัส Trip</label><input id="join-code" placeholder="เช่น HUA5X9" maxlength="20" autocomplete="off" style="text-transform:uppercase;font-size:16px;font-weight:700;letter-spacing:.08em"/></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-join')">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="doJoinTrip()">เข้าร่วมด้วยรหัส</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EXPENSE -->
+<div id="modal-expense" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;overflow-y:auto">
+  <div style="min-height:100%;display:flex;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeModal('modal-expense')">
+    <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;animation:slideUp .25s ease">
+      <div style="font-weight:700;font-size:17px;margin-bottom:16px" id="ef-title-label">เพิ่มค่าใช้จ่าย</div>
+      <div class="field"><label>ชื่อรายการ</label><input id="ef-title" placeholder="ค่าอาหาร, โรงแรม..." maxlength="80"/></div>
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1"><label>จำนวนเงิน (฿)</label><input id="ef-amount" type="number" inputmode="decimal" placeholder="0" min="0" max="1000000" autocomplete="off"/></div>
+        <div class="field" style="flex:1"><label>หมวด</label><select id="ef-cat"><option>🍽️ อาหาร</option><option>🏨 ที่พัก</option><option>🚗 เดินทาง</option><option>🎫 กิจกรรม</option><option>🛒 ของฝาก</option><option>💧 น้ำ/ขนม</option><option>📦 อื่นๆ</option></select></div>
+      </div>
+      <div class="field"><label>วันที่</label><input id="ef-date" type="date"/></div>
+      <div class="field"><label>ใครจ่าย</label><div id="ef-payer-row" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
+      <div class="field">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label style="margin:0">ใครร่วมหาร</label>
+          <button onclick="efToggleAll()" style="font-size:12px;color:var(--line);font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit">เลือกทั้งหมด</button>
+        </div>
+        <div id="ef-bene-row" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <input type="hidden" id="ef-id"/>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-expense')">ยกเลิก</button>
+        <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="saveExpense()">บันทึก ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SETTINGS -->
+<div id="modal-settings" style="position:fixed;inset:0;background:#0006;z-index:200;display:none;align-items:flex-end;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUp .25s ease">
+    <div style="font-weight:700;font-size:17px;margin-bottom:16px">⚙️ ตั้งค่า Trip</div>
+    <div class="field"><label>ชื่อ Trip</label><input id="settings-name"/></div>
+    <div class="field"><label>ธีมทริป</label><div data-theme-group="settings" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="theme-btn" data-key="" onclick="selectTheme('',this,'settings')">🏝 ทั่วไป</button><button type="button" class="theme-btn" data-key="beach" onclick="selectTheme('beach',this,'settings')">🏖 ทะเล</button><button type="button" class="theme-btn" data-key="cafe" onclick="selectTheme('cafe',this,'settings')">☕ คาเฟ่</button><button type="button" class="theme-btn" data-key="mookata" onclick="selectTheme('mookata',this,'settings')">🍖 หมูกะทะ</button><button type="button" class="theme-btn" data-key="roadtrip" onclick="selectTheme('roadtrip',this,'settings')">🚗 โรดทริป</button></div></div>
+    <button class="btn btn-ghost" style="width:100%;border-radius:12px;margin-bottom:10px;padding:12px;font-size:13px;color:var(--bad);border-color:var(--bad)" onclick="doLeaveTrip()">🚪 ออกจาก Trip นี้</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;border-radius:12px;padding:13px" onclick="closeModal('modal-settings')">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;font-weight:700" onclick="saveSettings()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  function ls(src){return new Promise((r,j)=>{const s=document.createElement('script');s.src=src;s.async=false;s.onload=()=>r(src);s.onerror=()=>j(new Error('Failed:'+src));document.head.appendChild(s);});}
+  const cdns=[
+    ['https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js','https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js'],
+    ['https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-database-compat.js','https://cdn.jsdelivr.net/npm/firebase@10.12.5/firebase-auth-compat.js'],
+    ['https://unpkg.com/firebase@10.12.5/firebase-app-compat.js','https://unpkg.com/firebase@10.12.5/firebase-database-compat.js','https://unpkg.com/firebase@10.12.5/firebase-auth-compat.js'],
+  ];
+  (async()=>{for(const p of cdns){try{await Promise.all([ls(p[0]),ls(p[1]),ls(p[2])]);if(typeof firebase!=='undefined'&&firebase.initializeApp){window.__fbReady=true;window.dispatchEvent(new Event('fb-ready'));return;}}catch(e){console.warn('[FB CDN]',e);}}window.__fbError=new Error('Firebase โหลดไม่ได้');window.dispatchEvent(new Event('fb-failed'));})();
+})();
+</script>
+
+<script>
+const FB_CFG={apiKey:"AIzaSyBdfX2rxBuL2Jqm6DZn5yHFm250LD1Rabc",authDomain:"capybarabu-dec37.firebaseapp.com",databaseURL:"https://capybarabu-dec37-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"capybarabu-dec37",storageBucket:"capybarabu-dec37.firebasestorage.app",messagingSenderId:"830992073454",appId:"1:830992073454:web:7b29bc4a8c89edbb7d29ff"};
+const LIFF_ID='2009992040-aXIvOY23';
+let db=null,tripRef=null,tripsRef=null,liffProfile=null;
+const THEMES={beach:{emoji:'🏖',label:'ทะเล',color:'#0099CC',dark:'#007AA3',soft:'#D0F0FF',tint:'#E8F9FF'},cafe:{emoji:'☕',label:'คาเฟ่',color:'#A0622A',dark:'#7A4A1E',soft:'#FFE8D0',tint:'#FFF3E8'},mookata:{emoji:'🍖',label:'หมูกะทะ',color:'#E06000',dark:'#B84D00',soft:'#FFE0C0',tint:'#FFF4E8'},roadtrip:{emoji:'🚗',label:'โรดทริป',color:'#6B4EE6',dark:'#5438CC',soft:'#E0D8FF',tint:'#F0EEFF'}};
+const _DEF={color:'#06C755',dark:'#05A648',soft:'#E6F9EE',tint:'#F2FBF5'};
+function applyTheme(key){const t=key&&THEMES[key],c=t||_DEF,r=document.documentElement.style;r.setProperty('--line',c.color);r.setProperty('--line-dark',c.dark);r.setProperty('--line-soft',c.soft);r.setProperty('--line-tint',c.tint);}
+let _newTripTheme='',_settingsTheme='';
+function selectTheme(key,btn,group){if(group==='settings')_settingsTheme=key;else _newTripTheme=key;const g=btn.closest('[data-theme-group]');if(g)g.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active',b===btn));}
+const state={lineUserId:null,firebaseUid:null,tripId:null,tripName:null,tripTheme:'',me:null,members:[],expenses:[],payments:{}};
+let _myTrips=[];
+// Centralized Firebase listener manager — prevents listener leaks
+const ListenerMgr={
+  _refs:new Set(),
+  add(ref){this._refs.add(ref);return ref;},
+  off(ref){if(ref){ref.off();this._refs.delete(ref);}},
+  offAll(){this._refs.forEach(r=>r.off());this._refs.clear();}
+};
+const $=id=>document.getElementById(id);const $$=s=>document.querySelectorAll(s);
+// ── Item 15: Performance timing ───────────────────────────────────────────
+const _perf={};
+function perfMark(n){_perf[n]=performance.now();}
+function perfMeasure(a,b){if(_perf[a]!=null&&_perf[b]!=null)console.log(`[⏱] ${a}→${b}: ${Math.round(_perf[b]-_perf[a])}ms`);}
+perfMark('app_start');
+// ── Item 13: Offline/Reconnect state ──────────────────────────────────────
+let _connOnline=true;
+function initConnMonitor(){
+  if(!db)return;
+  db.ref('.info/connected').on('value',snap=>{
+    const online=snap.val()===true;
+    if(_connOnline!==online){
+      if(online)toast('🐾 เชื่อมต่อแล้ว กลับมาแล้วนะ',2500);
+      else toast('🐹 เน็ตสะดุดนิดนึง เดี๋ยวรอให้นะ',3000);
+    }
+    _connOnline=online;
+    setConn(online);
+    const ob=$('offline-banner');if(ob)ob.style.display=online?'none':'flex';
+  });
+}
+const fmt=n=>'฿'+Math.abs(n).toLocaleString('th-TH',{maximumFractionDigits:0});
+const today=()=>new Date().toISOString().split('T')[0];
+const uuid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const ini=n=>n?n.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2):'?';
+const san=(s,m)=>String(s||'').trim().slice(0,m);
+// Firebase Realtime Database keys cannot contain: . # $ [ ] /
+// Use these helpers for EVERY dynamic path segment.
+const sanitizeFirebaseKey=s=>String(s||'').trim().replace(/[.#$[\]/?&=%]/g,'_').replace(/\s+/g,'_').slice(0,120);
+const safeKey=sanitizeFirebaseKey;
+function safeTripCode(v){
+  let raw = String(v||'').trim();
+  try { raw = decodeURIComponent(raw); } catch(_e) {}
+  // If LIFF encoded a URL/state, keep only the real hash part.
+  if(raw.includes('#')) raw = raw.split('#').pop();
+  raw = raw.replace(/^#/, '').trim().toUpperCase();
+  // Drop OAuth / LIFF redirect fragments such as access_token=..., code=..., liff.state=...
+  // Also reject strings with '.' (JWT separator) or suspiciously long (access tokens have no '=' but are very long)
+  if(!raw || /^(access_token|id_token|code|state|liff\.|error)=/i.test(raw) || raw.includes('=') || raw.includes('.') || raw.length > 25) return '';
+  raw = raw.replace(/[^A-Z0-9ก-๙_-]/g,'').slice(0,20);
+  return raw;
+}
+function getPendingTripHash(){
+  const fromHash = safeTripCode(location.hash);
+  if(fromHash) return fromHash;
+  try {
+    const sp = new URLSearchParams(location.search);
+    const st = sp.get('liff.state') || sp.get('state') || '';
+    const fromState = safeTripCode(st);
+    if(fromState) return fromState;
+  } catch(_e) {}
+  return safeTripCode(sessionStorage.getItem('pending_trip_hash'));
+}
+function rememberPendingTripHash(v){
+  const h = safeTripCode(v);
+  if(h) sessionStorage.setItem('pending_trip_hash', h);
+  return h;
+}
+function cleanAuthRedirectUrl(preserveHash){
+  const h = safeTripCode(preserveHash || getPendingTripHash());
+  const clean = location.origin + location.pathname + (h ? ('#' + h) : '');
+  history.replaceState(null, '', clean);
+  return h;
+}
+let authBootInProgress = false;
+function mkCode(n){const s=(n||'').toUpperCase().replace(/[^A-Z0-9ก-๙]/g,'').slice(0,3).padEnd(3,'X');return s+Math.random().toString(36).slice(2,5).toUpperCase();}
+function toast(msg,d=2200){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',d);}
+function showScr(id){['screen-splash','screen-login','screen-trips','screen-main','screen-join-preview'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
+function openModal(id){const m=$(id);if(!m)return;m.style.display='flex';m.onclick=e=>{if(e.target===m)closeModal(id);};}
+window.closeModal=id=>{const m=$(id);if(m)m.style.display='none';};
+function mkAv(n,sz,pic){if(pic)return`<img src="${esc(pic)}" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'"/>`;const h=[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%360;return`<div class="avatar" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.36)}px;background:hsl(${h},55%,42%)">${ini(n)}</div>`;}
+// Emotion icon sprite: 4×2 grid (192×256 per cell at 768×512 file)
+// idx: 0=Ready to Pay, 1=Polite Reminder, 2=Waiting for Payment, 3=Settlement Complete
+//      4=Expense Empty, 5=Celebrating, 6=Share the Trip, 7=Here to Help
+// ถ้า LIFF โหลดสำเร็จและอยู่ใน LINE → ลอง shareTargetPicker เสมอ (แม้ isApiAvailable=false)
+function liffCanShare(){
+  if(typeof liff==='undefined'||window.__liffFailed)return false;
+  if(typeof liff.isApiAvailable!=='function')return false;
+  return liff.isApiAvailable('shareTargetPicker');
+}
+function mkEmoji(idx,sz){const col=idx%4,row=Math.floor(idx/4),cellH=Math.round(sz*4/3),h=Math.round(sz*1.08);return`<div style="width:${sz}px;height:${h}px;overflow:hidden;background:url('./Icon%20Emotional.png') -${col*sz}px -${row*cellH}px/${4*sz}px ${Math.round(8*sz/3)}px no-repeat;flex-shrink:0"></div>`;}
+
+/* ═══════════════════════════════════════
+   AUTH STATE MACHINE
+   States: initializing | checking | logging_in |
+           authenticated | unauthenticated | logging_out | error
+═══════════════════════════════════════ */
+const AUTH = {
+  status: 'initializing',
+  user: null, // { lineUserId, displayName, pictureUrl }
+};
+
+const SPLASH_MSGS = {
+  initializing: 'กำลังเปิด LINE...',
+  checking:     'กำลังตรวจสอบบัญชี...',
+  logging_in:   'กำลังพาเข้าสู่ระบบ...',
+  authenticated:'กำลังโหลดข้อมูล...',
+  logging_out:  'กำลังออกจากระบบ...',
+  error:        '',
+};
+
+function setAuthStatus(status, errorMsg){
+  AUTH.status = status;
+  const msg   = $('splash-msg');
+  const errEl = $('splash-error');
+  const spinner = document.querySelector('#screen-splash > div:nth-last-child(2)');
+
+  if(status === 'error'){
+    if(spinner) spinner.style.display = 'none';
+    if(errEl){ errEl.style.display = 'flex'; $('splash-error-msg').textContent = errorMsg || 'เกิดข้อผิดพลาด'; }
+  } else {
+    if(spinner) spinner.style.display = 'flex';
+    if(errEl) errEl.style.display = 'none';
+    if(msg) msg.textContent = SPLASH_MSGS[status] || '';
+  }
+}
+
+/* ── LIFF init ─────────────────────────────── */
+async function initLiff(){
+  if(typeof liff === 'undefined' || window.__liffFailed){
+    console.warn('[LIFF] SDK not available — browser mode');
+    return false;
+  }
+  setAuthStatus('initializing');
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    return true;
+  } catch(e){
+    console.warn('[LIFF] init failed:', e.message);
+    return false;
+  }
+}
+
+/* ── Load user profile หลัง login ─────────── */
+async function loadProfile(){
+  setAuthStatus('checking');
+  liffProfile = await liff.getProfile();
+  AUTH.user = {
+    lineUserId:  liffProfile.userId,
+    displayName: liffProfile.displayName,
+    pictureUrl:  liffProfile.pictureUrl || '',
+  };
+  // Clean LIFF/OAuth redirect params before any Firebase path usage.
+  cleanAuthRedirectUrl(getPendingTripHash());
+}
+
+/* ── Login button (fallback สำหรับ external browser) ── */
+window.loginWithLine = function(){
+  const s = $('login-status'), b = $('btn-login');
+  // บันทึก pending hash ก่อน redirect เสมอ
+  const hash = rememberPendingTripHash(getPendingTripHash());
+
+  if(typeof liff !== 'undefined' && !window.__liffFailed && liff.isInClient && liff.isInClient()){
+    showScr('screen-splash');
+    setAuthStatus('logging_in');
+    if(!liff.isLoggedIn()){ liff.login(); return; }
+    loadProfile().then(() => { AUTH.status = 'authenticated'; enterApp(hash); }).catch(handleAuthError);
+    return;
+  }
+  if(s){s.style.display='block';s.textContent='⏳ กำลังเปิด LINE...';}
+  if(b) b.disabled = true;
+  setTimeout(() => { window.location.href = `https://liff.line.me/${LIFF_ID}`; }, 300);
+};
+
+/* ── Error handler ─────────────────────────── */
+function handleAuthError(e){
+  console.error('[Auth Error]', e);
+  const msg = e?.message || '';
+  if(msg.includes('invalid path') || msg.includes('child failed')){
+    sessionStorage.clear();
+    cleanAuthRedirectUrl('');
+    showLogin();
+    return;
+  }
+  showScr('screen-splash');
+  setAuthStatus('error', msg || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+}
+
+/* ── Retry ─────────────────────────────────── */
+window.retryAuth = function(){
+  // Reset error state แล้วรัน boot ใหม่
+  setAuthStatus('initializing');
+  $('splash-error').style.display = 'none';
+  authBootInProgress = false;
+  boot();
+};
+
+/* ── Show login (reset state + switch screen) ── */
+function showLogin(){
+  const s=$('login-status'),b=$('btn-login');
+  if(s){s.style.display='none';s.textContent='';}
+  if(b)b.disabled=false;
+  showScr('screen-login');
+}
+window.showLoginFallback = function(){ showLogin(); };
+
+/* ── Enter app หลัง authenticated ─────────── */
+async function enterApp(pendingHash){
+  setAuthStatus('authenticated');
+  perfMark('app_ready');perfMeasure('app_start','app_ready');
+  await saveUser();trackEvent('app_open');
+  const av = $('trips-avatar'), nm = $('trips-name');
+  if(av){ if(AUTH.user.pictureUrl) av.innerHTML = `<img src="${esc(AUTH.user.pictureUrl)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`; else av.textContent = ini(AUTH.user.displayName); }
+  if(nm) nm.textContent = AUTH.user.displayName;
+  const ta = $('topbar-av'), tw = $('topbar-aw');
+  if(ta && AUTH.user.pictureUrl){ ta.src = AUTH.user.pictureUrl; if(tw) tw.style.display = 'block'; }
+  state.lineUserId = AUTH.user.lineUserId;
+
+  // ถ้ามี pending hash (trip link) → เข้า trip เลย
+  const hash = safeTripCode(pendingHash) || getPendingTripHash();
+  if(hash){
+    sessionStorage.removeItem('pending_trip_hash');
+    listenMyTrips();
+    try {
+      await handleHashJoin(hash);
+    } catch(e){
+      console.warn('[handleHashJoin]', e);
+      showScr('screen-trips');
+    }
+  } else {
+    listenMyTrips();
+    // Smart Reopen: ถ้าเปิด Trip ล่าสุดไม่เกิน 24h → auto-open เข้าไปเลย
+    try{
+      const lt=JSON.parse(localStorage.getItem('last_trip')||'null');
+      if(lt&&lt.id&&(Date.now()-(lt.ts||0))<86400000){
+        const sc=safeTripCode(lt.id);
+        if(sc){_smartReopen=true;openTrip(sc);return;}
+      }
+    }catch(_e){}
+    showScr('screen-trips');
+  }
+}
+
+/* ── Logout (ตาม spec AC4) ─────────────────── */
+window.handleLogout = async function(){
+  if(!confirm('ต้องการออกจากระบบใช่ไหม?')) return;
+  showScr('screen-splash');
+  setAuthStatus('logging_out');
+
+  // Clear all Firebase listeners
+  ListenerMgr.offAll();
+  tripRef=null;tripsRef=null;
+
+  // Clear app state
+  AUTH.user = null; AUTH.status = 'unauthenticated';
+  liffProfile = null;
+  Object.assign(state, { lineUserId: null, tripId: null, tripName: null, me: null, members: [], expenses: [] });
+
+  // Clear localStorage
+  ['haargun_trip_v1', 'haargun_recent_trips_v1', 'last_trip'].forEach(k => localStorage.removeItem(k));
+
+  // LIFF logout
+  try {
+    if(typeof liff !== 'undefined' && !window.__liffFailed && liff.isLoggedIn()){
+      liff.logout();
+    }
+  } catch(e){ console.warn('[LIFF logout]', e); }
+
+  // ให้ user เห็น "กำลังออกจากระบบ..." แล้ว redirect
+  // ใช้ replace เพื่อป้องกัน back button กลับมา Main Page
+  await new Promise(r => setTimeout(r, 800));
+  sessionStorage.clear();
+  localStorage.setItem('explicit_logout', '1');
+  const cleanUrl = location.origin + location.pathname.split('#')[0];
+  window.location.replace(cleanUrl);
+};
+
+function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if(window.__fbError)return j(window.__fbError);const t=setTimeout(()=>j(new Error('timeout')),ms);window.addEventListener('fb-ready',()=>{clearTimeout(t);r()},{once:true});window.addEventListener('fb-failed',()=>{clearTimeout(t);j(window.__fbError)},{once:true});});}
+function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);}
+async function signInFbAnon(){
+  return new Promise(resolve=>{
+    const unsub=firebase.auth().onAuthStateChanged(async user=>{
+      unsub();
+      if(user){state.firebaseUid=user.uid;}
+      else{
+        try{
+          const c=await firebase.auth().signInAnonymously();
+          state.firebaseUid=c.user.uid;
+        }catch(e){
+          console.warn('[FB Anon]',e);
+        }
+      }
+      resolve();
+    },e=>{console.warn('[FB Anon onAuthState]',e);resolve();});
+  });
+}
+async function saveUser(){
+  if(!AUTH.user||!db)return;
+  const _uk=safeKey(AUTH.user.lineUserId);
+  if(!_uk){console.error('[saveUser] empty key for uid:',AUTH.user.lineUserId);return;}
+  await db.ref('users/'+_uk).update({
+    displayName: AUTH.user.displayName,
+    pictureUrl:  AUTH.user.pictureUrl || '',
+    lastSeen:    Date.now()
+  });
+}
+/* handleLogout ย้ายไปอยู่ใน Auth State Machine ด้านบนแล้ว */
+function listenMyTrips(){
+  if(!state.lineUserId||!db)return;ListenerMgr.off(tripsRef);
+  tripsRef=ListenerMgr.add(db.ref('userTrips/'+safeKey(state.lineUserId)));
+  tripsRef.on('value',snap=>{
+    const data=snap.val()||{};const owned=[],joined=[];_myTrips=[];
+    Object.entries(data).forEach(([id,info])=>{const t={tripId:id,...info};(info.role==='owner'?owned:joined).push(t);_myTrips.push(t);});
+    const tc=t=>`<div class="trip-card" onclick="openTrip('${esc(t.tripId)}')"><div class="trip-icon">${t.theme&&THEMES[t.theme]?THEMES[t.theme].emoji:(t.role==='owner'?'🏝':'🤝')}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div class="small muted">รหัส: ${esc(t.tripId)}</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>`;
+    $('my-trips-list').innerHTML=owned.length?owned.map(tc).join(''):`<div class="empty" style="padding:24px 0">${mkEmoji(7,80)}<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มี Trip เลยนะ</div><div style="font-size:13px;color:var(--ink-3)">กด <strong style="color:var(--line)">สร้าง Trip ใหม่</strong> ด้านล่างได้เลย 🏝</div></div></div>`;
+    $('joined-trips-list').innerHTML=joined.length?joined.map(tc).join(''):`<div class="empty" style="padding:16px 0;flex-direction:row;gap:10px;justify-content:flex-start">${mkEmoji(6,40)}<div style="text-align:left"><div style="font-size:13px;font-weight:700;color:var(--ink)">ยังไม่ได้เข้าร่วม Trip ใด</div><div style="font-size:12px;color:var(--ink-3)">รอเพื่อนส่ง link เชิญมาเลย</div></div></div>`;
+    // Recent trip banner
+    const rtBanner=$('recent-trip-banner');
+    if(rtBanner){
+      try{
+        const lt=JSON.parse(localStorage.getItem('last_trip')||'null');
+        const match=lt&&[...owned,...joined].find(t=>t.tripId===lt.id);
+        rtBanner.innerHTML=match?`<div style="background:var(--line-soft);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:12px" onclick="openTrip('${esc(match.tripId)}')">${mkEmoji(5,44)}<div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--line-dark);font-weight:700;margin-bottom:2px">ต่อจากเดิม</div><div style="font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)">${esc(match.tripName||match.tripId)}</div></div><div style="color:var(--line-dark);font-weight:700;font-size:13px;white-space:nowrap">เปิดเลย →</div></div>`:'';
+      }catch(e){rtBanner.innerHTML='';}
+    }
+  });
+}
+window.showCreateModal=()=>{_newTripTheme='';document.querySelectorAll('[data-theme-group="create"] .theme-btn').forEach((b,i)=>b.classList.toggle('active',i===0));openModal('modal-create');setTimeout(()=>$('new-trip-name').focus(),120);};
+window.showJoinModal=()=>{
+  const tl=$('join-trips-items'),tw=$('join-trips-list'),lb=$('join-code-label');
+  if(tl&&tw){
+    if(_myTrips.length){
+      tw.style.display='block';
+      if(lb)lb.textContent='หรือใส่รหัส Trip ใหม่';
+      tl.innerHTML=_myTrips.map(t=>{const em=t.theme&&THEMES[t.theme]?THEMES[t.theme].emoji:'🏝';return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer" onclick="quickJoinExisting('${esc(t.tripId)}')"><span style="font-size:18px;flex-shrink:0">${em}</span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.tripName||t.tripId)}</div><div style="font-size:11px;color:var(--ink-3)">${esc(t.tripId)}</div></div><span style="background:var(--line-soft);color:var(--line-dark);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0">เข้าร่วมแล้ว</span></div>`;}).join('');
+    }else{
+      tw.style.display='none';
+      if(lb)lb.textContent='รหัส Trip';
+    }
+  }
+  openModal('modal-join');setTimeout(()=>$('join-code').focus(),120);
+};
+window.quickJoinExisting=function(tripId){closeModal('modal-join');openTrip(tripId);};
+window.doCreateTrip=async function(){
+  const name=san($('new-trip-name').value,60);if(!name)return toast('ใส่ชื่อ Trip ก่อน');if(!AUTH.user)return toast('กรุณา login ก่อน');
+  const _cb=document.querySelector('#modal-create .btn-primary');if(_cb){_cb.disabled=true;_cb.textContent='กำลังสร้าง...';}
+  try{
+  const code=mkCode(name),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16),fuid=state.firebaseUid||'';
+  const updates={};
+  updates[`trips/${code}/name`]=name;
+  updates[`trips/${code}/theme`]=_newTripTheme;
+  updates[`trips/${code}/createdBy`]=uid;
+  updates[`trips/${code}/createdByUid`]=fuid;
+  updates[`trips/${code}/createdAt`]=Date.now();
+  updates[`trips/${code}/members/${mid}`]={id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:fuid};
+  updates[`userTrips/${suid}/${code}`]={role:'owner',tripName:name,theme:_newTripTheme,joinedAt:Date.now(),joinedVia:'owner'};
+  await db.ref().update(updates);
+  closeModal('modal-create');$('new-trip-name').value='';toast('สร้าง Trip แล้ว 🎉');trackEvent('trip_created');openTrip(code);}catch(e){toast('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');console.error(e);}finally{if(_cb){_cb.disabled=false;_cb.textContent='สร้างเลย 🎉';}}
+};
+window.doJoinTrip=async function(){
+  const code=safeTripCode(san($('join-code').value,20));if(!code)return toast('ใส่รหัส Trip ก่อน');
+  const _jb=document.querySelector('#modal-join .btn-primary');if(_jb){_jb.disabled=true;_jb.textContent='กำลังเข้าร่วม...';}
+  try{
+  const snap=await db.ref('trips/'+code).get();if(!snap.exists())return toast('ไม่พบ Trip นี้ — ตรวจสอบรหัสอีกครั้ง');
+  const data=snap.val(),uid=AUTH.user.lineUserId,suid=safeKey(uid),mid='line_'+suid.slice(0,16);
+  let exists=false;if(data.members){for(const[id,m]of Object.entries(data.members)){if(m.lineUserId===uid||id===mid){exists=true;break;}}}
+  if(!exists)await db.ref(`trips/${code}/members/${mid}`).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:state.firebaseUid||''});
+  await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'code'});
+  closeModal('modal-join');$('join-code').value='';trackEvent('join_via_code');openTrip(code);}catch(e){toast('ไม่พบ Trip หรือเกิดข้อผิดพลาด');console.error(e);}finally{if(_jb){_jb.disabled=false;_jb.textContent='เข้าร่วม';}}
+};
+let _pendingJoin=null;
+window.confirmJoinTrip=async function(){
+  if(!_pendingJoin)return showScr('screen-trips');
+  const{code,data,uid,suid,mid}=_pendingJoin;_pendingJoin=null;
+  showScr('screen-splash');
+  try{
+    if(!data.members?.[mid])await db.ref('trips/'+code+'/members/'+mid).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:state.firebaseUid||''});
+    await db.ref('userTrips/'+suid+'/'+code).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||code,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'link'});
+    toast('เข้าร่วม Trip แล้ว 🎉');trackEvent('join_via_link');openTrip(code);
+  }catch(e){console.error(e);showScr('screen-trips');toast('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');}
+};
+window.cancelJoinPreview=function(){
+  _pendingJoin=null;history.replaceState(null,'','./');showScr('screen-trips');
+};
+async function handleHashJoin(hash){
+  const safeHash = safeTripCode(hash);
+  if(!safeHash){ showScr('screen-trips'); return; }
+  if(!db || !AUTH.user){ showScr('screen-trips'); return; }
+  const uid = AUTH.user.lineUserId;
+  const suid = safeKey(uid);
+  if(!suid){console.error('[handleHashJoin] empty suid for uid:',uid);showScr('screen-trips');return;}
+  // สมาชิกเดิม → เข้า Trip เลย
+  const ex = await db.ref('userTrips/' + suid + '/' + safeHash).get();
+  if(ex.exists()){ openTrip(safeHash); return; }
+  const ts = await db.ref('trips/' + safeHash).get();
+  if(!ts.exists()){ showScr('screen-trips'); toast('ไม่พบ Trip: ' + safeHash); return; }
+  const data = ts.val();
+  const mid = 'line_' + suid.slice(0,16);
+  // สมาชิกใหม่ → Auto-join ทันที ไม่ต้องผ่าน preview
+  showScr('screen-splash');
+  if(!data.members?.[mid]) await db.ref('trips/'+safeHash+'/members/'+mid).set({id:mid,name:AUTH.user.displayName,pictureUrl:AUTH.user.pictureUrl||'',lineUserId:uid,firebaseUid:state.firebaseUid||''});
+  await db.ref('userTrips/'+suid+'/'+safeHash).set({role:data.createdBy===uid?'owner':'member',tripName:data.name||safeHash,theme:data.theme||'',joinedAt:Date.now(),joinedVia:'link'});
+  trackEvent('join_via_link');
+  toast('เข้าร่วม "'+( data.name||safeHash)+'" แล้ว 🎉');
+  openTrip(safeHash);
+}
+window.openTrip=function(code){
+  const safeCode = safeTripCode(code);
+  if(!safeCode){ toast('รหัส Trip ไม่ถูกต้อง'); showScr('screen-trips'); return; }
+  state.tripId=safeCode;state.me='line_'+safeKey(state.lineUserId||'').slice(0,16);
+  try{localStorage.setItem('last_trip',JSON.stringify({id:safeCode,ts:Date.now()}));}catch(e){}
+  history.replaceState(null,'','#'+safeCode);showScr('screen-main');setupTopbar();
+  ListenerMgr.off(tripRef);
+  tripRef=ListenerMgr.add(db.ref('trips/'+safeCode));
+  tripRef.on('value',snap=>{const d=snap.val()||{};state.tripName=d.name||code;state.tripTheme=d.theme||'';applyTheme(state.tripTheme);const te=state.tripTheme&&THEMES[state.tripTheme]?THEMES[state.tripTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+state.tripName+' · '+state.tripId;state.members=Object.values(d.members||{});state.expenses=Object.values(d.expenses||{}).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));state.payments=d.payments||{};
+  // In-app notification events (skip on first load)
+  if(_tripLoaded){
+    const newM=state.members.find(m=>m.id!==state.me&&!_prevTripIds.has('m_'+m.id));
+    if(newM)toast(`🎉 ${newM.name} เข้าร่วมทริปแล้ว!`,3000);
+    else{const newE=state.expenses.find(e=>!_prevTripIds.has('e_'+e.id)&&e.payer!==state.me);if(newE){const pr=state.members.find(m=>m.id===newE.payer);toast(`💸 ${pr?.name||'เพื่อน'} เพิ่ม "${newE.title}" ${fmt(+newE.amount||0)}`,3000);}}
+  }
+  _prevTripIds=new Set([...state.members.map(m=>'m_'+m.id),...state.expenses.map(e=>'e_'+e.id)]);
+  if(!_tripLoaded){perfMark('trip_data_loaded');perfMeasure('app_start','trip_data_loaded');}
+  _tripLoaded=true;
+  renderAll();setConn(true);$('trip-code-display').textContent=code;if(_smartReopen){_smartReopen=false;toast('🐾 กลับมาต่อจากเดิม');const{paid,owed}=calcBal(),net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});const txns=calcSettle(net);if(txns.some(t=>t.from===state.me||t.to===state.me))switchTab('settle');}},()=>setConn(false));
+};
+window.backToTrips=function(){ListenerMgr.off(tripRef);tripRef=null;if(window._scrollHandler){window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=null;window._scrollRAF=null;}applyTheme('');history.replaceState(null,'','./');showScr('screen-trips');};
+window.doLeaveTrip=async function(){if(!confirm('ออกจาก Trip นี้?'))return;try{if(AUTH.user&&state.tripId)await db.ref('userTrips/'+safeKey(AUTH.user.lineUserId)+'/'+safeTripCode(state.tripId)).remove();closeModal('modal-settings');backToTrips();}catch(e){console.error(e);toast('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง');}};
+let _smartReopen=false;
+let _tripLoaded=false,_prevTripIds=new Set();
+let _settleViewed=false;
+// Analytics — silent daily counters in Firebase
+function trackEvent(name){
+  if(!db)return;
+  try{const d=new Date().toISOString().slice(0,10);db.ref('analytics/'+d+'/'+name).transaction(n=>(n||0)+1);}catch(e){}
+}
+
+// ── Monetization Architecture ─────────────────────────────────────────────
+// MONO_ENABLED=false → nothing renders, no tracking, zero user impact.
+// Flip to true + fill affiliate URLs when ready to activate.
+const MONO_ENABLED=false;
+const MONO={
+  agoda:{
+    label:'จองโรงแรมราคาดี',sub:'ดีลพิเศษสำหรับกลุ่มเพื่อน',icon:'🏨',
+    url:'https://www.agoda.com/?cid=REPLACE_AGODA_AFF_ID',
+    key:'agoda',
+  },
+  insurance:{
+    label:'ประกันการเดินทาง',sub:'คุ้มครองทุกคนในทริป',icon:'🛡️',
+    url:'https://REPLACE_INSURANCE_URL',
+    key:'insurance',
+  },
+};
+function monoCard(key){
+  if(!MONO_ENABLED)return'';
+  const m=MONO[key];if(!m)return'';
+  trackEvent('mono_imp_'+key);
+  return`<div class="card" style="border:1.5px solid var(--line-soft);background:var(--line-tint)"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:26px">${m.icon}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--ink)">${m.label}</div><div style="font-size:11px;color:var(--ink-3)">${m.sub}</div></div><a href="${m.url}" target="_blank" rel="noopener" onclick="trackEvent('mono_click_${key}')" style="background:var(--line);color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0">ดูเลย</a></div></div>`;
+}
+// ─────────────────────────────────────────────────────────────────────────
+window.markPayment=async function(from,to,amount){
+  if(!state.tripId||!db)return;
+  if(from!==state.me)return;
+  const key=from+'_'+to;
+  try{
+    await db.ref('trips/'+state.tripId+'/payments/'+key).set({from,to,amount,paidAt:firebase.database.ServerValue.TIMESTAMP,confirmedAt:null});
+    toast('✅ บันทึกแล้ว รอให้อีกฝ่ายยืนยัน');
+    trackEvent('payment_marked');
+  }catch(e){console.error(e);toast('บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง');}
+};
+window.confirmPayment=async function(from,to){
+  if(!state.tripId||!db)return;
+  if(to!==state.me)return;
+  const key=from+'_'+to;
+  try{
+    await db.ref('trips/'+state.tripId+'/payments/'+key+'/confirmedAt').set(firebase.database.ServerValue.TIMESTAMP);
+    toast('🐹 เย้ ครบแล้ว~ 🍲✨',3000);
+    trackEvent('payment_confirmed');
+  }catch(e){console.error(e);toast('ยืนยันไม่สำเร็จ ลองใหม่อีกครั้ง');}
+};
+function switchTab(name){$$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));$$('.tab-pane').forEach(p=>p.classList.add('hidden'));const pn=$('tab-'+name);if(pn)pn.classList.remove('hidden');const f=$('fab');if(f)f.style.display=name==='expenses'?'flex':'none';window.scrollTo({top:0,behavior:'instant'});renderTab(name);if(name==='settle'&&!_settleViewed){_settleViewed=true;trackEvent('settle_viewed');}}
+function setupTopbar(){
+  $('trip-chip').textContent=(state.tripName||state.tripId)+' · '+state.tripId;
+  // Reset notification tracking + tab/view state on every trip open
+  _tripLoaded=false;_prevTripIds=new Set();_settleViewed=false;
+  $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='dashboard'));
+  $$('.tab-pane').forEach(p=>p.classList.toggle('hidden',p.id!=='tab-dashboard'));
+  const f=$('fab');if(f)f.style.display='none';
+  _expView='list';
+  const el=$('exp-view-list'),et=$('exp-view-tl');
+  if(el){el.style.background='var(--line)';el.style.color='#fff';}
+  if(et){et.style.background='transparent';et.style.color='var(--ink-3)';}
+  $$('.tab').forEach(t=>{t.onclick=()=>switchTab(t.dataset.tab);});
+  $('open-share').onclick=()=>{const u=location.origin+location.pathname+'#'+encodeURIComponent(state.tripId||'');if(navigator.share)navigator.share({title:'หารกันเอง · '+state.tripName,url:u});else navigator.clipboard.writeText(u).then(()=>toast('คัดลอก link แล้ว'));};
+  $('open-settings').onclick=()=>{$('settings-name').value=state.tripName;_settingsTheme=state.tripTheme||'';document.querySelectorAll('[data-theme-group="settings"] .theme-btn').forEach(b=>b.classList.toggle('active',(b.dataset.key||'')===_settingsTheme));openModal('modal-settings');};
+  const tb=$('topbar');if(window._scrollHandler)window.removeEventListener('scroll',window._scrollHandler);window._scrollHandler=()=>{if(window._scrollRAF)return;window._scrollRAF=requestAnimationFrame(()=>{window._scrollRAF=null;tb.classList.toggle('scrolled',window.scrollY>4);});};window.addEventListener('scroll',window._scrollHandler);
+}
+function setConn(ok){const d=$('conn-dot'),t=$('conn-text');if(!d)return;d.className='conn-dot '+(ok?'ok':'bad');t.textContent=ok?'เชื่อมต่อแล้ว':'การเชื่อมต่อมีปัญหา';}
+function calcBal(){const paid={},owed={};let total=0;state.members.forEach(m=>{paid[m.id]=0;owed[m.id]=0;});state.expenses.forEach(e=>{const a=+e.amount||0;total+=a;if(paid[e.payer]!==undefined)paid[e.payer]+=a;const b=e.beneficiaries||[];const sh=a/(b.length||1);b.forEach(id=>{if(owed[id]!==undefined)owed[id]+=sh;});});return{paid,owed,total};}
+function calcSettle(net){const p=Object.entries(net).filter(([,v])=>v>0).map(([n,v])=>[n,v]).sort((a,b)=>b[1]-a[1]);const n=Object.entries(net).filter(([,v])=>v<0).map(([n,v])=>[n,-v]).sort((a,b)=>b[1]-a[1]);const tx=[];let i=0,j=0;while(i<p.length&&j<n.length){const a=Math.min(p[i][1],n[j][1]);if(a>0.5)tx.push({from:n[j][0],to:p[i][0],amount:Math.round(a)});p[i][1]-=a;n[j][1]-=a;if(p[i][1]<0.5)i++;if(n[j][1]<0.5)j++;}return tx;}
+function renderAll(){
+  const bal=calcBal();const{paid,owed,total}=bal;
+  // ── summary numbers (always, all tabs) ──
+  $('dash-total').textContent=fmt(total);$('dash-avg').textContent=state.members.length?fmt(total/state.members.length):'฿0';
+  const ms=$('my-status-card');if(ms&&state.members.find(m=>m.id===state.me)){ms.style.display='block';const p=paid[state.me]||0,o=owed[state.me]||0,n=p-o;$('my-paid').textContent=fmt(p);$('my-owed').textContent=fmt(o);$('my-net').innerHTML=`<span class="${n>=0?'good':'bad'}">${n>=0?'+':''}${fmt(n)}</span>`;$('my-status-emoji').innerHTML=mkEmoji(n>=0?0:1,44);}
+  // ── lazy: render only the active tab ──
+  const activeTab=document.querySelector('.tab.active')?.dataset.tab||'dashboard';
+  renderTab(activeTab,bal);
+}
+function renderTab(tab,bal){
+  if(!bal)bal=calcBal();
+  const{paid,owed,total}=bal;
+  if(tab==='dashboard'){
+    // Build member→expenses map O(n) to avoid O(n×m) filter loop
+    const memExp={};state.members.forEach(m=>{memExp[m.id]=[];});
+    state.expenses.forEach(e=>{(e.beneficiaries||[]).forEach(bid=>{if(memExp[bid])memExp[bid].push(e);});});
+    const le=$('all-members-summary');
+    if(!state.members.length){le.innerHTML=`<div class="empty" style="padding:20px 16px">${mkEmoji(7,60)}<div style="margin-top:10px"><div style="font-weight:700;font-size:14px;color:var(--ink);margin-bottom:3px">ยังไม่มีสมาชิก</div><div style="font-size:12px;color:var(--ink-3)">เชิญเพื่อนเพื่อเริ่มหารกัน</div></div></div>`;}
+    else{const sorted=[...state.members].map(m=>({m,o:owed[m.id]||0,n:(paid[m.id]||0)-(owed[m.id]||0)})).sort((a,b)=>b.o-a.o);const ri=['🥇','🥈','🥉'],rc=['gold','silver','bronze'];le.innerHTML=sorted.map(({m,o,n},i)=>{const pct=total>0?Math.round(o/total*100):0;const rows=memExp[m.id].map(e=>{const s=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="lb-exp-row"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.category||'')} ${esc(e.title||'')}</span><span class="num" style="flex-shrink:0">${fmt(s)}</span></div>`;}).join('')||'<div class="small muted">ยังไม่มีรายการ</div>';return`<div><div class="lb-row" id="lbr-${esc(m.id)}" onclick="tlb('${esc(m.id)}')"><div class="lb-rank ${rc[i]||''}">${ri[i]||i+1}</div>${mkAv(m.name,34,m.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:600;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</span><span class="num" style="font-weight:700;font-size:14px;flex-shrink:0">${fmt(o)}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:3px"><div class="bar-track" style="flex:1"><div class="bar-fill" style="transform:scaleX(${pct/100});background:var(--line)"></div></div><span class="small muted" style="flex-shrink:0;min-width:26px;text-align:right">${pct}%</span><span class="num small" style="color:${n>=0?'var(--good)':'var(--bad)'};flex-shrink:0">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</span></div></div><div class="lb-chevron" id="lbc-${esc(m.id)}">▼</div></div><div class="lb-detail" id="lbd-${esc(m.id)}"><div style="font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:4px">รายการของ ${esc(m.name)}</div>${rows}</div></div>`;}).join('');}
+    const cm={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';cm[k]=(cm[k]||0)+(+e.amount||0);});const cc=$('cat-chart'),ck=$('cat-chart-card');if(Object.keys(cm).length&&cc){ck.style.display='block';cc.innerHTML=Object.entries(cm).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const p=total>0?Math.round(v/total*100):0;return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span>${esc(k)}</span><span class="num" style="font-weight:600">${fmt(v)} <span class="muted">${p}%</span></span></div><div class="bar-track"><div class="bar-fill" style="transform:scaleX(${p/100});background:var(--line)"></div></div></div>`;}).join('');}else if(ck)ck.style.display='none';
+    // Fun Stats Card
+    const fsc=$('fun-stats-card');if(fsc){if(state.expenses.length>=2&&state.members.length>=2){const payCount={};state.expenses.forEach(e=>{payCount[e.payer]=(payCount[e.payer]||0)+1;});const topPayer=state.members.reduce((b,m)=>(payCount[m.id]||0)>(payCount[b.id]||0)?m:b,state.members[0]);const topPayCount=payCount[topPayer.id]||0;const netVals=state.members.map(m=>({m,n:(paid[m.id]||0)-(owed[m.id]||0)}));const generous=netVals.reduce((b,x)=>x.n>b.n?x:b,netVals[0]);const catCount={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';catCount[k]=(catCount[k]||0)+1;});const topCatCnt=Object.entries(catCount).sort((a,b)=>b[1]-a[1])[0];const lines=[];if(topPayCount>=2)lines.push(`💳 <strong>${esc(topPayer.name)}</strong> จ่ายก่อนเพื่อน ${topPayCount} ครั้งแล้วนะ 👀`);if(generous.n>100)lines.push(`🫶 <strong>${esc(generous.m.name)}</strong> ใจป้ำสุดในทริป จ่ายเกินส่วน ${fmt(generous.n)}`);if(topCatCnt&&topCatCnt[1]>=2)lines.push(`🔁 ${esc(topCatCnt[0])} ถูกสั่ง ${topCatCnt[1]} ครั้ง... จัดหนักมาก`);if(lines.length){fsc.style.display='block';fsc.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">${mkEmoji(1,36)}<span style="font-weight:700;font-size:13px;color:var(--ink-2)">🐹 สถิติน่ารู้</span></div><div style="display:flex;flex-direction:column;gap:8px">${lines.map(l=>`<div style="font-size:13px;color:var(--ink);line-height:1.5">${l}</div>`).join('')}</div>`;}else fsc.style.display='none';}else fsc.style.display='none';}
+    // Trip Memory Card (Item 12)
+    const tmc=$('trip-memory-card');
+    if(tmc){
+      if(state.expenses.length&&state.members.length){
+        const dates=state.expenses.filter(e=>e.date).map(e=>e.date).sort();
+        let durText='';
+        if(dates.length>=2){const d1=new Date(dates[0]),d2=new Date(dates[dates.length-1]);const days=Math.round((d2-d1)/86400000)+1;durText=days>1?`${days} วัน`:'1 วัน';}
+        else if(dates.length===1)durText='1 วัน';
+        const topExp=state.expenses.reduce((b,e)=>(+e.amount||0)>(+b.amount||0)?e:b,state.expenses[0]);
+        const shareCount={};state.members.forEach(m=>{shareCount[m.id]=0;});
+        state.expenses.forEach(e=>(e.beneficiaries||[]).forEach(id=>{if(shareCount[id]!==undefined)shareCount[id]++;}));
+        const mostShared=state.members.reduce((b,m)=>shareCount[m.id]>shareCount[b.id]?m:b,state.members[0]);
+        const quips=['ทริปนี้ใช้เงินไม่น้อยเลยนะ~','ทุกบาทมีความหมาย 🐾','หารแล้วเบาใจกว่าเยอะ','จำไว้นะ ทริปนี้สนุกมาก'];
+        const q=quips[state.expenses.length%quips.length];
+        tmc.style.display='block';
+        tmc.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">${mkEmoji(5,36)}<span style="font-weight:700;font-size:13px;color:var(--ink-2)">📖 Trip Memory</span></div>`+
+          `<div style="display:flex;flex-direction:column;gap:8px">`+
+          `<div style="display:flex;justify-content:space-between;font-size:13px"><span class="muted">🧾 จำนวนรายการ</span><span style="font-weight:700">${state.expenses.length} รายการ</span></div>`+
+          (durText?`<div style="display:flex;justify-content:space-between;font-size:13px"><span class="muted">📅 ระยะเวลา</span><span style="font-weight:700">${durText}</span></div>`:'')+
+          (topExp?`<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"><span class="muted" style="flex-shrink:0">💸 รายการแพงสุด</span><span style="font-weight:700;max-width:160px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(topExp.title||'')} <span class="num">${fmt(+topExp.amount||0)}</span></span></div>`:'')+
+          (mostShared&&shareCount[mostShared.id]>0?`<div style="display:flex;justify-content:space-between;font-size:13px"><span class="muted">🤝 ร่วมหารบ่อยสุด</span><span style="font-weight:700">${esc(mostShared.name)}</span></div>`:'')+
+          `</div><div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--line-dark);font-style:italic">🐹 "${q}"</div>`;
+      }else{tmc.style.display='none';}
+    }
+    // Trip Summary Card
+    const sc=$('trip-summary-card');if(sc){if(state.expenses.length&&state.members.length){const bigSpender=state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]);const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];sc.style.display='block';sc.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font-size:14px;margin:0">✨ สรุปทริปนี้</h3>${mkEmoji(5,40)}</div><div style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">💰 ยอดรวม</span><span class="num" style="font-weight:700">${fmt(total)}</span></div><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👑 จ่ายเยอะสุด</span><span style="font-weight:700;font-size:13px">${esc(bigSpender.name)} <span class="num">${fmt(paid[bigSpender.id]||0)}</span></span></div>${topCat?`<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">🔥 หมวดฮิต</span><span style="font-weight:700;font-size:13px">${esc(topCat[0])}</span></div>`:''}<div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">👥 สมาชิก</span><span style="font-weight:700;font-size:13px">${state.members.length} คน · เฉลี่ย <span class="num">${fmt(total/state.members.length)}</span></span></div></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button onclick="shareTripSummary()" class="btn btn-primary" style="flex:1;min-width:0;border-radius:10px;font-size:12px;padding:9px">📤 สรุปทริป</button><button onclick="shareFunniestExpense()" class="btn btn-ghost" style="flex:1;min-width:0;border-radius:10px;font-size:12px;padding:9px">😂 ช่วงฮา</button><button onclick="shareBiggestSpender()" class="btn btn-ghost" style="flex:1;min-width:0;border-radius:10px;font-size:12px;padding:9px">👑 Biggest</button></div>${monoCard('agoda')}`;}else sc.style.display='none';}
+  }
+  else if(tab==='expenses'){
+    const el=$('expense-list');
+    const mkExpCard=(e,compact)=>{const pr=state.members.find(m=>m.id===e.payer),ph=(+e.amount||0)/Math.max((e.beneficiaries||[]).length,1);return`<div class="card" style="padding:${compact?'10px 12px':'13px 14px'};margin-bottom:${compact?'6px':'8px'}"><div style="display:flex;gap:10px;align-items:flex-start">${mkAv(pr?.name||'?',32,pr?.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.category||'')} ${esc(e.title||'')}</div><div class="small muted" style="margin-top:1px">${esc(pr?.name||'?')} จ่าย</div></div><div style="text-align:right;flex-shrink:0;margin-left:8px"><div class="num" style="font-weight:700;font-size:15px">${fmt(+e.amount||0)}</div><div class="small muted">÷${(e.beneficiaries||[]).length}=${fmt(ph)}/คน</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px"><div style="display:flex;gap:4px;flex-wrap:wrap">${(e.beneficiaries||[]).map(bid=>{const bm=state.members.find(m=>m.id===bid);return bm?`<span class="badge" style="font-size:10px">${esc(bm.name)}</span>`:''}).join('')}</div><div style="display:flex;gap:4px">${e.payer===state.me?`<button onclick="openExpenseForm('${esc(e.id)}')" style="font-size:11px;color:var(--line-dark);background:var(--line-soft);border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">แก้ไข</button><button onclick="delExp('${esc(e.id)}')" style="font-size:11px;color:var(--bad);background:#F2555510;border:none;border-radius:20px;padding:3px 10px;cursor:pointer;font-weight:700">ลบ</button>`:''}</div></div></div></div></div>`;};
+    if(!state.expenses.length){el.innerHTML='<div class="empty" style="padding:32px 20px">'+mkEmoji(4,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">ยังไม่มีรายจ่ายเลยนะ</div><div style="font-size:13px;color:var(--ink-3)">แตะ <strong style="color:var(--line);font-size:15px">+</strong> เพื่อเพิ่มรายจ่ายได้เลย</div></div></div>';return;}
+    if(_expView==='timeline'){
+      const fmt2=d=>{try{const[y,m,dd]=d.split('-');const th=new Date(+y,+m-1,+dd);return th.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});}catch{return d;}};
+      const byDate={};[...state.expenses].sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.createdAt||0)-(b.createdAt||0)).forEach(e=>{const k=e.date||'ไม่ระบุวัน';if(!byDate[k])byDate[k]=[];byDate[k].push(e);});
+      const dayAmt=d=>byDate[d].reduce((s,e)=>s+(+e.amount||0),0);
+      el.innerHTML=Object.keys(byDate).map(d=>`<div class="tl-day"><div class="tl-dot"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-left:4px"><div style="font-weight:700;font-size:13px;color:var(--line-dark)">${fmt2(d)}</div><div class="num" style="font-size:12px;color:var(--ink-3);font-weight:600">${fmt(dayAmt(d))}</div></div>${byDate[d].map(e=>mkExpCard(e,true)).join('')}</div>`).join('');
+    }else{
+      el.innerHTML=state.expenses.map(e=>mkExpCard(e,false)).join('');
+    }
+  }
+  else if(tab==='members'){
+    const ml=$('member-list');ml.innerHTML=!state.members.length?`<div class="empty" style="padding:28px 20px">${mkEmoji(6,72)}<div style="margin-top:12px"><div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:4px">ยังไม่มีเพื่อนในทริปนี้</div><div style="font-size:13px;color:var(--ink-3)">กด <strong style="color:var(--line)">เชิญผ่าน LINE</strong> ด้านบนได้เลย</div></div></div>`:(()=>{
+    // Compute achievements
+    const ach={};const addA=(id,b)=>{if(!ach[id])ach[id]=[];ach[id].push(b);};
+    if(state.expenses.length>=2&&state.members.length>=2){
+      const topPaid=state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]);
+      if((paid[topPaid.id]||0)>0)addA(topPaid.id,'👑 จ่ายเยอะสุด');
+      const payCount={};state.expenses.forEach(e=>{payCount[e.payer]=(payCount[e.payer]||0)+1;});
+      const topPayer=state.members.reduce((b,m)=>(payCount[m.id]||0)>(payCount[b.id]||0)?m:b,state.members[0]);
+      if((payCount[topPayer.id]||0)>=2)addA(topPayer.id,'💳 จ่ายบ่อยสุด');
+      const generous=state.members.map(m=>({m,n:(paid[m.id]||0)-(owed[m.id]||0)})).reduce((b,x)=>x.n>b.n?x:b);
+      if(generous.n>100)addA(generous.m.id,'🫶 ใจป้ำสุด');
+    }
+    return state.members.map(m=>{
+      const n=(paid[m.id]||0)-(owed[m.id]||0);
+      const expCnt=state.expenses.filter(e=>(e.beneficiaries||[]).includes(m.id)).length;
+      const badges=(ach[m.id]||[]).map(b=>`<span style="background:var(--line-soft);color:var(--line-dark);border-radius:var(--r-full);padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap">${b}</span>`).join('');
+      return`<div class="card" style="display:flex;align-items:center;gap:12px;padding:13px 14px">${mkAv(m.name,40,m.pictureUrl)}<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:2px"><span style="font-weight:700;font-size:15px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</span>${badges}</div><div class="small muted">${expCnt} รายการ</div></div><div class="num" style="font-weight:700;font-size:15px;color:${n>=0?'var(--good)':'var(--bad)'};flex-shrink:0">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;
+    }).join('');
+  })()
+  }
+  else if(tab==='settle'){
+    const net={};state.members.forEach(m=>{net[m.id]=(paid[m.id]||0)-(owed[m.id]||0);});
+    $('net-balances').innerHTML=!state.members.length?`<div style="padding:8px 0;font-size:13px;color:var(--ink-3)">เชิญสมาชิกเข้าร่วม Trip ก่อนเลย</div>`:state.members.map(m=>{const n=net[m.id]||0;return`<div class="settle-row">${mkAv(m.name,32,m.pictureUrl)}<div style="flex:1;font-size:14px">${esc(m.name)}${m.id===state.me?' <span class="badge">คุณ</span>':''}</div><div class="num" style="font-weight:700;color:${n>=0?'var(--good)':'var(--bad)'}">${n>=0?'+':'-'}${fmt(Math.abs(n)).replace('฿','')}฿</div></div>`;}).join('');
+    const txns=calcSettle(net);const activeTxns=txns.filter(t=>{const p=state.payments[t.from+'_'+t.to];return!(p&&p.confirmedAt);});const _sl=$('settle-list');_sl.innerHTML=!activeTxns.length?`<div class="empty" style="padding:32px 20px">${state.members.length?mkEmoji(3,88)+'<div style="margin-top:14px"><div style="font-weight:700;font-size:16px;color:var(--ink);margin-bottom:5px">เคลียร์กันหมดแล้ว! 🎉</div><div style="font-size:13px;color:var(--ink-3);margin-bottom:16px">ทุกคนสบายใจได้เลย</div><button onclick="shareSettlementCard()" style="background:var(--line);color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🎊 แชร์ให้ทุกคนรู้</button></div>':`${mkEmoji(7,72)}<div style="margin-top:12px"><div style="font-weight:700;font-size:15px;color:var(--ink)">ยังไม่มีสมาชิก</div><div style="font-size:13px;color:var(--ink-3)">เชิญเพื่อนผ่าน Tab สมาชิกได้เลย</div></div>`}</div>`:activeTxns.map(t=>{const f=state.members.find(m=>m.id===t.from),to=state.members.find(m=>m.id===t.to),isPayer=t.from===state.me,isRecip=t.to===state.me,pmt=state.payments[t.from+'_'+t.to],isPending=pmt&&pmt.paidAt&&!pmt.confirmedAt;let btns='';if(isPending){btns=isPayer?`<div style="padding-top:8px;font-size:12px;color:var(--ink-3)">⏳ รอ ${esc(to?.name||'?')} ยืนยัน...</div>`:isRecip?`<div style="padding-top:8px"><button onclick="confirmPayment('${esc(t.from)}','${esc(t.to)}')" style="display:flex;align-items:center;gap:6px;background:var(--line-soft);border:1.5px solid var(--line);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--line-dark);cursor:pointer;font-family:inherit">🤝 ยืนยันรับแล้ว</button></div>`:'';}else{btns=isPayer?`<div style="padding-top:8px"><button onclick="markPayment('${esc(t.from)}','${esc(t.to)}',${t.amount})" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink-2);cursor:pointer;font-family:inherit">✅ โอนแล้ว</button></div>`:isRecip?`<div style="padding-top:8px"><button onclick="sendPoliteReminder('${esc(t.from)}',${t.amount})" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink-2);cursor:pointer;font-family:inherit">${mkEmoji(1,22)}<span>ทวงแบบเกรงใจ</span></button></div>`:'';}return`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:10px">${mkAv(f?.name||'?',32,f?.pictureUrl)}<div style="flex:1;font-size:14px"><span style="font-weight:700;color:var(--bad)">${esc(f?.name||'?')}</span><span class="muted" style="margin:0 6px;font-size:12px">โอนให้</span><span style="font-weight:700;color:var(--good)">${esc(to?.name||'?')}</span></div><div class="num" style="font-weight:900;font-size:16px">${fmt(t.amount)}</div>${mkAv(to?.name||'?',32,to?.pictureUrl)}</div>${btns}</div>`;}).join('');
+    if(!activeTxns.length&&state.members.length){const mc=monoCard('insurance');if(mc)_sl.insertAdjacentHTML('beforeend',mc);}
+  }
+}
+window.tlb=function(id){const d=$('lbd-'+id),r=$('lbr-'+id),c=$('lbc-'+id);if(!d)return;const o=d.classList.contains('open');d.classList.toggle('open',!o);r&&r.classList.toggle('expanded',!o);c&&c.classList.toggle('open',!o);};
+let _expView='list';
+window.setExpView=function(v){_expView=v;const onL=v==='list';$('exp-view-list').style.background=onL?'var(--line)':'transparent';$('exp-view-list').style.color=onL?'#fff':'var(--ink-3)';$('exp-view-tl').style.background=onL?'transparent':'var(--line)';$('exp-view-tl').style.color=onL?'var(--ink-3)':'#fff';renderTab('expenses');};
+let _pay=null,_ben=new Set();
+window.openExpenseForm=function(id){
+  $('ef-date').value=today();$('ef-id').value=id||'';$('ef-title-label').textContent=id?'แก้ไขค่าใช้จ่าย':'เพิ่มค่าใช้จ่าย';
+  _pay=null;_ben=new Set();
+  const mk=(m,tp)=>`<button onclick="${tp==='p'?`selP('${esc(m.id)}',this)`:`togB('${esc(m.id)}',this)`}" data-id="${esc(m.id)}" style="display:flex;align-items:center;gap:6px;padding:5px 12px 5px 5px;border-radius:20px;border:2px solid var(--border);background:var(--surface-2);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink)">${mkAv(m.name,22,m.pictureUrl)}<span>${esc(m.name)}</span></button>`;
+  $('ef-payer-row').innerHTML=state.members.map(m=>mk(m,'p')).join('');$('ef-bene-row').innerHTML=state.members.map(m=>mk(m,'b')).join('');
+  if(id){const e=state.expenses.find(x=>x.id===id);if(e){$('ef-title').value=e.title||'';$('ef-amount').value=e.amount||'';$('ef-cat').value=e.category||'🍽️ อาหาร';$('ef-date').value=e.date||today();$$('#ef-payer-row button').forEach(b=>{if(b.dataset.id===e.payer)selP(e.payer,b);});$$('#ef-bene-row button').forEach(b=>{if((e.beneficiaries||[]).includes(b.dataset.id))togB(b.dataset.id,b,true);});}}
+  else{const sb=document.querySelector('#ef-payer-row button[data-id="'+state.me+'"]');if(sb)selP(state.me,sb);$$('#ef-bene-row button').forEach(b=>togB(b.dataset.id,b,true));}
+  openModal('modal-expense');
+};
+function hi(btn,on){btn.style.borderColor=on?'var(--line)':'var(--border)';btn.style.background=on?'var(--line-soft)':'var(--surface-2)';btn.style.color=on?'var(--line-dark)':'var(--ink)';}
+window.selP=function(id,btn){_pay=id;$$('#ef-payer-row button').forEach(b=>hi(b,b.dataset.id===id));};
+window.togB=function(id,btn,on){if(on===true)_ben.add(id);else if(_ben.has(id))_ben.delete(id);else _ben.add(id);$$('#ef-bene-row button').forEach(b=>hi(b,_ben.has(b.dataset.id)));};
+window.efToggleAll=function(){const all=state.members.map(m=>m.id),allSel=all.every(id=>_ben.has(id));if(allSel)_ben.clear();else all.forEach(id=>_ben.add(id));$$('#ef-bene-row button').forEach(b=>hi(b,_ben.has(b.dataset.id)));};
+window.saveExpense=async function(){
+  if(!_connOnline)return toast('🐹 ตอนนี้เน็ตหลุด บันทึกไม่ได้ชั่วคราว ลองใหม่อีกทีนะ');
+  const t=san($('ef-title').value,80),a=parseFloat($('ef-amount').value);
+  if(!t)return toast('ใส่ชื่อรายการก่อน');if(!a||a<=0)return toast('ใส่จำนวนเงินก่อน');if(!_pay)return toast('เลือกคนที่จ่ายก่อน');if(!_ben.size)return toast('เลือกคนร่วมหารก่อน');
+  const efIdVal=$('ef-id').value;
+  const id=safeKey(efIdVal||('e_'+Date.now()+'_'+uuid()));
+  const existing=efIdVal?state.expenses.find(x=>x.id===efIdVal):null;
+  const payload={id,title:t,amount:a,category:$('ef-cat').value,date:$('ef-date').value,payer:_pay,beneficiaries:[..._ben],splitMode:'equal',createdAt:Date.now()};
+  if(!efIdVal&&state.firebaseUid)payload.creatorUid=state.firebaseUid;
+  if(efIdVal&&existing?.creatorUid)payload.creatorUid=existing.creatorUid;
+  try{
+    await tripRef.child('expenses/'+safeKey(id)).set(payload);
+    _pay=null;_ben=new Set();closeModal('modal-expense');toast('บันทึกแล้ว ✓');trackEvent('expense_added');
+  }catch(e){console.error(e);toast('บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง');}
+};
+window.delExp=async function(id){if(!confirm('ลบรายการนี้?'))return;try{await tripRef.child('expenses/'+safeKey(id)).remove();toast('ลบแล้ว');trackEvent('expense_deleted');}catch(e){console.error(e);toast('ลบไม่สำเร็จ ลองใหม่อีกครั้ง');}};
+window.copyTripLink=function(){const u=location.origin+location.pathname+'#'+encodeURIComponent(safeTripCode(state.tripId)||'');const txt=`🐾 มาหารค่าเที่ยว "${state.tripName||state.tripId}" ด้วยกันเลย!\n${u}`;navigator.clipboard.writeText(txt).then(()=>toast('คัดลอก link แล้ว ✓'));};
+window.sendPoliteReminder=async function(fromId,amount){
+  const fm=state.members.find(m=>m.id===fromId);
+  const fromName=fm?.name||'เพื่อน';
+  const tripName=state.tripName||state.tripId;
+  const url=location.origin+location.pathname+'#'+encodeURIComponent(state.tripId||'');
+  const flexMsg={type:'flex',altText:`🐹 ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ด้วยน้า 🙏`,contents:{type:'bubble',size:'kilo',
+    header:{type:'box',layout:'vertical',backgroundColor:'#06C755',paddingAll:'14px',contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]},
+    body:{type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',contents:[
+      {type:'text',text:'🐹 ทวงแบบเกรงใจ',weight:'bold',size:'md',color:'#1F2D24'},
+      {type:'text',text:`สวัสดี ${fromName} นะ~ ถ้าสะดวก ฝากค่าเที่ยวด้วยน้า 🙏`,size:'sm',color:'#5C6E63',wrap:true},
+      {type:'separator',margin:'md'},
+      {type:'box',layout:'horizontal',margin:'md',contents:[{type:'text',text:'Trip',size:'sm',color:'#94A89C',flex:1},{type:'text',text:tripName,size:'sm',weight:'bold',color:'#1F2D24',align:'end',wrap:true}]},
+      {type:'box',layout:'horizontal',contents:[{type:'text',text:'จำนวน',size:'sm',color:'#94A89C',flex:1},{type:'text',text:fmt(amount),size:'sm',weight:'bold',color:'#F25555',align:'end'}]}
+    ]},
+    footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
+  }};
+  const canShare=liffCanShare();
+  if(canShare){try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:false});if(res?.status==='success'){toast('ส่งทวงแบบเกรงใจแล้ว 🐹');trackEvent('reminder_sent');}}catch(e){navigator.clipboard?.writeText(`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`).then(()=>toast('คัดลอกแล้ว ✓'));}}
+  else if(navigator.share){navigator.share({title:'ทวงแบบเกรงใจ',text:`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`});}
+  else{navigator.clipboard?.writeText(`🐹 สวัสดี ${fromName}~ ถ้าสะดวก ฝากค่าเที่ยว "${tripName}" ${fmt(amount)} ด้วยน้า 🙏`).then(()=>toast('คัดลอกแล้ว ✓'));}
+};
+window.shareSettlementCard=async function(){
+  const tripName=state.tripName||state.tripId;
+  const{paid,owed,total}=calcBal();
+  const url=location.origin+location.pathname+'#'+encodeURIComponent(state.tripId||'');
+  const netRows=state.members.map(m=>{const n=(paid[m.id]||0)-(owed[m.id]||0);return{type:'box',layout:'horizontal',contents:[{type:'text',text:m.name,size:'sm',flex:1,color:'#1F2D24'},{type:'text',text:(n>=0?'+':'')+Math.round(n).toLocaleString()+'฿',size:'sm',weight:'bold',align:'end',color:n>=0?'#06C755':'#F25555'}]};});
+  const flexMsg={type:'flex',altText:`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!`,contents:{type:'bubble',size:'kilo',
+    header:{type:'box',layout:'vertical',backgroundColor:'#06C755',paddingAll:'14px',contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]},
+    body:{type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',contents:[
+      {type:'text',text:'✨ ทริปเคลียร์แล้ว!',weight:'bold',size:'lg',color:'#1F2D24'},
+      {type:'text',text:tripName,size:'sm',color:'#5C6E63',wrap:true},
+      {type:'separator',margin:'md'},
+      {type:'box',layout:'horizontal',margin:'md',contents:[
+        {type:'text',text:'ยอดรวม',size:'sm',color:'#94A89C',flex:1},
+        {type:'text',text:Math.round(total).toLocaleString()+'฿',size:'sm',weight:'bold',color:'#1F2D24',align:'end'}
+      ]},
+      {type:'separator',margin:'md'},
+      ...netRows
+    ]},
+    footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
+  }};
+  const canShare=liffCanShare();
+  if(canShare){
+    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success'){toast('แชร์แล้ว ✓');trackEvent('share_settled');}}
+    catch(e){const t=`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!\n💰 ยอดรวม ${Math.round(total).toLocaleString()}฿\n📱 หารกันเอง · capybarabu`;navigator.clipboard?.writeText(t).then(()=>toast('คัดลอกแล้ว ✓'));}
+  }else if(navigator.share){navigator.share({title:'ทริปเคลียร์แล้ว!',text:`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!`});}
+  else{const t=`✨ ทริป "${tripName}" เคลียร์กันหมดแล้ว!\n💰 ยอดรวม ${Math.round(total).toLocaleString()}฿`;navigator.clipboard?.writeText(t).then(()=>toast('คัดลอกแล้ว ✓'));}
+};
+window.shareTripSummary=async function(){
+  const tripName=state.tripName||state.tripId;
+  const{paid,total}=calcBal();
+  const bigSpender=state.members.length?state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]):null;
+  const cm={};state.expenses.forEach(e=>{const k=e.category||'📦 อื่นๆ';cm[k]=(cm[k]||0)+(+e.amount||0);});
+  const topCat=Object.entries(cm).sort((a,b)=>b[1]-a[1])[0];
+  const avg=state.members.length?total/state.members.length:0;
+  const url=location.origin+location.pathname+'#'+encodeURIComponent(state.tripId||'');
+  const bodyContents=[
+    {type:'text',text:'✨ สรุปทริปนี้',weight:'bold',size:'lg',color:'#1F2D24'},
+    {type:'text',text:tripName,size:'sm',color:'#5C6E63',wrap:true},
+    {type:'separator',margin:'md'},
+    {type:'box',layout:'horizontal',margin:'md',contents:[{type:'text',text:'💰 ยอดรวม',size:'sm',color:'#94A89C',flex:1},{type:'text',text:fmt(total),size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]},
+    {type:'box',layout:'horizontal',contents:[{type:'text',text:'👥 สมาชิก',size:'sm',color:'#94A89C',flex:1},{type:'text',text:`${state.members.length} คน · เฉลี่ย ${fmt(avg)}`,size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]},
+    bigSpender?{type:'box',layout:'horizontal',contents:[{type:'text',text:'👑 จ่ายเยอะสุด',size:'sm',color:'#94A89C',flex:1},{type:'text',text:bigSpender.name,size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]}:null,
+    topCat?{type:'box',layout:'horizontal',contents:[{type:'text',text:'🔥 หมวดฮิต',size:'sm',color:'#94A89C',flex:1},{type:'text',text:topCat[0],size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]}:null,
+  ].filter(Boolean);
+  const flexMsg={type:'flex',altText:`✨ สรุปทริป "${tripName}" — ${fmt(total)}`,contents:{type:'bubble',size:'kilo',
+    header:{type:'box',layout:'vertical',backgroundColor:'#06C755',paddingAll:'14px',contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]},
+    body:{type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',contents:bodyContents},
+    footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
+  }};
+  const fallbackText=[`✨ สรุปทริป "${tripName}"`,``,`💰 ยอดรวม: ${fmt(total)}`,`👥 สมาชิก: ${state.members.length} คน · เฉลี่ย ${fmt(avg)}`,bigSpender?`👑 จ่ายเยอะสุด: ${bigSpender.name}`:'',topCat?`🔥 หมวดฮิต: ${topCat[0]}`:'',``,`📱 หารกันเอง · capybarabu`].filter(Boolean).join('\n');
+  if(liffCanShare()){
+    try{const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(res?.status==='success'){toast('แชร์สรุปแล้ว ✓');trackEvent('share_trip');}}
+    catch(e){navigator.clipboard?.writeText(fallbackText).then(()=>toast('คัดลอกสรุปแล้ว ✓'));}
+  }else if(navigator.share){navigator.share({title:'สรุปทริป '+tripName,text:fallbackText});}
+  else{navigator.clipboard?.writeText(fallbackText).then(()=>toast('คัดลอกสรุปแล้ว ✓'));}
+};
+window.shareFunniestExpense=async function(){
+  if(!state.expenses.length)return toast('ยังไม่มีรายการ');
+  const funniest=state.expenses.reduce((b,e)=>(e.title||'').length>(b.title||'').length?e:b,state.expenses[0]);
+  if((funniest.title||'').length<4)return toast('ยังไม่มีรายการที่น่าสนใจ');
+  const tripName=state.tripName||state.tripId;
+  const url=location.origin+location.pathname+'#'+encodeURIComponent(state.tripId||'');
+  const flexMsg={type:'flex',altText:`😂 "${funniest.title}" — ${fmt(+funniest.amount||0)}`,contents:{type:'bubble',size:'kilo',
+    header:{type:'box',layout:'vertical',backgroundColor:'#06C755',paddingAll:'14px',contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]},
+    body:{type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',contents:[
+      {type:'text',text:'😂 Funniest Expense',weight:'bold',size:'md',color:'#1F2D24'},
+      {type:'text',text:tripName,size:'xs',color:'#94A89C'},
+      {type:'separator',margin:'md'},
+      {type:'text',text:`"${funniest.title}"`,size:'sm',weight:'bold',color:'#1F2D24',wrap:true,margin:'md'},
+      {type:'text',text:fmt(+funniest.amount||0),size:'xl',weight:'bold',color:'#F25555',margin:'sm'},
+      {type:'separator',margin:'md'},
+      {type:'text',text:'🐹 "อันนี้จำได้ทั้งทริป"',size:'sm',color:'#5C6E63',wrap:true,margin:'md'},
+    ]},
+    footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
+  }};
+  const fallback=`😂 Funniest Expense\n"${funniest.title}"\n${fmt(+funniest.amount||0)}\n\n🐹 "อันนี้จำได้ทั้งทริป"\n📱 หารกันเอง · capybarabu`;
+  if(liffCanShare()){try{const r=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(r?.status==='success'){toast('แชร์ช่วงฮาแล้ว ✓');trackEvent('share_funny');}}catch(e){navigator.clipboard?.writeText(fallback).then(()=>toast('คัดลอกแล้ว ✓'));}}
+  else if(navigator.share){navigator.share({title:'Funniest Expense!',text:fallback});}
+  else{navigator.clipboard?.writeText(fallback).then(()=>toast('คัดลอกแล้ว ✓'));}
+};
+window.shareBiggestSpender=async function(){
+  if(!state.members.length||!state.expenses.length)return toast('ยังไม่มีข้อมูลเพียงพอ');
+  const{paid}=calcBal();
+  const best=state.members.reduce((b,m)=>(paid[m.id]||0)>(paid[b.id]||0)?m:b,state.members[0]);
+  const paidAmt=paid[best.id]||0;if(!paidAmt)return toast('ยังไม่มีข้อมูล');
+  const payCount=state.expenses.filter(e=>e.payer===best.id).length;
+  const tripName=state.tripName||state.tripId;
+  const url=location.origin+location.pathname+'#'+encodeURIComponent(state.tripId||'');
+  const flexMsg={type:'flex',altText:`👑 ${best.name} จ่ายเยอะสุด ${fmt(paidAmt)}`,contents:{type:'bubble',size:'kilo',
+    header:{type:'box',layout:'vertical',backgroundColor:'#06C755',paddingAll:'14px',contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]},
+    body:{type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',contents:[
+      {type:'text',text:'👑 Biggest Spender',weight:'bold',size:'md',color:'#1F2D24'},
+      {type:'text',text:tripName,size:'xs',color:'#94A89C'},
+      {type:'separator',margin:'md'},
+      {type:'text',text:best.name,size:'lg',weight:'bold',color:'#1F2D24',margin:'md'},
+      {type:'box',layout:'horizontal',margin:'sm',contents:[{type:'text',text:'จ่ายรวม',size:'sm',color:'#94A89C',flex:1},{type:'text',text:fmt(paidAmt),size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]},
+      {type:'box',layout:'horizontal',contents:[{type:'text',text:'จำนวนรายการ',size:'sm',color:'#94A89C',flex:1},{type:'text',text:`${payCount} รายการ`,size:'sm',weight:'bold',color:'#1F2D24',align:'end'}]},
+      {type:'separator',margin:'md'},
+      {type:'text',text:'🐹 "ออกให้ก่อนอีกแล้ว เกรงใจแต่ใจดีมาก"',size:'sm',color:'#5C6E63',wrap:true,margin:'md'},
+    ]},
+    footer:{type:'box',layout:'vertical',paddingAll:'12px',contents:[{type:'button',style:'primary',color:'#06C755',height:'sm',action:{type:'uri',label:'เปิดดูทริป',uri:url}}]}
+  }};
+  const fallback=`👑 Biggest Spender\n${best.name} จ่าย ${fmt(paidAmt)}\nใน ${payCount} รายการ\n\n🐹 "ออกให้ก่อนอีกแล้ว เกรงใจแต่ใจดีมาก"\n📱 หารกันเอง · capybarabu`;
+  if(liffCanShare()){try{const r=await liff.shareTargetPicker([flexMsg],{isMultiple:true});if(r?.status==='success'){toast('แชร์ Biggest Spender แล้ว ✓');trackEvent('share_biggest');}}catch(e){navigator.clipboard?.writeText(fallback).then(()=>toast('คัดลอกแล้ว ✓'));}}
+  else if(navigator.share){navigator.share({title:`👑 ${best.name} จ่ายเยอะสุด!`,text:fallback});}
+  else{navigator.clipboard?.writeText(fallback).then(()=>toast('คัดลอกแล้ว ✓'));}
+};
+window.inviteViaLine=async function(){
+  const tripCode=safeTripCode(state.tripId);
+  if(!tripCode)return;
+  const url=location.origin+location.pathname+'#'+encodeURIComponent(tripCode);
+  const inviterName=AUTH.user?.displayName||'เพื่อน';
+  const tripName=state.tripName||tripCode;
+  // Social proof: show member names
+  const otherMembers=state.members.filter(m=>m.id!==state.me);
+  const nameList=otherMembers.slice(0,3).map(m=>m.name).join(', ')+(otherMembers.length>3?` +${otherMembers.length-3}`:' ');
+  const memberLine=state.members.length>0?`👥 ${state.members.length} คน · ${nameList}`:`👥 ยังไม่มีสมาชิก`;
+
+  const flexMsg={
+    type:'flex',
+    altText:`🐾 ${inviterName} ชวนคุณหารค่าเที่ยว "${tripName}" — กดเพื่อเข้าร่วม`,
+    contents:{
+      type:'bubble',
+      size:'kilo',
+      header:{
+        type:'box',layout:'vertical',
+        backgroundColor:'#06C755',paddingAll:'14px',
+        contents:[{type:'text',text:'หารกันเอง · capybarabu',color:'#ffffff',size:'xs',weight:'bold'}]
+      },
+      body:{
+        type:'box',layout:'vertical',paddingAll:'16px',spacing:'sm',
+        contents:[
+          {type:'text',text:`🐾 ${inviterName} ชวนมาหารค่าเที่ยวด้วยกัน!`,size:'sm',color:'#5C6E63',wrap:true},
+          {type:'text',text:tripName,weight:'bold',size:'xl',color:'#1F2D24',wrap:true,margin:'sm'},
+          {type:'separator',margin:'md'},
+          {type:'box',layout:'horizontal',margin:'md',contents:[
+            {type:'text',text:'สมาชิก',size:'sm',color:'#94A89C',flex:1},
+            {type:'text',text:memberLine,size:'sm',weight:'bold',color:'#1F2D24',align:'end',wrap:true,flex:2}
+          ]},
+          {type:'box',layout:'horizontal',contents:[
+            {type:'text',text:'รหัส Trip',size:'sm',color:'#94A89C',flex:1},
+            {type:'text',text:tripCode,size:'sm',weight:'bold',color:'#06C755',align:'end'}
+          ]}
+        ]
+      },
+      footer:{
+        type:'box',layout:'vertical',paddingAll:'12px',
+        contents:[{
+          type:'button',style:'primary',color:'#06C755',height:'sm',
+          action:{type:'uri',label:'เข้าร่วม Trip เลย 🎉',uri:url}
+        }]
+      }
+    }
+  };
+
+  const canShare=liffCanShare();
+  if(canShare){
+    try{
+      const res=await liff.shareTargetPicker([flexMsg],{isMultiple:true});
+      if(res?.status==='success'){toast('ส่งคำเชิญแล้ว');trackEvent('invite_sent');}
+    }catch(e){
+      console.warn('[shareTargetPicker]',e);
+      navigator.clipboard.writeText(url).then(()=>toast('คัดลอก link แล้ว'));
+    }
+  }else if(navigator.share){
+    navigator.share({title:'หารกันเอง · '+tripName,url});
+  }else{
+    navigator.clipboard.writeText(url).then(()=>toast('คัดลอก link แล้ว'));
+  }
+};
+window.saveSettings=async function(){const n=san($('settings-name').value,60);if(!n)return;const suid=safeKey(AUTH.user?.lineUserId||''),code=safeTripCode(state.tripId||'');if(!code)return;try{await tripRef.child('name').set(n);await tripRef.child('theme').set(_settingsTheme);if(suid){await db.ref('userTrips/'+suid+'/'+code+'/tripName').set(n);await db.ref('userTrips/'+suid+'/'+code+'/theme').set(_settingsTheme);}state.tripName=n;state.tripTheme=_settingsTheme;applyTheme(_settingsTheme);const te=_settingsTheme&&THEMES[_settingsTheme]?THEMES[_settingsTheme].emoji:'';$('trip-chip').textContent=(te?te+' ':'')+n+' · '+state.tripId;closeModal('modal-settings');toast('บันทึกแล้ว');}catch(e){console.error(e);toast('บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง');}};
+
+/* ═══════════════════════════════════════
+   BOOT — Auth Gate ตาม spec
+   Flow: initializing → checking → authenticated → Main Page
+         initializing → checking → logging_in   → LINE Login → กลับมา → checking → Main Page
+═══════════════════════════════════════ */
+async function boot(){
+  if(authBootInProgress) return;
+  authBootInProgress = true;
+  showScr('screen-splash');
+  setAuthStatus('initializing');
+
+  // อ่าน hash ก่อนทุก async op — LIFF redirect อาจทำให้ hash หาย
+  let pendingHash = rememberPendingTripHash(getPendingTripHash());
+
+  const [liffOk, fbResult] = await Promise.allSettled([
+    initLiff(),
+    (async()=>{ await waitFb(10000); initFb(); await signInFbAnon(); db=firebase.database(); initConnMonitor(); perfMark('firebase_ready'); })()
+  ]);
+
+  if(fbResult.status === 'rejected'){
+    handleAuthError(new Error('Firebase โหลดไม่ได้ — เช็ค internet แล้วกด ลองใหม่'));
+    return;
+  }
+
+  // re-read hash หลัง liff.init() — LIFF อาจ restore hash จาก liff.state param
+  const postHash = rememberPendingTripHash(getPendingTripHash());
+  if(postHash) pendingHash = postHash;
+
+  const liffAvailable = liffOk.status === 'fulfilled' && liffOk.value === true;
+  setAuthStatus('checking');
+
+  if(liffAvailable && typeof liff !== 'undefined'){
+    // Check explicit logout first — liff.logout() may not work inside LINE client,
+    // so isLoggedIn() can still be true. Honour the flag regardless.
+    if(localStorage.getItem('explicit_logout')){
+      localStorage.removeItem('explicit_logout');
+      AUTH.status = 'unauthenticated';
+      showLogin();
+    } else if(liff.isLoggedIn()){
+      try {
+        await loadProfile();
+        AUTH.status = 'authenticated';
+        sessionStorage.removeItem('pending_trip_hash');
+        await enterApp(pendingHash);
+      } catch(e){
+        handleAuthError(e);
+      }
+    } else if(liff.isInClient()){
+      setAuthStatus('logging_in');
+      if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
+      liff.login();
+    } else {
+      AUTH.status = 'unauthenticated';
+      if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
+      showLogin();
+    }
+  } else {
+    AUTH.status = 'unauthenticated';
+    if(pendingHash) sessionStorage.setItem('pending_trip_hash', pendingHash);
+    showLogin();
+  }
+}
+boot();
+
+if('serviceWorker' in navigator){const h=location.hostname;if(h.endsWith('github.io')||(!h.includes('localhost')&&!h.includes('claudeusercontent'))){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}}
+</script>
+</body>
+</html>
