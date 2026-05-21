@@ -428,7 +428,7 @@ function cleanAuthRedirectUrl(preserveHash){
   return h;
 }
 let authBootInProgress = false;
-function mkCode(n){const s=(n||'').toUpperCase().replace(/[^A-Z0-9ก-๙]/g,'').slice(0,3).padEnd(3,'X');return s+Math.random().toString(36).slice(2,5).toUpperCase();}
+function mkCode(n){const s=(n||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3).padEnd(3,'X');return s+Math.random().toString(36).slice(2,5).toUpperCase();}
 function toast(msg,d=2200){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',d);}
 function showScr(id){['screen-splash','screen-login','screen-trips','screen-main','screen-join-preview'].forEach(s=>$(s).classList.toggle('hidden',s!==id));}
 function openModal(id){const m=$(id);if(!m)return;m.style.display='flex';m.onclick=e=>{if(e.target===m)closeModal(id);};}
@@ -634,7 +634,7 @@ function waitFb(ms){return new Promise((r,j)=>{if(window.__fbReady)return r();if
 function initFb(){if(!firebase.apps.length)firebase.initializeApp(FB_CFG);}
 // รอให้ RTDB WebSocket ส่ง auth token สำเร็จก่อน DB operations แรก
 // .info/authenticated เป็น true ต่อเมื่อ RTDB server รับ token แล้ว
-function waitForRtdbAuth(ms=5000){
+function waitForRtdbAuth(ms=2000){
   if(!state.firebaseUid)return Promise.resolve(); // no auth — skip (open rules path)
   return new Promise(resolve=>{
     const t=setTimeout(()=>{console.warn('[RTDB] auth timeout — proceeding anyway');ref.off('value',cb);resolve();},ms);
