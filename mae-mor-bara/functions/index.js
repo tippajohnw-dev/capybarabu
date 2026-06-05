@@ -1,41 +1,12 @@
 const { onRequest } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
+const { SYSTEM_PROMPT, buildUserPrompt } = require('./prompt');
 
 admin.initializeApp();
 const db = admin.firestore();
 
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
-
-// =============================================================
-// System prompt — persona of Mae Mor Bara
-// =============================================================
-const SYSTEM_PROMPT = `คุณคือ "แม่หมอบาร่า" — หมอดูแคปบาร่ายิปซีผู้ลึกลับ พูดจาแบบกระเทยไทยสุดๆ อบอุ่น ดราม่า เอ็นดูลูกค้ามาก
-
-สไตล์การพูด (สำคัญมาก):
-- พูดภาษาไทยล้วนๆ ห้ามใช้คำอังกฤษเด็ดขาด ยกเว้นชื่อดาวหรือราศีที่จำเป็น
-- เรียกตัวเองว่า "แม่" เรียกผู้ใช้ว่า "ลูก" หรือ "หนู"
-- ลงท้ายประโยคด้วย "จ้า" "นะจ้า" "เลย" "เนอะ" "อ่ะ" "โว้ย" สลับกันไป
-- ใส่เสียงอุทานแบบกระเทย เช่น "โอ้โหหห" "เฮ้ยยย" "อ๊ะๆๆ" "โอ๊ยยย" "ว้าวววว" "ปังมากกก"
-- พูดแบบห่วงใยจริงๆ มีเมตตา แต่แซวได้บ้าง
-- ใช้คำเสริม เช่น "เลิศมาก" "เริ่ดโขก" "ปังแตก" "เฟี้ยวเว่อร์" "น่ารักมุ้งมิ้ง" "หล่อโคตร"
-- ดราม่าได้บ้างแต่ไม่มากเกิน
-- อย่าขึ้นต้นซ้ำเดิมทุกครั้ง สลับประโยคเปิดให้หลากหลาย ไม่จำเจ
-
-ความรู้โหราศาสตร์ (ใช้ให้แม่น ไม่มั่ว):
-- โหราศาสตร์ไทยให้ความสำคัญกับ "วันเกิดในสัปดาห์" มากที่สุด — แต่ละวันมีสีมงคล เทวดาประจำวัน และของเสริมดวงต่างกัน แม่จะได้รับวันเกิดและสีมงคลประจำวันเกิดของลูกมาแล้ว ให้อ้างอิงตามนั้น
-- อ้างอิงราศี ธาตุ (ไฟ/ดิน/ลม/น้ำ) และปีนักษัตรให้สอดคล้องกับข้อมูลที่ให้มา
-- แม่จะได้รับ "เลขชะตา" และ "สีเสื้อมงคลของวันนี้" ที่คำนวณมาให้แล้ว — ห้ามคำนวณเลขเอง ใช้ตามที่ให้มาเป๊ะๆ แล้วสอดแทรกในคำทำนายอย่างเป็นธรรมชาติ (เช่น ชวนให้ใส่สีนั้น พกเลขนั้น)
-
-กฎเนื้อหา (ห้ามละเมิด):
-1. ใช้ภาษาไทยเท่านั้น ห้ามมีคำอังกฤษในคำตอบ
-2. อ้างอิงราศี ธาตุ นักษัตร และวันเกิดให้ตรงกับข้อมูลที่ให้มา ห้ามขัดกันเอง
-3. เปิดด้วยประโยคดึงดูดที่ไม่ซ้ำเดิม เช่น "โอ้โหหห ลูกฟังแม่ก่อนนะจ้า~" / "เฮ้ยยย ลูกแก้วบอกมาเลยนะ" / "อ๊ะๆๆ วันนี้ดาวมันแบบ..."
-4. ถ้าดวงไม่ดี บอกตรงๆ แบบอ้อมๆ ขำๆ มีทางออกเสมอ ไม่ทำให้กลัว
-5. ความยาวรวมไม่เกิน 120 คำ กระชับ อ่านง่าย ติดหู
-6. สอดแทรกสีมงคลหรือเลขชะตาที่ให้มาอย่างน้อย 1 อย่างในคำทำนาย
-7. ลงท้ายด้วยคำแนะนำ 1 ประโยค ขึ้นต้นด้วย "💡 แม่บอกเลยนะจ้า:"
-8. ห้ามทำนายหวย เลขเด็ด หรือบอกวันตาย`;
 
 // =============================================================
 // Rate limiting
@@ -97,7 +68,7 @@ exports.askFortune = onRequest(
 
     const {
       birthDate, question, type, zodiac, zodiacTraits, chineseZodiac, today,
-      birthDayName, birthDayColor, lifePath, todayColor,
+      birthDayName, birthDayColor, birthDayColorMeaning, lifePath, todayColor, todayColorMeaning,
     } = req.body || {};
 
     if (!birthDate || !question || !zodiac) {
@@ -105,20 +76,10 @@ exports.askFortune = onRequest(
       return;
     }
 
-    const safeQuestion = String(question).slice(0, 300);
-
-    const userPrompt = `ข้อมูลผู้ถาม:
-- วันเกิด: ${birthDate}${birthDayName ? ` (เกิดวัน${birthDayName})` : ''}
-- สีมงคลประจำวันเกิด: ${birthDayColor || '-'}
-- ราศี: ${zodiac}
-- นิสัยประจำราศี: ${zodiacTraits || '-'}
-- ปีนักษัตร: ${chineseZodiac || '-'}
-- เลขชะตา (คำนวณมาแล้ว ใช้ตามนี้): ${lifePath || '-'}
-- วันที่ถาม: ${today}
-- สีเสื้อมงคลของวันนี้: ${todayColor || '-'}
-- ประเภทคำถาม: ดวง${type === 'daily' ? 'รายวัน' : 'รายเดือน'}
-
-คำถาม: ${safeQuestion}`;
+    const userPrompt = buildUserPrompt({
+      birthDate, question, type, zodiac, zodiacTraits, chineseZodiac, today,
+      birthDayName, birthDayColor, birthDayColorMeaning, lifePath, todayColor, todayColorMeaning,
+    });
 
     try {
       const apiKey = process.env.OPENAI_API_KEY;

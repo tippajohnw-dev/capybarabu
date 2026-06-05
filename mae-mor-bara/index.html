@@ -853,11 +853,14 @@ async function askFortune() {
 
   // Pre-computed context for the AI (LLMs are unreliable at date→weekday
   // and digit-sum math, so we compute these client-side and feed them in).
-  const birthDayIdx   = new Date(birthDate).getDay();
-  const birthDayName  = THAI_DAYS[birthDayIdx];                 // วันเกิดในสัปดาห์
-  const birthDayColor = SHIRT_COLORS[birthDayIdx].name;         // สีมงคลประจำวันเกิด
-  const lifePath      = getLifePathNumber(birthDate);           // เลขชะตา
-  const todayColor    = SHIRT_COLORS[new Date().getDay()].name; // สีเสื้อมงคลวันนี้
+  const todayIdx             = new Date().getDay();
+  const birthDayIdx          = new Date(birthDate).getDay();
+  const birthDayName         = THAI_DAYS[birthDayIdx];                    // วันเกิดในสัปดาห์
+  const birthDayColor        = SHIRT_COLORS[birthDayIdx].name;            // สีมงคลประจำวันเกิด
+  const birthDayColorMeaning = SHIRT_COLORS[birthDayIdx].meaning;         // ความหมายสีวันเกิด
+  const lifePath             = getLifePathNumber(birthDate);              // เลขชะตา
+  const todayColor           = SHIRT_COLORS[todayIdx].name;               // สีเสื้อมงคลวันนี้
+  const todayColorMeaning    = SHIRT_COLORS[todayIdx].meaning;            // ความหมายสีวันนี้
 
   showLoading();
 
@@ -875,8 +878,10 @@ async function askFortune() {
         today,
         birthDayName,
         birthDayColor,
+        birthDayColorMeaning,
         lifePath,
         todayColor,
+        todayColorMeaning,
       }),
     });
 
