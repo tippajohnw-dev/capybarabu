@@ -1,7 +1,11 @@
 const { onRequest } = require('firebase-functions/v2/https');
 const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
-const { SYSTEM_PROMPT, buildUserPrompt, SOULMATE_SYSTEM_PROMPT, buildSoulmatePrompt } = require('./prompt');
+const {
+  SYSTEM_PROMPT, buildUserPrompt,
+  SOULMATE_SYSTEM_PROMPT, buildSoulmatePrompt,
+  LIFEGRAPH_SYSTEM_PROMPT, buildLifeGraphPrompt,
+} = require('./prompt');
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -93,7 +97,7 @@ exports.askFortune = onRequest(
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          max_tokens: 700,
+          max_tokens: 550,
           temperature: 0.9,
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
@@ -161,7 +165,7 @@ exports.askSoulmate = onRequest(
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          max_tokens: 700,
+          max_tokens: 500,
           temperature: 0.9,
           response_format: { type: 'json_object' },
           messages: [
@@ -197,6 +201,90 @@ exports.askSoulmate = onRequest(
     } catch (err) {
       console.error('Soulmate API error:', err.message);
       res.status(500).json({ error: 'Soulmate service unavailable' });
+    }
+  }
+);
+
+// =============================================================
+// POST /askLifeGraph — แม่หมออ่านกราฟชีวิต (สั้น + cache เพื่อประหยัด token)
+// ตัวเลขกราฟคำนวณฝั่ง client (deterministic) ที่นี่แค่เล่าเป็นคำทำนาย
+// =============================================================
+exports.askLifeGraph = onRequest(
+  { ...SHARED_OPTIONS, secrets: [openaiApiKey], timeoutSeconds: 30 },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      res.status(405).json({ error: 'Method not allowed' });
+      return;
+    }
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.ip || 'unknown';
+    if (isRateLimited(ip)) {
+      res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
+      return;
+    }
+
+    const { birthDate, zodiac, year } = req.body || {};
+    if (!birthDate || !zodiac) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
+    }
+
+    // cache key — input เป็น deterministic (วันเกิด + ปีปัจจุบัน) → cache ได้เต็มที่
+    const cacheKey = `${String(birthDate).replace(/[^0-9-]/g, '')}_${String(year || 'na').replace(/[^0-9]/g, '')}`;
+
+    // 1) ลอง cache ก่อน — hit = 0 token
+    try {
+      const snap = await db.collection('lifegraphCache').doc(cacheKey).get();
+      const cached = snap.exists ? snap.data()?.narrative : null;
+      if (cached) {
+        res.status(200).json({ narrative: cached, cached: true });
+        return;
+      }
+    } catch (err) {
+      console.error('lifegraph cache read error:', err.message);
+    }
+
+    // 2) cache miss → เรียก AI (output สั้น ≤80 คำ)
+    const userPrompt = buildLifeGraphPrompt(req.body);
+    try {
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) throw new Error('API key not configured');
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          max_tokens: 380,
+          temperature: 0.8,
+          messages: [
+            { role: 'system', content: LIFEGRAPH_SYSTEM_PROMPT },
+            { role: 'user',   content: userPrompt },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`OpenAI API ${response.status}: ${errText}`);
+      }
+
+      const data = await response.json();
+      const narrative = data.choices?.[0]?.message?.content;
+      if (!narrative) throw new Error('Empty response from OpenAI');
+
+      // เก็บ cache (fire-and-forget)
+      db.collection('lifegraphCache').doc(cacheKey)
+        .set({ narrative, at: admin.firestore.FieldValue.serverTimestamp() })
+        .catch(err => console.error('lifegraph cache write error:', err.message));
+
+      res.status(200).json({ narrative, cached: false });
+    } catch (err) {
+      console.error('LifeGraph API error:', err.message);
+      res.status(500).json({ error: 'Life graph service unavailable' });
     }
   }
 );

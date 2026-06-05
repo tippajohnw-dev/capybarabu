@@ -770,6 +770,7 @@
         </div>
         <div class="lifegraph-canvas-wrap"><canvas id="lifeChart"></canvas></div>
         <div class="lifegraph-summary" id="lifegraphSummary"></div>
+        <div class="result-text" id="lifegraphNarrative" style="margin-top:12px;min-height:24px"></div>
       </div>
     </div>
   </div>
@@ -1262,7 +1263,8 @@ function updateLakkhana(dateStr) {
 // =============================================================
 // เนื้อคู่ประตูถัดไป (req 2)
 // =============================================================
-const SOULMATE_URL = 'https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/askSoulmate';
+const SOULMATE_URL  = 'https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/askSoulmate';
+const LIFEGRAPH_URL = 'https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/askLifeGraph';
 let _soulmateStatus = 'single';
 let _currentSoulmate = null;
 
@@ -1282,6 +1284,8 @@ function resetGeneratedResults() {
   // กราฟชีวิต
   const lr = document.getElementById('lifegraphResult');
   if (lr) lr.classList.remove('show');
+  const ln = document.getElementById('lifegraphNarrative');
+  if (ln) ln.textContent = '';
   if (_lifeChart) { _lifeChart.destroy(); _lifeChart = null; }
 }
 
@@ -1413,7 +1417,7 @@ function computeLifeGraph(birthDate) {
   return pts;
 }
 
-function drawLifeGraph() {
+async function drawLifeGraph() {
   const birthDate = getBirthDate();
   if (!birthDate) {
     showToast('เลือกวันเกิดด้านบนก่อนนะคะ~');
@@ -1421,6 +1425,10 @@ function drawLifeGraph() {
     return;
   }
   if (typeof Chart === 'undefined') { showToast('กราฟกำลังโหลด ลองอีกครั้งนะ~'); return; }
+
+  const lgBtn = document.getElementById('lifegraphBtn');
+  if (lgBtn.disabled) return;          // กันกดซ้ำระหว่างกำลังโหลด (กัน typewrite ซ้อน)
+  lgBtn.disabled = true;
 
   const pts = computeLifeGraph(birthDate);
   const labels = pts.map(p => ['พ.ศ.' + p.be, 'อายุ ' + p.age]);
@@ -1461,6 +1469,38 @@ function drawLifeGraph() {
     `<div class="lg-row lg-low">⚠️ ปีต้องระวัง: พ.ศ.${low.be} (อายุ ${low.age}) — ${escHtml(low.tag || 'ดวงตก')} · ดวง ${low.score}/100</div>` +
     `<div class="lg-row" style="color:var(--muted);margin-top:6px;font-size:11px">* คำนวณแบบศาสตร์ไทย (ปีนักษัตร/ชง/โฉลก/จังหวะอายุ) เพื่อความบันเทิง</div>`;
   setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+
+  // แม่หมออ่านกราฟผ่าน AI (ส่งแค่ปีรุ่ง/ปีระวัง — ประหยัด token + cache ฝั่ง server)
+  const nEl = document.getElementById('lifegraphNarrative');
+  const now = pts.find(p => p.isNow);
+  const zodiac = getZodiac(birthDate);
+  nEl.textContent = '🔮 แม่หมอกำลังอ่านกราฟชีวิตให้...';
+  try {
+    const res = await fetch(LIFEGRAPH_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        birthDate,
+        year:          new Date().getFullYear(),
+        zodiac:        `ราศี${zodiac.name} (${zodiac.en})`,
+        chineseZodiac: getChineseZodiac(birthDate),
+        birthDayName:  THAI_DAYS[new Date(birthDate).getDay()],
+        age:           now ? now.age : '',
+        peakBE: peak.be, peakAge: peak.age, peakTag: peak.tag || 'ดวงขึ้น', peakScore: peak.score,
+        lowBE:  low.be,  lowAge:  low.age,  lowTag:  low.tag  || 'ดวงตก',  lowScore:  low.score,
+      }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.narrative) throw new Error('empty');
+    if (!data.cached) bumpCount();          // นับเฉพาะตอนเรียก AI จริง (cache hit ไม่นับ)
+    typewrite(nEl, data.narrative);
+  } catch (err) {
+    console.error(err);
+    nEl.textContent = '';                   // กราฟยังอยู่ แค่ไม่มีคำทำนายเสริม
+  } finally {
+    lgBtn.disabled = false;
+  }
 }
 </script>
 </body>
