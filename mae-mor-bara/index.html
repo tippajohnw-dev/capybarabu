@@ -851,6 +851,14 @@ async function askFortune() {
     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
   });
 
+  // Pre-computed context for the AI (LLMs are unreliable at date→weekday
+  // and digit-sum math, so we compute these client-side and feed them in).
+  const birthDayIdx   = new Date(birthDate).getDay();
+  const birthDayName  = THAI_DAYS[birthDayIdx];                 // วันเกิดในสัปดาห์
+  const birthDayColor = SHIRT_COLORS[birthDayIdx].name;         // สีมงคลประจำวันเกิด
+  const lifePath      = getLifePathNumber(birthDate);           // เลขชะตา
+  const todayColor    = SHIRT_COLORS[new Date().getDay()].name; // สีเสื้อมงคลวันนี้
+
   showLoading();
 
   try {
@@ -865,6 +873,10 @@ async function askFortune() {
         zodiacTraits:  zodiac.traits,
         chineseZodiac: chineseSgn,
         today,
+        birthDayName,
+        birthDayColor,
+        lifePath,
+        todayColor,
       }),
     });
 
