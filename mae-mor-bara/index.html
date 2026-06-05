@@ -1171,6 +1171,7 @@ function updateSelectDisplays() {
 
 function onBirthChange() {
   updateSelectDisplays();
+  resetGeneratedResults(); // วันเกิดเปลี่ยน → ล้างผลเนื้อคู่/กราฟชีวิตที่ค้างอยู่ (stale)
   const dateStr = getBirthDate();
   if (dateStr) {
     localStorage.setItem('maemorBirthDate', dateStr);
@@ -1268,6 +1269,20 @@ let _currentSoulmate = null;
 function escHtml(t) {
   return String(t == null ? '' : t)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ล้างผลที่ generate ไว้ (เนื้อคู่ + กราฟชีวิต) เมื่อวันเกิดเปลี่ยน — กันข้อมูลค้างไม่ตรงวันเกิดใหม่
+function resetGeneratedResults() {
+  // เนื้อคู่
+  _currentSoulmate = null;
+  const sr = document.getElementById('soulmateResult');
+  if (sr) sr.classList.remove('show');
+  const sc = document.getElementById('soulmateContent');
+  if (sc) sc.innerHTML = '';
+  // กราฟชีวิต
+  const lr = document.getElementById('lifegraphResult');
+  if (lr) lr.classList.remove('show');
+  if (_lifeChart) { _lifeChart.destroy(); _lifeChart = null; }
 }
 
 function setStatus(s) {
