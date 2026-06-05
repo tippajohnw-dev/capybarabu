@@ -8,6 +8,8 @@
   <meta name="theme-color" content="#0a0015">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js (CDN, no build step) — for กราฟชีวิต -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 
   <style>
     :root {
@@ -419,6 +421,101 @@
       transition: transform .3s cubic-bezier(.34,1.56,.64,1); z-index: 100;
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ===== TAB NAV ===== */
+    .tab-nav {
+      display: flex; gap: 6px; margin-bottom: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 5px;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px 6px; border-radius: 10px; border: none;
+      background: transparent; color: var(--muted);
+      font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+      transition: all .2s; white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(124,58,237,0.35), rgba(201,162,39,0.25));
+      color: var(--gold-light);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: slideUp .35s ease both; }
+
+    /* ===== ลักขณาราศี PANEL ===== */
+    .lakkhana-card { display: none; }
+    .lakkhana-card.show { display: block; animation: slideUp .4s cubic-bezier(.34,1.56,.64,1) both; }
+    .lakkhana-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .lakkhana-emoji {
+      font-size: 40px; line-height: 1;
+      filter: drop-shadow(0 0 14px rgba(201,162,39,0.5));
+    }
+    .lakkhana-title { flex: 1; }
+    .lakkhana-name { font-size: 19px; font-weight: 700; color: var(--gold); line-height: 1.2; }
+    .lakkhana-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .lakkhana-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .lakkhana-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,162,39,0.18);
+      border-radius: 10px; padding: 9px 11px;
+    }
+    .lakkhana-item-label { font-size: 9px; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; margin-bottom: 3px; }
+    .lakkhana-item-value { font-size: 13px; color: var(--cream); line-height: 1.45; }
+    .lakkhana-item.full { grid-column: 1 / -1; }
+
+    /* ===== STATUS TOGGLE (โสด/มีคู่) ===== */
+    .status-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+    .status-btn {
+      flex: 1; padding: 12px; border-radius: 12px;
+      border: 1px solid rgba(201,162,39,0.22);
+      background: transparent; color: var(--muted);
+      font-size: 14px; font-family: inherit; cursor: pointer; transition: all .2s;
+    }
+    .status-btn.active {
+      background: rgba(236,72,153,0.14); border-color: #ec4899; color: #f9a8d4;
+    }
+
+    /* ===== SOULMATE RESULT ===== */
+    .soulmate-content { margin-bottom: 14px; }
+    .soulmate-field { margin-bottom: 12px; }
+    .soulmate-field-label {
+      font-size: 10px; letter-spacing: 1.5px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 4px; font-weight: 700;
+    }
+    .soulmate-field-value { font-size: 14px; line-height: 1.65; color: var(--cream); }
+    .stat-bar-wrap { margin-bottom: 12px; }
+    .stat-bar-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 5px;
+    }
+    .stat-bar-label { font-size: 13px; color: var(--cream); font-weight: 600; }
+    .stat-bar-val   { font-size: 13px; color: var(--gold-light); font-weight: 700; }
+    .stat-bar-track {
+      height: 12px; border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(201,162,39,0.18); overflow: hidden;
+    }
+    .stat-bar-fill {
+      height: 100%; width: 0%; border-radius: 8px;
+      transition: width 1s cubic-bezier(.34,1.3,.64,1);
+    }
+    .stat-bar-fill.handsome { background: linear-gradient(90deg, #ec4899, #c9a227); }
+    .stat-bar-fill.wealth   { background: linear-gradient(90deg, #22c55e, #c9a227); }
+
+    /* ===== LIFE GRAPH ===== */
+    .lifegraph-intro { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+    .lifegraph-canvas-wrap {
+      position: relative; height: 240px; margin-bottom: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border); border-radius: 12px; padding: 8px;
+    }
+    .lifegraph-summary { font-size: 13px; line-height: 1.7; color: var(--cream); }
+    .lifegraph-summary .lg-row { margin-bottom: 6px; }
+    .lifegraph-summary .lg-peak { color: #4ade80; }
+    .lifegraph-summary .lg-low  { color: #f87171; }
   </style>
 </head>
 <body>
@@ -481,7 +578,7 @@
 
   <!-- Birth date card -->
   <div class="card">
-    <div class="card-label">วันเกิดของคุณ</div>
+    <div class="card-label">วันเกิดของคุณ · กรอกหรือไม่ก็ได้</div>
     <div class="birth-row">
       <div class="birth-selects">
         <div class="select-wrap">
@@ -526,54 +623,153 @@
     </div>
   </div>
 
-  <!-- Question card -->
-  <div class="card">
-    <div class="card-label">ถามแม่หมอ</div>
-
-    <div class="type-toggle">
-      <button class="type-btn active" id="typeDaily"   onclick="setType('daily')">  ☀️ รายวัน</button>
-      <button class="type-btn"        id="typeMonthly" onclick="setType('monthly')">🌕 รายเดือน</button>
-    </div>
-
-    <div class="presets">
-      <button class="preset-chip" onclick="setPreset('ความรัก')">💕 ความรัก</button>
-      <button class="preset-chip" onclick="setPreset('การเงิน')">💰 การเงิน</button>
-      <button class="preset-chip" onclick="setPreset('การงาน')">💼 การงาน</button>
-      <button class="preset-chip" onclick="setPreset('สุขภาพ')">🌿 สุขภาพ</button>
-      <button class="preset-chip" onclick="setPreset('โชคลาภ')">🍀 โชคลาภ</button>
-      <button class="preset-chip" onclick="setPreset('ภาพรวมทุกด้าน')">🌟 ภาพรวม</button>
-    </div>
-
-    <textarea class="question-input" id="questionInput"
-      placeholder="ถามอะไรก็ได้... หรือเลือกหัวข้อด้านบน (Ctrl+Enter เพื่อส่ง)"
-      rows="3" maxlength="300"></textarea>
-  </div>
-
-  <!-- CTA -->
-  <button class="ask-btn" id="askBtn" onclick="askFortune()">
-    🔮 ให้แม่หมอดูดวง ✨
-  </button>
-
-  <!-- Loading -->
-  <div class="loading-wrap" id="loadingWrap">
-    <div class="crystal-loading">🔮</div>
-    <div class="loading-text" id="loadingText">แม่หมอกำลังถามลูกแก้ว...</div>
-  </div>
-
-  <!-- Result -->
-  <div class="result-card" id="resultCard">
-    <div class="result-glow"></div>
-    <div class="result-inner">
-      <div class="result-header">
-        <span style="font-size:18px">🔮</span>
-        <div class="result-title">คำทำนายจากแม่หมอบาร่า</div>
-        <span style="font-size:18px">🔮</span>
+  <!-- ลักขณาราศี (แสดงเมื่อเลือกวันเกิด) -->
+  <div class="card lakkhana-card" id="lakkhanaCard">
+    <div class="card-label">ลักขณาราศีของคุณ</div>
+    <div class="lakkhana-head">
+      <div class="lakkhana-emoji" id="lkEmoji">♈</div>
+      <div class="lakkhana-title">
+        <div class="lakkhana-name" id="lkName">—</div>
+        <div class="lakkhana-sub"  id="lkSub">—</div>
       </div>
-      <div class="result-text" id="resultText"></div>
-      <div class="result-actions">
-        <button class="result-btn result-btn-share" onclick="shareFortune()">📤 แชร์ดวง</button>
-        <button class="result-btn result-btn-copy"  onclick="copyFortune()">📋 คัดลอก</button>
-        <button class="result-btn result-btn-again" onclick="resetForNew()">🔄 ใหม่</button>
+    </div>
+    <div class="lakkhana-grid">
+      <div class="lakkhana-item">
+        <div class="lakkhana-item-label">ธาตุประจำราศี</div>
+        <div class="lakkhana-item-value" id="lkElement">—</div>
+      </div>
+      <div class="lakkhana-item">
+        <div class="lakkhana-item-label">ดาวเจ้าเรือน</div>
+        <div class="lakkhana-item-value" id="lkRuler">—</div>
+      </div>
+      <div class="lakkhana-item full">
+        <div class="lakkhana-item-label">ลักขณานิสัย</div>
+        <div class="lakkhana-item-value" id="lkTraits">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tabBtnFortune"   onclick="setTab('fortune')">🔮 ดูดวง</button>
+    <button class="tab-btn"        id="tabBtnSoulmate"  onclick="setTab('soulmate')">💘 เนื้อคู่</button>
+    <button class="tab-btn"        id="tabBtnLifegraph" onclick="setTab('lifegraph')">📈 กราฟชีวิต</button>
+  </div>
+
+  <!-- ===== TAB: ดูดวง ===== -->
+  <div class="tab-panel active" id="tabFortune">
+    <!-- Question card -->
+    <div class="card">
+      <div class="card-label">ถามแม่หมอ</div>
+
+      <div class="type-toggle">
+        <button class="type-btn active" id="typeDaily"   onclick="setType('daily')">  ☀️ รายวัน</button>
+        <button class="type-btn"        id="typeMonthly" onclick="setType('monthly')">🌕 รายเดือน</button>
+      </div>
+
+      <div class="presets">
+        <button class="preset-chip" onclick="setPreset('ความรัก')">💕 ความรัก</button>
+        <button class="preset-chip" onclick="setPreset('การเงิน')">💰 การเงิน</button>
+        <button class="preset-chip" onclick="setPreset('การงาน')">💼 การงาน</button>
+        <button class="preset-chip" onclick="setPreset('สุขภาพ')">🌿 สุขภาพ</button>
+        <button class="preset-chip" onclick="setPreset('โชคลาภ')">🍀 โชคลาภ</button>
+        <button class="preset-chip" onclick="setPreset('ภาพรวมทุกด้าน')">🌟 ภาพรวม</button>
+      </div>
+
+      <textarea class="question-input" id="questionInput"
+        placeholder="ถามอะไรก็ได้... หรือเลือกหัวข้อด้านบน (Ctrl+Enter เพื่อส่ง)"
+        rows="3" maxlength="300"></textarea>
+    </div>
+
+    <button class="ask-btn" id="askBtn" onclick="askFortune()">
+      🔮 ให้แม่หมอดูดวง ✨
+    </button>
+
+    <div class="loading-wrap" id="loadingWrap">
+      <div class="crystal-loading">🔮</div>
+      <div class="loading-text" id="loadingText">แม่หมอกำลังถามลูกแก้ว...</div>
+    </div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-glow"></div>
+      <div class="result-inner">
+        <div class="result-header">
+          <span style="font-size:18px">🔮</span>
+          <div class="result-title">คำทำนายจากแม่หมอบาร่า</div>
+          <span style="font-size:18px">🔮</span>
+        </div>
+        <div class="result-text" id="resultText"></div>
+        <div class="result-actions">
+          <button class="result-btn result-btn-share" onclick="shareFortune()">📤 แชร์ดวง</button>
+          <button class="result-btn result-btn-copy"  onclick="copyFortune()">📋 คัดลอก</button>
+          <button class="result-btn result-btn-again" onclick="resetForNew()">🔄 ใหม่</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: เนื้อคู่ประตูถัดไป ===== -->
+  <div class="tab-panel" id="tabSoulmate">
+    <div class="card">
+      <div class="card-label">เนื้อคู่ประตูถัดไป 💘</div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:14px">
+        แม่หมอจะส่องเนื้อคู่ในอนาคตให้~ เลือกสถานะก่อนนะจ้า (ต้องเลือกวันเกิดด้านบนด้วย)
+      </p>
+      <div class="status-toggle">
+        <button class="status-btn active" id="statusSingle"  onclick="setStatus('single')">💔 โสดอยู่</button>
+        <button class="status-btn"         id="statusCoupled" onclick="setStatus('coupled')">💑 มีคู่แล้ว</button>
+      </div>
+    </div>
+
+    <button class="ask-btn" id="soulmateBtn" onclick="askSoulmate()">
+      💘 ส่องเนื้อคู่ประตูถัดไป ✨
+    </button>
+
+    <div class="loading-wrap" id="soulmateLoading">
+      <div class="crystal-loading">💘</div>
+      <div class="loading-text" id="soulmateLoadingText">แม่หมอกำลังส่องเนื้อคู่...</div>
+    </div>
+
+    <div class="result-card" id="soulmateResult">
+      <div class="result-glow"></div>
+      <div class="result-inner">
+        <div class="result-header">
+          <span style="font-size:18px">💘</span>
+          <div class="result-title">เนื้อคู่ประตูถัดไป</div>
+          <span style="font-size:18px">💘</span>
+        </div>
+        <div class="soulmate-content" id="soulmateContent"></div>
+        <div class="result-actions">
+          <button class="result-btn result-btn-share" onclick="shareSoulmate()">📤 แชร์</button>
+          <button class="result-btn result-btn-again" onclick="askSoulmate()">🔄 ส่องใหม่</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: กราฟชีวิต ===== -->
+  <div class="tab-panel" id="tabLifegraph">
+    <div class="card">
+      <div class="card-label">กราฟชีวิต 📈</div>
+      <p class="lifegraph-intro">
+        ดูจังหวะชีวิตแบบศาสตร์ไทย — ย้อนหลัง 5 ปี และล่วงหน้า 5 ปี
+        อิงปีนักษัตร · ปีชง/ปีถูกโฉลก · จังหวะอายุ (ต้องเลือกวันเกิดด้านบนก่อนนะจ้า)
+      </p>
+      <button class="ask-btn" id="lifegraphBtn" onclick="drawLifeGraph()" style="margin-bottom:0">
+        📈 ดูกราฟชีวิต ✨
+      </button>
+    </div>
+
+    <div class="result-card" id="lifegraphResult">
+      <div class="result-glow"></div>
+      <div class="result-inner">
+        <div class="result-header">
+          <span style="font-size:18px">📈</span>
+          <div class="result-title">กราฟชีวิต ±5 ปี (ศาสตร์ไทย)</div>
+          <span style="font-size:18px">📈</span>
+        </div>
+        <div class="lifegraph-canvas-wrap"><canvas id="lifeChart"></canvas></div>
+        <div class="lifegraph-summary" id="lifegraphSummary"></div>
       </div>
     </div>
   </div>
@@ -622,18 +818,18 @@ function initStars() {
 // ZODIAC DATA
 // =============================================================
 const ZODIACS = [
-  { name:'มกร',   emoji:'♑', en:'Capricorn',   traits:'มีวินัย อดทน มุ่งมั่น รักความมั่นคง',           start:[12,22], end:[1,19]  },
-  { name:'กุมภ์', emoji:'♒', en:'Aquarius',    traits:'คิดนอกกรอบ รักอิสระ มีอุดมการณ์',               start:[1,20],  end:[2,18]  },
-  { name:'มีน',   emoji:'♓', en:'Pisces',      traits:'อ่อนไหว มีจินตนาการ เมตตา ฝันมาก',             start:[2,19],  end:[3,20]  },
-  { name:'เมษ',   emoji:'♈', en:'Aries',       traits:'กล้าหาญ กระตือรือร้น หุนหันพลันแล่น',           start:[3,21],  end:[4,19]  },
-  { name:'พฤษภ',  emoji:'♉', en:'Taurus',      traits:'อดทน รักความงาม ดื้อแต่ซื่อสัตย์',              start:[4,20],  end:[5,20]  },
-  { name:'เมถุน', emoji:'♊', en:'Gemini',      traits:'ฉลาด พูดเก่ง ปรับตัวดี ใจหลายแฉก',             start:[5,21],  end:[6,20]  },
-  { name:'กรกฎ',  emoji:'♋', en:'Cancer',      traits:'อ่อนโยน รักครอบครัว อารมณ์ขึ้นๆ ลงๆ',         start:[6,21],  end:[7,22]  },
-  { name:'สิงห์', emoji:'♌', en:'Leo',         traits:'มั่นใจ เอื้อเฟื้อ ชอบเป็นผู้นำ ต้องการคำชม',   start:[7,23],  end:[8,22]  },
-  { name:'กันย์', emoji:'♍', en:'Virgo',       traits:'ละเอียด ชอบวิเคราะห์ ขยันทำงาน',               start:[8,23],  end:[9,22]  },
-  { name:'ตุลย์', emoji:'♎', en:'Libra',       traits:'รักความยุติธรรม สุนทรีย์ ชอบความสมดุล',        start:[9,23],  end:[10,22] },
-  { name:'พิจิก', emoji:'♏', en:'Scorpio',     traits:'ลึกซึ้ง เข้มแข็ง ภักดีมาก',                    start:[10,23], end:[11,21] },
-  { name:'ธนู',   emoji:'♐', en:'Sagittarius', traits:'รักอิสระ ชอบผจญภัย ตรงไปตรงมา',               start:[11,22], end:[12,21] },
+  { name:'มกร',   emoji:'♑', en:'Capricorn',   element:'ดิน', ruler:'เสาร์',   traits:'มีวินัย อดทน มุ่งมั่น รักความมั่นคง',           start:[12,22], end:[1,19]  },
+  { name:'กุมภ์', emoji:'♒', en:'Aquarius',    element:'ลม',  ruler:'เสาร์',   traits:'คิดนอกกรอบ รักอิสระ มีอุดมการณ์',               start:[1,20],  end:[2,18]  },
+  { name:'มีน',   emoji:'♓', en:'Pisces',      element:'น้ำ', ruler:'พฤหัสบดี', traits:'อ่อนไหว มีจินตนาการ เมตตา ฝันมาก',             start:[2,19],  end:[3,20]  },
+  { name:'เมษ',   emoji:'♈', en:'Aries',       element:'ไฟ',  ruler:'อังคาร',  traits:'กล้าหาญ กระตือรือร้น หุนหันพลันแล่น',           start:[3,21],  end:[4,19]  },
+  { name:'พฤษภ',  emoji:'♉', en:'Taurus',      element:'ดิน', ruler:'ศุกร์',   traits:'อดทน รักความงาม ดื้อแต่ซื่อสัตย์',              start:[4,20],  end:[5,20]  },
+  { name:'เมถุน', emoji:'♊', en:'Gemini',      element:'ลม',  ruler:'พุธ',     traits:'ฉลาด พูดเก่ง ปรับตัวดี ใจหลายแฉก',             start:[5,21],  end:[6,20]  },
+  { name:'กรกฎ',  emoji:'♋', en:'Cancer',      element:'น้ำ', ruler:'จันทร์',  traits:'อ่อนโยน รักครอบครัว อารมณ์ขึ้นๆ ลงๆ',         start:[6,21],  end:[7,22]  },
+  { name:'สิงห์', emoji:'♌', en:'Leo',         element:'ไฟ',  ruler:'อาทิตย์', traits:'มั่นใจ เอื้อเฟื้อ ชอบเป็นผู้นำ ต้องการคำชม',   start:[7,23],  end:[8,22]  },
+  { name:'กันย์', emoji:'♍', en:'Virgo',       element:'ดิน', ruler:'พุธ',     traits:'ละเอียด ชอบวิเคราะห์ ขยันทำงาน',               start:[8,23],  end:[9,22]  },
+  { name:'ตุลย์', emoji:'♎', en:'Libra',       element:'ลม',  ruler:'ศุกร์',   traits:'รักความยุติธรรม สุนทรีย์ ชอบความสมดุล',        start:[9,23],  end:[10,22] },
+  { name:'พิจิก', emoji:'♏', en:'Scorpio',     element:'น้ำ', ruler:'อังคาร',  traits:'ลึกซึ้ง เข้มแข็ง ภักดีมาก',                    start:[10,23], end:[11,21] },
+  { name:'ธนู',   emoji:'♐', en:'Sagittarius', element:'ไฟ',  ruler:'พฤหัสบดี', traits:'รักอิสระ ชอบผจญภัย ตรงไปตรงมา',               start:[11,22], end:[12,21] },
 ];
 
 const CHINESE = [
@@ -980,6 +1176,9 @@ function onBirthChange() {
     localStorage.setItem('maemorBirthDate', dateStr);
     updateZodiacBadge(dateStr);
     updateLuckyNumbers(dateStr);
+    updateLakkhana(dateStr);
+  } else {
+    document.getElementById('lakkhanaCard').classList.remove('show');
   }
 }
 
@@ -1017,6 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSelectDisplays();
     updateZodiacBadge(saved);
     updateLuckyNumbers(saved);
+    updateLakkhana(saved);
   }
 
   // Listen to all 3 selects
@@ -1028,6 +1228,225 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter' && e.ctrlKey) askFortune();
   });
 });
+
+// =============================================================
+// TABS
+// =============================================================
+function setTab(name) {
+  ['Fortune','Soulmate','Lifegraph'].forEach(t => {
+    const key = t.toLowerCase();
+    document.getElementById('tab' + t).classList.toggle('active', key === name);
+    document.getElementById('tabBtn' + t).classList.toggle('active', key === name);
+  });
+}
+
+// =============================================================
+// ลักขณาราศี — แสดงลักษณะราศีเมื่อเลือกวันเกิด (req 1)
+// =============================================================
+function updateLakkhana(dateStr) {
+  const card = document.getElementById('lakkhanaCard');
+  if (!dateStr) { card.classList.remove('show'); return; }
+  const z   = getZodiac(dateStr);
+  const cz  = getChineseZodiac(dateStr);
+  const idx = new Date(dateStr).getDay();
+  document.getElementById('lkEmoji').textContent   = z.emoji;
+  document.getElementById('lkName').textContent    = 'ราศี' + z.name + ' · ' + z.en;
+  document.getElementById('lkSub').textContent     = 'เกิดวัน' + THAI_DAYS[idx] + ' · ปี' + cz;
+  document.getElementById('lkElement').textContent = 'ธาตุ' + z.element;
+  document.getElementById('lkRuler').textContent   = z.ruler;
+  document.getElementById('lkTraits').textContent  = z.traits;
+  card.classList.add('show');
+}
+
+// =============================================================
+// เนื้อคู่ประตูถัดไป (req 2)
+// =============================================================
+const SOULMATE_URL = 'https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/askSoulmate';
+let _soulmateStatus = 'single';
+let _currentSoulmate = null;
+
+function escHtml(t) {
+  return String(t == null ? '' : t)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function setStatus(s) {
+  _soulmateStatus = s;
+  document.getElementById('statusSingle').classList.toggle('active', s === 'single');
+  document.getElementById('statusCoupled').classList.toggle('active', s === 'coupled');
+}
+
+async function askSoulmate() {
+  const birthDate = getBirthDate();
+  if (!birthDate) {
+    showToast('เลือกวันเกิดด้านบนก่อนนะคะ~');
+    document.getElementById('birthDay').focus();
+    return;
+  }
+  const zodiac = getZodiac(birthDate);
+  const idx = new Date(birthDate).getDay();
+  const btn = document.getElementById('soulmateBtn');
+  btn.disabled = true;
+  document.getElementById('soulmateLoading').classList.add('show');
+  document.getElementById('soulmateResult').classList.remove('show');
+  document.querySelector('.mascot-img').classList.add('thinking');
+
+  try {
+    const res = await fetch(SOULMATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        birthDate,
+        status:        _soulmateStatus,
+        zodiac:        `ราศี${zodiac.name} (${zodiac.en})`,
+        zodiacTraits:  `ธาตุ${zodiac.element} · ${zodiac.traits}`,
+        chineseZodiac: getChineseZodiac(birthDate),
+        birthDayName:  THAI_DAYS[idx],
+        lifePath:      getLifePathNumber(birthDate),
+      }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.soulmate) throw new Error('empty');
+    _currentSoulmate = data.soulmate;
+    bumpCount();
+    renderSoulmate(data.soulmate);
+  } catch (err) {
+    console.error(err);
+    showToast('ลูกแก้วแม่หมอขัดข้อง ลองใหม่นะ~');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('soulmateLoading').classList.remove('show');
+    document.querySelector('.mascot-img').classList.remove('thinking');
+  }
+}
+
+function renderSoulmate(s) {
+  const h = clampPct(s.handsomeLevel), w = clampPct(s.wealthLevel);
+  document.getElementById('soulmateContent').innerHTML = `
+    <div class="soulmate-field">
+      <div class="soulmate-field-label">รูปร่างหน้าตา</div>
+      <div class="soulmate-field-value">${escHtml(s.appearance)}</div>
+    </div>
+    <div class="soulmate-field">
+      <div class="soulmate-field-label">อาชีพที่เหมาะ</div>
+      <div class="soulmate-field-value">${escHtml(s.career)}</div>
+    </div>
+    <div class="stat-bar-wrap">
+      <div class="stat-bar-top"><span class="stat-bar-label">😎 ระดับความหล่อ/สวย</span><span class="stat-bar-val">${h}%</span></div>
+      <div class="stat-bar-track"><div class="stat-bar-fill handsome" data-w="${h}"></div></div>
+    </div>
+    <div class="stat-bar-wrap">
+      <div class="stat-bar-top"><span class="stat-bar-label">💰 ระดับการเงิน</span><span class="stat-bar-val">${w}%</span></div>
+      <div class="stat-bar-track"><div class="stat-bar-fill wealth" data-w="${w}"></div></div>
+    </div>
+    <div class="soulmate-field">
+      <div class="soulmate-field-label">ช่วงเวลาที่จะเจอ</div>
+      <div class="soulmate-field-value">${escHtml(s.meetWhen)}</div>
+    </div>
+    <div class="soulmate-field">
+      <div class="soulmate-field-label">แม่หมอสรุป</div>
+      <div class="soulmate-field-value">${escHtml(s.summary)}</div>
+    </div>`;
+  const card = document.getElementById('soulmateResult');
+  card.classList.add('show');
+  requestAnimationFrame(() => {
+    document.querySelectorAll('#soulmateContent .stat-bar-fill').forEach(el => {
+      el.style.width = (el.getAttribute('data-w') || 0) + '%';
+    });
+  });
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+}
+
+function clampPct(n) { return Math.max(0, Math.min(100, Math.round(Number(n) || 0))); }
+
+function shareSoulmate() {
+  if (!_currentSoulmate) return;
+  const s = _currentSoulmate;
+  const txt = `💘 เนื้อคู่ประตูถัดไปของฉัน~\nรูปร่าง: ${s.appearance}\nอาชีพ: ${s.career}\nความหล่อ ${clampPct(s.handsomeLevel)}% · การเงิน ${clampPct(s.wealthLevel)}%\n\n✨ ลองดูดวงกับแม่หมอบาร่า https://capybarabu-mae-mhor.web.app`;
+  if (navigator.share) navigator.share({ text: txt }).catch(() => {});
+  else navigator.clipboard.writeText(txt).then(() => showToast('คัดลอกข้อความแชร์แล้ว~')).catch(() => showToast('ลองคัดลอกเองนะ'));
+}
+
+// =============================================================
+// กราฟชีวิต — ศาสตร์ไทย (ปีนักษัตร/ชง/โฉลก/จังหวะอายุ), deterministic (req 3)
+// =============================================================
+let _lifeChart = null;
+
+function computeLifeGraph(birthDate) {
+  const by = new Date(birthDate).getFullYear();
+  const birthAnimal = ((by - 4) % 12 + 12) % 12;
+  const now = new Date().getFullYear();
+  const lp = getLifePathNumber(birthDate);
+  const pts = [];
+  for (let y = now - 5; y <= now + 5; y++) {
+    const animal = ((y - 4) % 12 + 12) % 12;
+    const age = y - by;
+    const diff = ((animal - birthAnimal) % 12 + 12) % 12;
+    let score = 60, tag = '';
+    if (diff === 6)                  { score -= 28; tag = 'ปีชง'; }
+    else if (diff === 3 || diff === 9) { score -= 14; tag = 'ปีคัด/เล็ง'; }
+    else if (diff === 0)             { score += 8;  tag = 'ปีนักษัตรตัวเอง'; }
+    else if (diff === 4 || diff === 8) { score += 20; tag = 'ปีถูกโฉลก'; }
+    else if (diff === 1 || diff === 11) { score += 6; }
+    if (age === 25 || age === 49)    { score -= 10; tag = tag || 'เบญจเพส/เลขกระทบ'; }
+    if (age > 0 && age % 12 === 0)   { score += 6; }
+    score += ((lp + Math.abs(y)) % 5) - 2; // กันกราฟแบน
+    score = Math.max(20, Math.min(95, score));
+    pts.push({ year: y, be: y + 543, age, score, tag, isNow: y === now });
+  }
+  return pts;
+}
+
+function drawLifeGraph() {
+  const birthDate = getBirthDate();
+  if (!birthDate) {
+    showToast('เลือกวันเกิดด้านบนก่อนนะคะ~');
+    document.getElementById('birthDay').focus();
+    return;
+  }
+  if (typeof Chart === 'undefined') { showToast('กราฟกำลังโหลด ลองอีกครั้งนะ~'); return; }
+
+  const pts = computeLifeGraph(birthDate);
+  const labels = pts.map(p => ['พ.ศ.' + p.be, 'อายุ ' + p.age]);
+  const colors = pts.map(p => p.isNow ? '#f0d060' : (p.score >= 75 ? '#4ade80' : (p.score <= 45 ? '#f87171' : '#a78bfa')));
+
+  const card = document.getElementById('lifegraphResult');
+  card.classList.add('show');
+  if (_lifeChart) _lifeChart.destroy();
+  const ctx = document.getElementById('lifeChart').getContext('2d');
+  _lifeChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: pts.map(p => p.score),
+      borderColor: '#c9a227', borderWidth: 2, tension: 0.4, fill: true,
+      backgroundColor: 'rgba(201,162,39,0.12)',
+      pointBackgroundColor: colors, pointBorderColor: colors, pointRadius: 5, pointHoverRadius: 7,
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          title: (it) => 'พ.ศ.' + pts[it[0].dataIndex].be + ' (อายุ ' + pts[it[0].dataIndex].age + ')',
+          label: (it) => { const p = pts[it.dataIndex]; return 'ดวง ' + p.score + '/100' + (p.tag ? ' · ' + p.tag : ''); },
+        }},
+      },
+      scales: {
+        y: { min: 0, max: 100, ticks: { color: '#8a7a95', stepSize: 25 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+        x: { ticks: { color: '#8a7a95', font: { size: 9 }, maxRotation: 0, autoSkip: false }, grid: { display: false } },
+      },
+    },
+  });
+
+  const peak = pts.reduce((a, b) => b.score > a.score ? b : a);
+  const low  = pts.reduce((a, b) => b.score < a.score ? b : a);
+  document.getElementById('lifegraphSummary').innerHTML =
+    `<div class="lg-row lg-peak">⭐ ปีรุ่ง: พ.ศ.${peak.be} (อายุ ${peak.age}) — ${escHtml(peak.tag || 'ดวงขึ้น')} · ดวง ${peak.score}/100</div>` +
+    `<div class="lg-row lg-low">⚠️ ปีต้องระวัง: พ.ศ.${low.be} (อายุ ${low.age}) — ${escHtml(low.tag || 'ดวงตก')} · ดวง ${low.score}/100</div>` +
+    `<div class="lg-row" style="color:var(--muted);margin-top:6px;font-size:11px">* คำนวณแบบศาสตร์ไทย (ปีนักษัตร/ชง/โฉลก/จังหวะอายุ) เพื่อความบันเทิง</div>`;
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+}
 </script>
 </body>
 </html>
