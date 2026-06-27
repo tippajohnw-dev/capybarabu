@@ -104,6 +104,33 @@ Requirement รอบแรก (2026-06-05) — ทั้ง 3 อยู่ใ�
 | 2 | **เนื้อคู่ประตูถัดไป** — ฟีเจอร์แยก, โหมดโสด/มีคู่; แสดง รูปร่าง · อาชีพ · ระดับความหล่อ (บาร์) · ระดับการเงิน (บาร์) | 🟢 | persona variant + `askSoulmate` (JSON mode) + power bars |
 | 3 | **กราฟชีวิต ±5 ปี (ศาสตร์ไทย)** — อดีต 5 ปี + อนาคต 5 ปี | 🟢 | deterministic compute (นักษัตร/ชง/โฉลก/อายุ) + Chart.js |
 
+### Requirement รอบ 2 (2026-06-27) — Product Committee Review (V2)
+`Capybarabu_Product_Review.pdf` → มติ **"เดินหน้า (มีเงื่อนไข)"** · ขยายจาก single-page app เป็นผลิตภัณฑ์ 10 หน้าจอ
+(Auth Guest-first → LINE · Daily Home · Pick a Card · Fortune Engine · Charm Quiz · Journal/Streak · Charm Shop · Profile/Collection)
+แผนพัฒนาเต็ม → **[ROADMAP-v2.md](ROADMAP-v2.md)** · Task list → **[TASKS.md](TASKS.md)** · ดีไซน์ → **[design-tokens.css](design-tokens.css)**
+Critical path: (A) Firebase Auth + LINE custom token · (B) share-card engine · (C) app shell (static, no build)
+
+#### V2 Build Status (2026-06-27) — Sprint 0+1 ✅ เสร็จ (11/23 tasks)
+> หมายเหตุ: V2 สร้างเป็นไฟล์ใหม่ขนานกับของเดิม — root `/` ยังเป็นแอป Mae Mor เดิม (single-page, ไม่มี auth)
+> ส่วน V2 อยู่ที่ `/auth.html` (onboarding) + `/app.html` (แอปหลัง login) บน hosting เดียวกัน
+
+| ด้าน | สถานะ | artifact |
+|---|---|---|
+| Design system "Cute Mystic Premium" | ✅ | `design-tokens.css` (อิง mockup 2 ไฟล์) |
+| App shell + bottom-nav 5 แท็บ (hash router) | ✅ | `app.html` |
+| Auth journey 7 หน้าจอ + resume state machine | ✅ e2e | `auth.html` |
+| Firebase Auth: LINE + Guest **ใช้งานจริง** | ✅ | `functions/auth.js` (`lineLogin`,`claimReward`) |
+| Firestore rules (owner-only, anti-cheat) | ✅ deployed | merge ใน autopost rules (shared project) |
+
+- **Live**: `https://capybarabu-mae-mhor.web.app/auth.html` · LINE channel `2010529290` · LIFF `2010529290-KVVcb2tN`
+- **Function URLs (run.app ตรง)**: `linelogin-ssgkv4kwca-as.a.run.app`, `claimreward-ssgkv4kwca-as.a.run.app`
+- **โครงสร้างข้อมูล** `users/{uid}`: displayName, photoURL, birthDate, intention, interests, tone, consent{version,acceptedAt,scopes}, notifPref, onboardingStep, capyPoints*, signupRewardGranted* (*=เขียนได้เฉพาะ Function/admin)
+- **ถัดไป**: Sprint 2 — Core loop (Daily Home + Fortune Engine + restyle share-card)
+
+⚠️ **ข้อควรระวัง shared project**: Firestore + Hosting ของ `capybarabu-mae-mhor` ใช้ร่วมกับ **autopost** —
+rules canonical อยู่ที่ `~/Documents/capybarabu-autopost/firestore.rules` (อย่า deploy `mae-mor-bara/firestore.rules` ทับ);
+functions ของ mae-mor อยู่ codebase `default`, ของ autopost อยู่ codebase `autopost` (แยกกัน)
+
 ---
 
 ## 6. Feature Backlog & Roadmap

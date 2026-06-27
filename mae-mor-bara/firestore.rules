@@ -1,0 +1,57 @@
+rules_version = '2';
+
+// =============================================================
+// แม่หมอบาร่า — Firestore Security Rules
+// ⚠️ ไฟล์นี้เป็น "ส่วน mae-mor-bara" เท่านั้น — อย่า deploy เดี่ยว!
+// โปรเจกต์ capybarabu-mae-mhor ใช้ Firestore ร่วมกับ "autopost"
+// (~/Documents/capybarabu-autopost/firestore.rules = canonical ที่ deploy อยู่จริง)
+// ถ้า deploy ไฟล์นี้ทับ → autopost (news/content/posts/members/config) พังหมด
+// วิธีถูก: เอา block users/ + lifegraphCache/ ด้านล่างไป merge เข้า autopost rules แล้ว deploy จากที่นั่น
+// (stats/ ใช้ของ autopost ได้ — mae-mor getCount อ่านผ่าน Function/admin อยู่แล้ว)
+// =============================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(uid)  { return isSignedIn() && request.auth.uid == uid; }
+
+    // ---- โปรไฟล์ผู้ใช้ (LINE/Guest/Google) ----
+    // function (admin) สร้าง/อัปเดตได้เสมอ (bypass rules)
+    // client: เจ้าของแก้ได้เฉพาะฟิลด์โปรไฟล์ — ห้ามแตะ capyPoints/streak (กันโกง)
+    match /users/{uid} {
+      allow read:   if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName', 'photoURL', 'birthDate', 'intention',
+              'interests', 'element', 'tone', 'notifPref', 'consent', 'onboardingStep', 'updatedAt']);
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['displayName', 'photoURL', 'birthDate', 'intention', 'interests',
+                       'element', 'tone', 'notifPref', 'consent', 'onboardingStep', 'updatedAt']);
+      allow delete: if false;
+      // ⚠️ ห้ามใส่ match /{sub=**} ที่นี่ — rules v2 recursive wildcard match parent doc เอง
+      // (zero segment) → จะ override การจำกัด field ด้านบน (anti-cheat พัง)
+    }
+
+    // subcollection ของผู้ใช้ — match เฉพาะเจาะจง (ไม่ครอบ parent)
+    match /users/{uid}/journal/{id}    { allow read, write: if isOwner(uid); }
+    match /users/{uid}/orders/{id}     { allow read, write: if isOwner(uid); }
+    match /users/{uid}/collection/{id} { allow read, write: if isOwner(uid); }
+
+    // ---- ตัวนับเคสรวม ----
+    // client อ่านได้ (ถ้าจะอ่านตรง) · เขียนผ่าน Function เท่านั้น
+    match /stats/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---- cache กราฟชีวิต — Function เท่านั้น ----
+    match /lifegraphCache/{doc} {
+      allow read, write: if false;
+    }
+
+    // ---- อย่างอื่นปฏิเสธหมด ----
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

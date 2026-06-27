@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>POC · Auth (LINE / Guest / Google) · แม่หมอบาร่า</title>
+<style>
+  :root { --bg:#1a1030; --card:#271646; --gold:#e8c66a; --purple:#a06cf0; --txt:#efe7ff;
+          --ok:#6ee7a0; --err:#ff7b7b; --line:#06c755; --google:#4285f4; }
+  * { box-sizing:border-box; font-family:-apple-system,"Segoe UI",sans-serif; }
+  body { margin:0; background:var(--bg); color:var(--txt); padding:20px; line-height:1.5; }
+  .wrap { max-width:520px; margin:0 auto; }
+  h1 { font-size:20px; color:var(--gold); margin-bottom:4px; }
+  .card { background:var(--card); border:1px solid #3a2860; border-radius:14px; padding:16px; margin:12px 0; }
+  button { width:100%; padding:13px; border:0; border-radius:10px; color:#fff; font-size:15px; font-weight:600;
+           cursor:pointer; margin-top:8px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  button:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-line { background:var(--line); } .btn-google { background:var(--google); }
+  .btn-guest { background:#3a2860; } .btn-out { background:transparent; border:1px solid #5a4488; color:var(--txt); }
+  .step { display:flex; gap:8px; align-items:center; padding:5px 0; font-size:13px; }
+  .dot { width:18px; height:18px; border-radius:50%; background:#3a2860; flex:0 0 18px; text-align:center;
+         font-size:11px; line-height:18px; }
+  .dot.ok { background:var(--ok); color:#022; } .dot.err { background:var(--err); color:#200; }
+  pre { background:#140a26; border-radius:10px; padding:12px; font-size:12px; overflow:auto; white-space:pre-wrap;
+        word-break:break-all; max-height:220px; }
+  .warn { color:var(--gold); font-size:13px; }
+  code { background:#140a26; padding:1px 5px; border-radius:4px; color:var(--gold); }
+  .label { font-size:12px; color:var(--gold); margin-bottom:6px; letter-spacing:.3px; }
+  .me { font-size:13px; }
+  .me.in { color:var(--ok); } .me.out { opacity:.6; }
+  .note { font-size:11px; opacity:.65; margin-top:4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔮 POC · หน้าเข้าสู่ระบบ</h1>
+  <p style="font-size:13px;opacity:.8">Guest-first · LINE (ปุ่มหลัก) · Google — ทั้งหมดลงเอยที่ <b>Firebase user เดียวกัน</b></p>
+
+  <!-- สถานะผู้ใช้ปัจจุบัน -->
+  <div class="card">
+    <div class="label">ผู้ใช้ Firebase ปัจจุบัน</div>
+    <div class="me out" id="me">— ยังไม่ได้เข้าสู่ระบบ —</div>
+    <button class="btn-out" id="logout" style="display:none">ออกจากระบบ</button>
+  </div>
+
+  <!-- ปุ่มเข้าสู่ระบบ 3 ทาง -->
+  <div class="card">
+    <div class="label">เข้าสู่ระบบ</div>
+    <button class="btn-line"   id="btn-line">💚 เข้าสู่ระบบด้วย LINE</button>
+    <button class="btn-guest"  id="btn-guest">🐾 ลองเลย (Guest)</button>
+    <button class="btn-google" id="btn-google">🔵 ต่อด้วย Google</button>
+    <div class="note" id="line-note"></div>
+  </div>
+
+  <!-- trace ของ flow LINE (ตัวเสี่ยงสุด) -->
+  <div class="card">
+    <div class="label">LINE flow (Unblocker A)</div>
+    <div class="step"><span class="dot" id="s1">1</span> <code>liff.init</code></div>
+    <div class="step"><span class="dot" id="s2">2</span> login + ดึง ID token</div>
+    <div class="step"><span class="dot" id="s3">3</span> <code>lineLogin</code> Function → custom token</div>
+    <div class="step"><span class="dot" id="s4">4</span> <code>signInWithCustomToken</code></div>
+  </div>
+
+  <div class="card">
+    <div class="label">ผลลัพธ์ / log</div>
+    <pre id="log">รอเริ่ม…</pre>
+  </div>
+</div>
+
+<!-- ============ CONFIG — แก้ LIFF_ID (ตัวอื่นเติมให้แล้ว) ============ -->
+<script>
+  const CONFIG = {
+    LIFF_ID: '2010529290-KVVcb2tN',            // LINE Developers → LIFF tab
+    FUNCTION_URL: 'https://linelogin-ssgkv4kwca-as.a.run.app',
+    firebase: {
+      apiKey: 'AIzaSyCawvpDlKji0-p3UW7wvN9ZURkQLoaTBPs',
+      authDomain: 'capybarabu-mae-mhor.firebaseapp.com',
+      projectId: 'capybarabu-mae-mhor',
+      appId: '1:814731135939:web:0f6bf33ba3dac593e84b76',
+      messagingSenderId: '814731135939',
+    },
+  };
+</script>
+<!-- ================================================================ -->
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+const logEl = document.getElementById('log');
+let logBuf = '';
+function log(msg, obj) {
+  logBuf = msg + (obj !== undefined ? '\n' + JSON.stringify(obj, null, 2) : '') + '\n\n' + logBuf;
+  logEl.textContent = logBuf;
+}
+function mark(id, ok) { const d = document.getElementById(id); d.className = 'dot ' + (ok ? 'ok' : 'err'); d.textContent = ok ? '✓' : '✕'; }
+function resetSteps() { ['s1','s2','s3','s4'].forEach((id,i)=>{ const d=document.getElementById(id); d.className='dot'; d.textContent=String(i+1); }); }
+
+// ---- config guard: เฉพาะปุ่ม LINE ที่ต้องมี LIFF_ID/FUNCTION_URL ----
+const lineMissing = CONFIG.LIFF_ID.startsWith('<<') || CONFIG.FUNCTION_URL.includes('<<');
+if (lineMissing) {
+  document.getElementById('btn-line').disabled = true;
+  document.getElementById('line-note').innerHTML =
+    '⚠️ ปุ่ม LINE ปิดอยู่ — ยังไม่ได้กรอก <code>LIFF_ID</code> ในไฟล์นี้ (Guest/Google ใช้ได้เลย)';
+}
+
+// ---- init Firebase ----
+firebase.initializeApp(CONFIG.firebase);
+const auth = firebase.auth();
+const meEl = document.getElementById('me');
+const logoutBtn = document.getElementById('logout');
+
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    const provider = user.isAnonymous ? 'anonymous'
+      : (user.providerData[0]?.providerId || (user.uid.startsWith('line:') ? 'line(custom)' : '?'));
+    meEl.className = 'me in';
+    meEl.innerHTML = `✓ uid: <b>${user.uid}</b><br>provider: ${provider}` +
+      (user.displayName ? `<br>ชื่อ: ${user.displayName}` : '');
+    logoutBtn.style.display = 'block';
+  } else {
+    meEl.className = 'me out';
+    meEl.textContent = '— ยังไม่ได้เข้าสู่ระบบ —';
+    logoutBtn.style.display = 'none';
+  }
+});
+
+logoutBtn.onclick = async () => {
+  await auth.signOut();
+  try { if (typeof liff !== 'undefined' && liff.isLoggedIn && liff.isLoggedIn()) liff.logout(); } catch (e) {}
+  resetSteps(); location.reload();
+};
+
+// ---- 1) Guest (Anonymous) ----
+document.getElementById('btn-guest').onclick = async () => {
+  try {
+    log('🐾 signInAnonymously…');
+    const cred = await auth.signInAnonymously();
+    log('✓ Guest พร้อม uid =', cred.user.uid);
+  } catch (err) {
+    log('✕ Guest ERROR: ' + err.code + ' — ' + err.message +
+        (err.code === 'auth/operation-not-allowed' ? ' (เปิด Anonymous provider ใน Console ก่อน)' : ''));
+  }
+};
+
+// ---- 2) Google (native — webview-safe ด้วย redirect) ----
+document.getElementById('btn-google').onclick = async () => {
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const cur = auth.currentUser;
+    if (cur && cur.isAnonymous) {
+      log('🔵 ผูก Guest→Google (linkWithRedirect — คง uid เดิม)…');
+      await cur.linkWithRedirect(provider);
+    } else {
+      log('🔵 signInWithRedirect (Google)…');
+      await auth.signInWithRedirect(provider);
+    }
+  } catch (err) {
+    log('✕ Google ERROR: ' + err.code + ' — ' + err.message);
+  }
+};
+
+// จัดการผลหลัง redirect กลับจาก Google
+auth.getRedirectResult().then((res) => {
+  if (res && res.user) log('🎉 Google สำเร็จ uid =', res.user.uid);
+}).catch((err) => {
+  if (err && err.code) log('✕ Google redirect ERROR: ' + err.code + ' — ' + err.message);
+});
+
+// ---- 3) LINE (custom token — ตัวเสี่ยงสุด) ----
+document.getElementById('btn-line').onclick = async () => {
+  const btn = document.getElementById('btn-line');
+  btn.disabled = true; resetSteps();
+  try {
+    log('① liff.init…');
+    await liff.init({ liffId: CONFIG.LIFF_ID });
+    mark('s1', true);
+    log('✓ LIFF init', { isInClient: liff.isInClient(), isLoggedIn: liff.isLoggedIn() });
+
+    if (!liff.isLoggedIn()) {
+      log('② liff.login() → redirect ไป LINE…');
+      liff.login({ redirectUri: location.href });
+      return;
+    }
+    const idToken = liff.getIDToken();
+    if (!idToken) throw new Error('ไม่ได้ ID token (เช็ค scope openid ใน LIFF)');
+    mark('s2', true);
+    log('✓ ได้ LINE ID token', idToken.slice(0, 40) + '…');
+
+    log('③ เรียก lineLogin Function…');
+    const resp = await fetch(CONFIG.FUNCTION_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error('Function: ' + (data.error || resp.status));
+    mark('s3', true);
+    log('✓ ได้ custom token', { uid: data.uid, profile: data.profile });
+
+    // หมายเหตุ: ถ้าตอนนี้เป็น Guest อยู่ การ sign in ด้วย LINE จะเปลี่ยนเป็น uid ใหม่
+    // (custom token ผูก/merge ผ่าน credential ไม่ได้ → ต้อง merge ข้อมูลฝั่ง backend)
+    if (auth.currentUser && auth.currentUser.isAnonymous) {
+      log('ℹ️ กำลังออกจาก Guest → LINE (uid จะเปลี่ยน; production ต้อง merge ข้อมูล Guest ฝั่ง backend)');
+    }
+    log('④ signInWithCustomToken…');
+    const cred = await auth.signInWithCustomToken(data.firebaseToken);
+    mark('s4', true);
+    log('🎉 LINE สำเร็จทั้งสาย! uid =', cred.user.uid);
+  } catch (err) {
+    const failStep = ['s1','s2','s3','s4'].find(id => /[0-9]/.test(document.getElementById(id).textContent));
+    if (failStep) mark(failStep, false);
+    log('✕ LINE ERROR: ' + err.message);
+    btn.disabled = false;
+  }
+};
+</script>
+</body>
+</html>

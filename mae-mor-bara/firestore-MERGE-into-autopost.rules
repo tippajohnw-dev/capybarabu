@@ -1,0 +1,34 @@
+// =============================================================
+// MERGE FRAGMENT — เพิ่ม block เหล่านี้เข้า autopost firestore.rules
+// (~/Documents/capybarabu-autopost/firestore.rules) ก่อน `}` 2 อันสุดท้าย
+// แล้ว deploy จาก autopost:  firebase deploy --only firestore:rules
+//
+// เหตุผล: capybarabu-mae-mhor ใช้ Firestore ร่วมกัน — rules ที่ deploy จริง = ของ autopost
+// block นี้เป็น "ส่วนเสริม mae-mor-บาร่า" (เพิ่มอย่างเดียว ไม่แตะ match เดิมของ autopost)
+// stats/ ใช้ของ autopost เดิม (mae-mor getCount อ่านผ่าน Function/admin อยู่แล้ว — ไม่ชน)
+// =============================================================
+
+    // ---- helper (ถ้า autopost ยังไม่มี isOwner) ----
+    function isOwner(uid) { return request.auth != null && request.auth.uid == uid; }
+
+    // ---- แม่หมอบาร่า: โปรไฟล์ผู้ใช้ (LINE/Guest/Google/Apple) ----
+    match /users/{uid} {
+      allow read:   if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName', 'photoURL', 'birthDate', 'intention',
+              'interests', 'element', 'tone', 'notifPref', 'consent', 'onboardingStep', 'updatedAt']);
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['displayName', 'photoURL', 'birthDate', 'intention', 'interests',
+                       'element', 'tone', 'notifPref', 'consent', 'onboardingStep', 'updatedAt']);
+      allow delete: if false;
+      // capyPoints / streak / signupRewardGranted เขียนได้เฉพาะ Cloud Function (admin) — กันโกง
+      // ⚠️ ห้ามใส่ match /{sub=**} ที่นี่ — v2 recursive wildcard match parent doc (zero segment) → anti-cheat พัง
+    }
+    // subcollection — match เฉพาะเจาะจง (ไม่ครอบ parent)
+    match /users/{uid}/journal/{id}    { allow read, write: if isOwner(uid); }
+    match /users/{uid}/orders/{id}     { allow read, write: if isOwner(uid); }
+    match /users/{uid}/collection/{id} { allow read, write: if isOwner(uid); }
+
+    // ---- แม่หมอบาร่า: cache กราฟชีวิต — Function เท่านั้น ----
+    match /lifegraphCache/{doc} { allow read, write: if false; }

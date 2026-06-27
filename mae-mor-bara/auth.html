@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>เริ่มต้นกับแม่หมอบาร่า</title>
+<link rel="stylesheet" href="design-tokens.css" />
+<style>
+/* =============================================================
+   Sprint 1 · Auth Journey (onboarding — จอเข้ม glass)
+   welcome → guest → result → login → consent → profile → success → app.html
+   guest-first · LINE primary · PDPA consent · progressive login
+   ============================================================= */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body { font-family: var(--font); background: var(--grad-page); min-height: 100vh; color: var(--text, #fff9ee); }
+
+.app { position: relative; width: min(430px, 100%); min-height: 100vh; margin: 0 auto; overflow: hidden;
+  background: radial-gradient(circle at 18% 12%, rgba(255,183,220,.22), transparent 22%),
+              radial-gradient(circle at 82% 0%, rgba(168,240,212,.2), transparent 22%),
+              linear-gradient(180deg, var(--screen-1), var(--screen-2) 58%, var(--screen-3));
+  box-shadow: var(--shadow); color: #fff9ee;
+  padding: calc(env(safe-area-inset-top) + 20px) 22px calc(env(safe-area-inset-bottom) + 22px);
+  display: flex; flex-direction: column; }
+
+.muted { color: rgba(255,249,238,.72); }
+
+/* topbar */
+.topbar { display: flex; justify-content: space-between; align-items: center; min-height: 38px; margin-bottom: 14px; }
+.mini-brand { display: flex; align-items: center; gap: 8px; font-weight: 900; }
+.mini-brand .ic { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 13px; background: rgba(255,245,223,.16); }
+.chip-btn { border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.08); color: #fff9ee;
+  border-radius: 999px; padding: 8px 12px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--font); }
+.chip-btn.ghost { color: rgba(255,249,238,.7); font-weight: 600; }
+
+/* hero / titles */
+.capy-hero { width: 150px; height: 150px; margin: 14px auto 12px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 65%, rgba(255,215,118,.55), transparent 34%),
+              linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.18); box-shadow: 0 20px 60px rgba(255,183,220,.22);
+  overflow: hidden; animation: floaty 3.4s ease-in-out infinite; }
+.capy-hero img { width: 120px; }
+.capy-hero .fallback { font-size: 72px; }
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.title { text-align: center; font-size: 28px; line-height: 1.14; letter-spacing: -.04em; margin: 0 0 10px; }
+.title.left { text-align: left; }
+.subtitle { text-align: center; color: rgba(255,249,238,.72); line-height: 1.55; font-size: 14px; margin: 0 auto 16px; max-width: 300px; }
+.subtitle.left { text-align: left; margin-left: 0; }
+
+/* progress dots */
+.progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+.pdot { width: 7px; height: 7px; border-radius: 999px; background: rgba(255,255,255,.2); transition: .2s; }
+.pdot.on { width: 28px; background: var(--mint); }
+
+/* CTA */
+.spacer { flex: 1; }
+.cta { display: grid; gap: 10px; margin-top: 18px; }
+.btn { width: 100%; border: 0; border-radius: 20px; padding: 15px 16px; font-weight: 900; font-size: 15px; cursor: pointer;
+  font-family: var(--font); color: var(--deep); background: var(--grad-gold); box-shadow: 0 16px 32px rgba(255,215,118,.2);
+  display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { transform: scale(.985); }
+.btn.line { background: var(--line-green); color: #fff; box-shadow: 0 16px 32px rgba(6,199,85,.18); }
+.btn.google, .btn.apple { background: rgba(255,255,255,.95); color: #151127; box-shadow: none; }
+.btn.secondary { background: rgba(255,255,255,.11); color: #fff9ee; border: 1px solid rgba(255,255,255,.18); box-shadow: none; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.tiny-note { color: rgba(255,249,238,.55); text-align: center; font-size: 11px; line-height: 1.45; margin-top: 2px; }
+
+/* glass card */
+.gcard { padding: 16px; border-radius: 22px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.09); }
+.gcard + .gcard { margin-top: 12px; }
+.label { color: rgba(255,249,238,.72); font-size: 12px; margin-bottom: 8px; display: block; }
+
+/* option grid (intention) */
+.option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.option { min-height: 84px; border-radius: 22px; padding: 13px; border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.09); cursor: pointer; transition: .15s; }
+.option:hover, .option.selected { transform: translateY(-2px); border-color: rgba(168,240,212,.72); background: rgba(168,240,212,.14); }
+.option .emoji { font-size: 24px; display: block; margin-bottom: 6px; }
+.option b { display: block; font-size: 13px; }
+.option span { color: rgba(255,249,238,.72); font-size: 11px; }
+
+/* date dropdowns */
+.date-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; }
+.date-row select { width: 100%; padding: 13px 10px; border-radius: 15px; background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.16); color: #fff9ee; font-size: 14px; font-weight: 700; font-family: var(--font);
+  -webkit-appearance: none; appearance: none; }
+.date-row select option { color: #151127; }
+
+/* text input */
+.tinput { width: 100%; border-radius: 17px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.16);
+  padding: 14px; color: #fff9ee; font-weight: 800; font-size: 15px; font-family: var(--font); }
+
+/* segmented */
+.segmented { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.seg { padding: 10px 8px; border-radius: 15px; text-align: center; background: rgba(255,255,255,.1); color: rgba(255,249,238,.72);
+  font-size: 12px; border: 1px solid rgba(255,255,255,.11); cursor: pointer; }
+.seg.active { color: var(--deep); background: var(--mint); font-weight: 900; border-color: transparent; }
+
+/* fortune result */
+.fortune-card { border-radius: 30px; padding: 20px; border: 1px solid rgba(255,255,255,.18);
+  background: radial-gradient(circle at 80% 14%, rgba(255,215,118,.26), transparent 30%),
+              linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.07)); box-shadow: 0 18px 44px rgba(0,0,0,.16); }
+.energy-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.energy-score { font-size: 44px; font-weight: 950; color: var(--gold); letter-spacing: -.05em; }
+.fortune-text { font-size: 14.5px; line-height: 1.62; margin-top: 12px; }
+.fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.fchip { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.11); border: 1px solid rgba(255,255,255,.14); font-size: 12px; color: rgba(255,249,238,.72); }
+.fchip strong { color: var(--mint); }
+
+/* bottom sheet (login) */
+.sheet-host { position: absolute; inset: 0; background: rgba(8,3,25,.5); display: none; z-index: 40; }
+.sheet-host.open { display: block; }
+.bottom-sheet { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 22px calc(env(safe-area-inset-bottom) + 22px);
+  border-radius: 32px 32px 0 0; border-top: 1px solid rgba(255,255,255,.2); background: rgba(25,15,49,.97); backdrop-filter: blur(22px);
+  box-shadow: 0 -20px 60px rgba(0,0,0,.32); transform: translateY(100%); transition: transform .3s ease; }
+.sheet-host.open .bottom-sheet { transform: translateY(0); }
+.grabber { width: 48px; height: 5px; border-radius: 999px; background: rgba(255,255,255,.25); margin: 0 auto 14px; }
+.sheet-title { font-size: 21px; letter-spacing: -.03em; margin: 0 0 8px; }
+.benefits { display: grid; gap: 8px; margin: 12px 0; color: rgba(255,249,238,.72); font-size: 13px; }
+.benefit { display: flex; gap: 8px; }
+.benefit i { color: var(--mint); font-style: normal; font-weight: 900; }
+
+/* consent */
+.consent-item { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 18px;
+  background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14); margin-top: 10px; }
+.consent-item .ck { color: var(--mint); font-weight: 950; }
+.consent-item b { display: block; font-size: 13px; }
+.consent-item span { display: block; font-size: 11px; color: rgba(255,249,238,.72); line-height: 1.4; margin-top: 2px; }
+
+/* success */
+.success-badge { width: 140px; height: 140px; border-radius: 44px; margin: 14px auto; display: grid; place-items: center;
+  background: linear-gradient(145deg, #fff3c7, #ffbbe1 48%, #bba7ff); box-shadow: 0 22px 58px rgba(255,183,220,.22);
+  font-size: 64px; }
+.reward-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.reward { padding: 14px; border-radius: 20px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14); text-align: center; }
+.reward b { display: block; color: var(--gold); font-size: 22px; margin-bottom: 2px; }
+.reward span { color: rgba(255,249,238,.72); font-size: 12px; }
+
+/* screens */
+.screen { display: none; flex-direction: column; flex: 1; animation: fade .28s ease both; }
+.screen.active { display: flex; }
+@keyframes fade { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+
+/* debug log (เอาออกก่อน launch) */
+#dbg { position: fixed; bottom: 4px; left: 4px; right: 4px; max-height: 96px; overflow: auto; font-size: 10px;
+  color: #9affc4; background: rgba(0,0,0,.55); border-radius: 8px; padding: 6px; z-index: 99; white-space: pre-wrap; display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Welcome ===== -->
+  <section class="screen active" data-screen="welcome">
+    <div class="topbar"><div class="mini-brand"><span class="ic">🦫</span><span>แม่หมอบาร่า</span></div>
+      <button class="chip-btn ghost" onclick="finish()">ข้าม</button></div>
+    <div class="capy-hero"><img src="mascot.png" alt="" onerror="this.outerHTML='<div class=fallback>🔮</div>'"></div>
+    <h1 class="title">วันนี้แม่หมอบาร่า<br/>อยากบอกอะไรคุณ?</h1>
+    <p class="subtitle">เช็กพลังประจำวัน สีมงคล เลขนำโชค และเครื่องรางที่เหมาะกับคุณใน 30 วินาที</p>
+    <div class="spacer"></div>
+    <div class="cta">
+      <button class="btn" onclick="startGuest()">เริ่มเช็กดวงเลย</button>
+      <button class="btn line" onclick="openLogin()">เข้าสู่ระบบด้วย LINE</button>
+      <button class="btn secondary" onclick="openLogin()">เข้าสู่ระบบด้วยวิธีอื่น</button>
+      <p class="tiny-note">ยังไม่ต้องสมัครก็ลองดูดวงได้ · เข้าสู่ระบบเมื่ออยากบันทึกผลเท่านั้น</p>
+    </div>
+  </section>
+
+  <!-- ===== Guest setup ===== -->
+  <section class="screen" data-screen="guest">
+    <div class="topbar"><button class="chip-btn" onclick="go('welcome')">‹</button>
+      <div class="mini-brand"><span class="ic">✨</span><span>โหมดทดลอง</span></div>
+      <button class="chip-btn ghost" onclick="go('result')">ดูผล</button></div>
+    <div class="progress"><span class="pdot on"></span><span class="pdot"></span><span class="pdot"></span></div>
+    <h1 class="title">วันนี้อยากถาม<br/>เรื่องอะไร?</h1>
+    <p class="subtitle">เลือกพลังที่อยากเสริมก่อน แล้วใส่วันเกิดเพื่อทำนายแบบส่วนตัว</p>
+    <div class="option-grid" id="intentions">
+      <div class="option selected" data-val="money"><span class="emoji">💸</span><b>การเงิน</b><span>รายได้ โชค งานเสริม</span></div>
+      <div class="option" data-val="work"><span class="emoji">💼</span><b>การงาน</b><span>โปรเจกต์ โอกาส</span></div>
+      <div class="option" data-val="love"><span class="emoji">💘</span><b>ความรัก</b><span>คนคุย ความสัมพันธ์</span></div>
+      <div class="option" data-val="protect"><span class="emoji">🧿</span><b>กันพลังลบ</b><span>คน toxic ความเหนื่อยใจ</span></div>
+    </div>
+    <div class="gcard" style="margin-top:12px">
+      <label class="label">วันเกิดของคุณ</label>
+      <div class="date-row"><select id="bd"></select><select id="bm"></select><select id="by"></select></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="cta"><button class="btn" onclick="go('result')">ดูดวงวันนี้</button></div>
+  </section>
+
+  <!-- ===== Result ===== -->
+  <section class="screen" data-screen="result">
+    <div class="topbar"><button class="chip-btn" onclick="go('guest')">‹</button>
+      <div class="mini-brand"><span class="ic">🔮</span><span>ดวงวันนี้</span></div>
+      <button class="chip-btn ghost" onclick="openLogin()">บันทึก</button></div>
+    <div class="fortune-card">
+      <div class="energy-row"><div><div class="muted" style="font-size:12px">พลังวันนี้</div><div class="energy-score" id="r-score">78%</div></div><div style="font-size:60px">🦫</div></div>
+      <p class="fortune-text" id="r-text">วันนี้พลังเงินค่อย ๆ เปิดทาง เหมาะกับการวางแผนมากกว่าการเสี่ยงแบบใจร้อน ถ้าจัดระเบียบเงินวันนี้ จะเห็นโอกาสที่ซ่อนอยู่ชัดขึ้น</p>
+      <div class="fchips"><span class="fchip">สีมงคล <strong>มิ้นต์</strong></span><span class="fchip">เลขนำโชค <strong>89</strong></span><span class="fchip">สิ่งที่ควรทำ <strong>จัดกระเป๋าเงิน</strong></span></div>
+    </div>
+    <div class="gcard"><b style="font-size:13px">เครื่องรางแนะนำ</b><p class="muted" style="font-size:12.5px;margin:6px 0 0;line-height:1.5">Money Flow Capy Coin · เหมาะกับคนที่อยากเปิดทางรายได้ใหม่ แต่ยังอยากใช้เงินอย่างมีสติ</p></div>
+    <p class="tiny-note" style="margin-top:10px">* คำทำนายตัวอย่าง — จะต่อ Fortune Engine จริงใน Sprint 2</p>
+    <div class="spacer"></div>
+    <div class="cta"><button class="btn" onclick="openLogin()">บันทึกดวงนี้</button><button class="btn secondary" onclick="finish()">ไว้ทีหลัง</button></div>
+  </section>
+
+  <!-- ===== Consent (PDPA) ===== -->
+  <section class="screen" data-screen="consent">
+    <div class="topbar"><button class="chip-btn" onclick="openLogin()">‹</button>
+      <div class="mini-brand"><span class="ic">🛡️</span><span>ความยินยอม</span></div><span></span></div>
+    <h1 class="title">ขอข้อมูลเท่าที่จำเป็น</h1>
+    <p class="subtitle">แม่หมอบาร่าใช้ข้อมูลเพื่อทำดวงให้ตรงขึ้นและส่งสิทธิพิเศษเท่านั้น</p>
+    <div>
+      <div class="consent-item"><span class="ck">✓</span><div><b>ชื่อโปรไฟล์</b><span>ใช้เรียกคุณในหน้าดวงรายวัน</span></div></div>
+      <div class="consent-item"><span class="ck">✓</span><div><b>วันเกิด</b><span>ใช้คำนวณราศี วันเกิด และคำแนะนำเฉพาะบุคคล</span></div></div>
+      <div class="consent-item"><span class="ck">✓</span><div><b>LINE User ID / Email</b><span>ใช้เข้าสู่ระบบและส่งดวงรายวันเมื่อคุณยินยอม</span></div></div>
+      <div class="consent-item"><span class="ck">✓</span><div><b>Consent Version</b><span>บันทึกหลักฐานตาม PDPA และ Privacy Policy</span></div></div>
+    </div>
+    <p class="tiny-note" style="margin-top:12px">เราจะไม่ขายข้อมูลของคุณให้บุคคลภายนอก · อ่าน Privacy Policy</p>
+    <div class="spacer"></div>
+    <div class="cta"><button class="btn" onclick="acceptConsent()">ยอมรับและดำเนินการต่อ</button><button class="btn secondary" onclick="openLogin()">ย้อนกลับ</button></div>
+  </section>
+
+  <!-- ===== Profile setup ===== -->
+  <section class="screen" data-screen="profile">
+    <div class="topbar"><button class="chip-btn" onclick="go('consent')">‹</button>
+      <div class="mini-brand"><span class="ic">🌙</span><span>ตั้งค่าโปรไฟล์</span></div>
+      <button class="chip-btn ghost" onclick="saveProfileAndFinish(true)">ข้าม</button></div>
+    <div class="progress"><span class="pdot on"></span><span class="pdot on"></span><span class="pdot"></span></div>
+    <h1 class="title">อยากให้แม่หมอบาร่า<br/>ดูแลเรื่องไหน?</h1>
+    <p class="subtitle">เลือกได้มากกว่า 1 เพื่อให้คำทำนายและเครื่องรางตรงกับคุณ</p>
+    <div class="gcard"><label class="label">ชื่อที่ให้แม่หมอเรียก</label><input class="tinput" id="p-name" placeholder="เช่น ตอง" /></div>
+    <div class="gcard"><label class="label">เรื่องที่สนใจ (เลือกได้หลายข้อ)</label>
+      <div class="option-grid" id="interests" style="grid-template-columns:repeat(3,1fr)">
+        <div class="seg" data-val="money">เงิน</div><div class="seg active" data-val="work">งาน</div><div class="seg" data-val="love">รัก</div>
+        <div class="seg active" data-val="calm">ใจนิ่ง</div><div class="seg" data-val="health">สุขภาพ</div><div class="seg" data-val="protect">กันลบ</div>
+      </div></div>
+    <div class="gcard"><label class="label">โทนดวงที่ชอบ</label>
+      <div class="segmented" id="tone"><div class="seg">นุ่มนวล</div><div class="seg active">ขำ ๆ</div><div class="seg">ตรง ๆ</div></div></div>
+    <div class="spacer"></div>
+    <div class="cta"><button class="btn" onclick="saveProfileAndFinish(false)">สร้างโปรไฟล์ของฉัน</button></div>
+  </section>
+
+  <!-- ===== Success ===== -->
+  <section class="screen" data-screen="success">
+    <div class="topbar"><span></span><div class="mini-brand"><span class="ic">✨</span><span>สำเร็จ</span></div><span></span></div>
+    <div class="success-badge">🦫</div>
+    <h1 class="title">ยินดีต้อนรับนะ <span id="s-name"></span></h1>
+    <p class="subtitle">แม่หมอบาร่าบันทึกดวงวันนี้ให้แล้ว และเตรียมพลังโชคดีให้คุณเรียบร้อย</p>
+    <div class="reward-card"><div class="reward"><b>+1</b><span>การ์ดดวงรายวัน</span></div><div class="reward"><b>+20</b><span>Capy Points</span></div></div>
+    <div class="gcard" style="margin-top:14px"><b style="font-size:14px">รับดวงรายวันผ่าน LINE ไหม?</b><p class="muted" style="font-size:12.5px;margin:6px 0 0">ส่งแค่วันละ 1 ครั้ง พร้อมสีมงคล เลขนำโชค และสิ่งที่ควรทำ</p></div>
+    <div class="spacer"></div>
+    <div class="cta"><button class="btn line" onclick="optInDaily(true)">รับดวงรายวัน</button><button class="btn secondary" onclick="optInDaily(false)">ไม่รับตอนนี้</button></div>
+  </section>
+
+  <!-- ===== Login bottom sheet ===== -->
+  <div class="sheet-host" id="loginSheet">
+    <div class="bottom-sheet">
+      <div class="grabber"></div>
+      <h2 class="sheet-title">บันทึกดวงวันนี้ไว้กับแม่หมอไหม?</h2>
+      <p class="muted" style="font-size:13px;margin:0">เข้าสู่ระบบเพื่อเก็บผลดวง รับดวงรายวัน และสะสม Digital Charm</p>
+      <div class="benefits">
+        <div class="benefit"><i>✓</i><span>เก็บการ์ดดวงรายวันย้อนหลัง</span></div>
+        <div class="benefit"><i>✓</i><span>รับดวงรายวันผ่าน LINE วันละ 1 ครั้ง</span></div>
+        <div class="benefit"><i>✓</i><span>รับ Lucky Gift และคูปองวันเกิด</span></div>
+      </div>
+      <div class="cta" style="margin-top:4px">
+        <button class="btn line" id="btn-line" onclick="loginLine()">เข้าสู่ระบบด้วย LINE</button>
+        <button class="btn google" onclick="loginGoogle()">เข้าสู่ระบบด้วย Google</button>
+        <button class="btn apple" onclick="loginApple()">เข้าสู่ระบบด้วย Apple</button>
+        <button class="btn secondary" onclick="closeLogin()">ไว้ทีหลัง</button>
+      </div>
+    </div>
+  </div>
+
+  <pre id="dbg"></pre>
+</div>
+
+<!-- ============ CONFIG ============ -->
+<script>
+  const CONFIG = {
+    LIFF_ID: '2010529290-KVVcb2tN',   // LIFF app ใต้ channel 2010529290
+    FUNCTION_URL: 'https://linelogin-ssgkv4kwca-as.a.run.app',   // run.app ตรง — เลี่ยง CORS/redirect ของ cloudfunctions.net
+    CLAIM_URL: 'https://claimreward-ssgkv4kwca-as.a.run.app',
+    APP_URL: 'app.html',
+    CONSENT_VERSION: '1.0',
+    firebase: {
+      apiKey: 'AIzaSyCawvpDlKji0-p3UW7wvN9ZURkQLoaTBPs',
+      authDomain: 'capybarabu-mae-mhor.firebaseapp.com',
+      projectId: 'capybarabu-mae-mhor',
+      appId: '1:814731135939:web:0f6bf33ba3dac593e84b76',
+      messagingSenderId: '814731135939',
+    },
+  };
+</script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// ---- debug helper (กด logo ค้างเพื่อเปิด) ----
+const dbgEl = document.getElementById('dbg');
+function dbg(m, o) { dbgEl.textContent = '· ' + m + (o!==undefined?' '+JSON.stringify(o):'') + '\n' + dbgEl.textContent; }
+
+// ---- state ----
+const state = { intention: 'money', birthDate: null, name: '', interests: [], tone: 'ขำ ๆ', notif: false };
+
+// ---- Firebase ----
+firebase.initializeApp(CONFIG.firebase);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const serverTime = () => firebase.firestore.FieldValue.serverTimestamp();
+
+async function mergeUser(fields) {
+  const u = auth.currentUser;
+  if (!u) { dbg('mergeUser skipped (no user)', Object.keys(fields)); return; }
+  try { await db.collection('users').doc(u.uid).set({ ...fields, updatedAt: serverTime() }, { merge: true });
+    dbg('saved users/' + u.uid, Object.keys(fields)); }
+  catch (e) { dbg('save ERROR', e.message); }
+}
+
+// ---- screen router ----
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.dataset.screen === id));
+  document.querySelector('.app').scrollTo(0, 0);
+}
+function finish() { gotoApp(); }                      // guest ข้าม onboarding → เข้าแอปเลย
+function gotoApp() { location.href = CONFIG.APP_URL; }
+
+// ---- login sheet ----
+function openLogin() { document.getElementById('loginSheet').classList.add('open'); }
+function closeLogin() { document.getElementById('loginSheet').classList.remove('open'); }
+
+// ---- Guest-first ----
+async function startGuest() {
+  try { await auth.signInAnonymously(); dbg('guest signed in', auth.currentUser?.uid); }
+  catch (e) { dbg('anon not enabled (เปิด provider)', e.code); }   // เดิน flow ต่อแม้ยังไม่เปิด provider
+  go('guest');
+}
+
+// ---- providers ----
+async function loginGoogle() {
+  const p = new firebase.auth.GoogleAuthProvider();
+  try {
+    const cur = auth.currentUser;
+    if (cur && cur.isAnonymous) await cur.linkWithRedirect(p);
+    else await auth.signInWithRedirect(p);
+  } catch (e) { dbg('google ERROR', e.code); afterLogin(); }   // demo: เดินต่อ
+}
+async function loginApple() {
+  const p = new firebase.auth.OAuthProvider('apple.com'); p.addScope('email'); p.addScope('name');
+  try { await auth.signInWithRedirect(p); }
+  catch (e) { dbg('apple ERROR (ต้องตั้ง provider)', e.code); afterLogin(); }
+}
+async function loginLine() {
+  if (CONFIG.LIFF_ID.startsWith('<<')) { dbg('LINE: ยังไม่ตั้ง LIFF_ID — demo เดินต่อ'); afterLogin(); return; }
+  try {
+    await liff.init({ liffId: CONFIG.LIFF_ID });
+    if (!liff.isLoggedIn()) {
+      sessionStorage.setItem('line_login_pending', '1');   // ให้ resume หลัง redirect กลับ
+      sessionStorage.setItem('onboard_state', JSON.stringify(state));  // กันข้อมูล guest หายข้าม redirect
+      liff.login({ redirectUri: location.href });
+      return;
+    }
+    await completeLineLogin();
+  } catch (e) { dbg('LINE ERROR', e.message); }
+}
+
+// แลก LINE ID token → Firebase custom token → sign in → ไป consent
+async function completeLineLogin() {
+  const idToken = liff.getIDToken();
+  if (!idToken) throw new Error('no id token (เช็ค scope openid)');
+  const resp = await fetch(CONFIG.FUNCTION_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error || resp.status);
+  await auth.signInWithCustomToken(data.firebaseToken);
+  sessionStorage.removeItem('line_login_pending');
+  sessionStorage.removeItem('onboard_state');
+  dbg('LINE signed in', data.uid);
+  afterLogin();
+}
+
+// หลัง login สำเร็จ → flush ข้อมูล guest ที่เก็บไว้ (การนำทางให้ onAuthStateChanged จัดการ)
+function afterLogin() { closeLogin(); flushGuestData(); }
+
+// resume หลัง redirect (Google/Apple) — เก็บ guest data; นำทางโดย onAuthStateChanged
+auth.getRedirectResult().then(r => { if (r && r.user) { dbg('redirect login', r.user.uid); flushGuestData(); } })
+  .catch(e => dbg('redirect ERROR', e.code));
+
+// ===== Onboarding resume =====
+// login แล้ว (non-anon) แต่ onboarding ยังไม่จบ → เด้งไปขั้นที่ค้างไว้ (จาก onboardingStep ใน Firestore)
+// เปิดแอปใหม่/รีเฟรช/หลัง LINE redirect → มาที่นี่เสมอ จนกว่าจะ 'done'
+let _resumed = false;
+auth.onAuthStateChanged(async (user) => {
+  if (!user || user.isAnonymous) return;     // guest/ไม่ล็อกอิน → อยู่ welcome/guest flow
+  if (_resumed) return; _resumed = true;
+  try {
+    const snap = await db.collection('users').doc(user.uid).get();
+    const d = snap.exists ? snap.data() : {};
+    dbg('resume step', d.onboardingStep || '(consent)');
+    if (d.onboardingStep === 'done')    { gotoApp(); return; }
+    if (d.onboardingStep === 'success') { document.getElementById('s-name').textContent = d.displayName || ''; go('success'); return; }
+    if (d.onboardingStep === 'profile') { go('profile'); return; }
+    go('consent');                            // undefined = เพิ่ง login → เริ่มที่ consent
+  } catch (e) { dbg('resume ERROR', e.message); go('consent'); }
+});
+
+// auto-resume LINE login หลัง LIFF redirect กลับมา (หน้าโหลดใหม่ → ต่อ flow ให้ถึง consent)
+(async function bootLiff() {
+  if (CONFIG.LIFF_ID.startsWith('<<') || typeof liff === 'undefined') return;
+  try {
+    await liff.init({ liffId: CONFIG.LIFF_ID });
+    if (sessionStorage.getItem('line_login_pending') && liff.isLoggedIn()) {
+      const saved = sessionStorage.getItem('onboard_state');     // กู้ข้อมูล guest ที่เก็บก่อน redirect
+      if (saved) { try { Object.assign(state, JSON.parse(saved)); } catch (e) {} }
+      dbg('resuming LINE login…');
+      await completeLineLogin();
+    }
+  } catch (e) { dbg('bootLiff', e.message); }
+})();
+
+function flushGuestData() {
+  mergeUser({
+    intention: state.intention,
+    ...(state.birthDate ? { birthDate: state.birthDate } : {}),
+  });
+}
+
+// ---- consent ---- (จบ consent → ขั้นต่อไป = profile)
+async function acceptConsent() {
+  await mergeUser({
+    consent: { version: CONFIG.CONSENT_VERSION, acceptedAt: new Date().toISOString(), scopes: ['profile', 'birthDate', 'lineId_email'] },
+    onboardingStep: 'profile',
+  });
+  go('profile');
+}
+
+// ---- profile ---- (จบ profile → ขั้นต่อไป = success) · skip ก็ยังบันทึก step
+async function saveProfileAndFinish(skip) {
+  if (!skip) {
+    state.name = document.getElementById('p-name').value.trim();
+    await mergeUser({
+      ...(state.name ? { displayName: state.name } : {}),
+      interests: state.interests,
+      tone: state.tone,
+      onboardingStep: 'success',
+    });
+  } else {
+    await mergeUser({ onboardingStep: 'success' });
+  }
+  document.getElementById('s-name').textContent = state.name || '';
+  go('success');
+}
+
+// ---- success / notif ---- (จบ onboarding → step 'done')
+async function optInDaily(on) {
+  state.notif = on;
+  await mergeUser({ notifPref: { daily: on, channel: 'line', updatedAt: new Date().toISOString() }, onboardingStep: 'done' });
+  await claimReward();          // มอบ Capy Points แรกเข้า (server-side, idempotent)
+  gotoApp();
+}
+
+// มอบรางวัลแรกเข้าผ่าน function (capyPoints เขียนเองจาก client ไม่ได้)
+async function claimReward() {
+  const u = auth.currentUser;
+  if (!u) { dbg('reward skipped (no user)'); return; }
+  try {
+    const t = await u.getIdToken();
+    const r = await fetch(CONFIG.CLAIM_URL, { method: 'POST', headers: { Authorization: 'Bearer ' + t } });
+    dbg('reward', await r.json());
+  } catch (e) { dbg('reward ERROR', e.message); }
+}
+
+// ---- selectors ----
+document.querySelectorAll('#intentions .option').forEach(o => o.addEventListener('click', () => {
+  document.querySelectorAll('#intentions .option').forEach(x => x.classList.remove('selected'));
+  o.classList.add('selected'); state.intention = o.dataset.val;
+}));
+document.querySelectorAll('#interests .seg').forEach(s => s.addEventListener('click', () => {
+  s.classList.toggle('active'); state.interests = [...document.querySelectorAll('#interests .seg.active')].map(x => x.dataset.val);
+}));
+document.querySelectorAll('#tone .seg').forEach(s => s.addEventListener('click', () => {
+  document.querySelectorAll('#tone .seg').forEach(x => x.classList.remove('active'));
+  s.classList.add('active'); state.tone = s.textContent.trim();
+}));
+state.interests = [...document.querySelectorAll('#interests .seg.active')].map(x => x.dataset.val);
+
+// ---- date dropdowns (LINE WebView compatible) ----
+(function fillDates() {
+  const bd = document.getElementById('bd'), bm = document.getElementById('bm'), by = document.getElementById('by');
+  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  bd.innerHTML = '<option value="">วัน</option>' + Array.from({length:31},(_,i)=>`<option>${i+1}</option>`).join('');
+  bm.innerHTML = '<option value="">เดือน</option>' + months.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+  const thisBE = 2569;
+  by.innerHTML = '<option value="">ปี พ.ศ.</option>' + Array.from({length:90},(_,i)=>`<option>${thisBE-12-i}</option>`).join('');
+  [bd,bm,by].forEach(s => s.addEventListener('change', () => {
+    if (bd.value && bm.value && by.value) state.birthDate = { d:+bd.value, m:+bm.value, beYear:+by.value };
+  }));
+})();
+
+// เปิด debug ด้วยการแตะโลโก้ค้าง
+let pressT; document.querySelector('.mini-brand').addEventListener('click', () => {
+  clearTimeout(pressT); pressT = setTimeout(() => { dbgEl.style.display = dbgEl.style.display==='block'?'none':'block'; }, 0);
+});
+</script>
+</body>
+</html>

@@ -10,6 +10,10 @@ const {
 admin.initializeApp();
 const db = admin.firestore();
 
+// Auth: LINE Login → Firebase custom token + signup reward grant (Unblocker A)
+exports.lineLogin = require('./auth').lineLogin;
+exports.claimReward = require('./auth').claimReward;
+
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
 // =============================================================
