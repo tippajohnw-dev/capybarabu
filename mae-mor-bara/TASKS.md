@@ -10,12 +10,12 @@
 |---|---|---|---|---|
 | Foundation (ดีไซน์/shell) | 3 | 3 | 0 | 0 |
 | Auth journey (Unblocker A) | 8 | 8 | 0 | 0 |
-| Core features (Phase 1) | 7 | 0 | 2 | 5 |
+| Core features (Phase 1) | 7 | 5 | 0 | 2 |
 | Commerce | 3 | 0 | 0 | 3 |
 | Retention/KPI | 2 | 0 | 0 | 2 |
-| **รวม** | **23** | **11** | **2** | **10** |
+| **รวม** | **23** | **16** | **0** | **7** |
 
-> ✅ **Sprint 0 + Sprint 1 เสร็จสมบูรณ์ (e2e)** — LINE/Guest login ทำงานจริง, onboarding journey + resume state machine, functions/rules/hosting live. **ถัดไป = Sprint 2 (Core loop)**
+> ✅ **Sprint 0+1+2+3 เสร็จ** — Auth e2e + Core loop + **Viral (C4 Pick a Card · C5 Charm Quiz)**. **ถัดไป = Sprint 4 (Retention): C6 Journal/Streak + C7 LINE push**
 
 ---
 
@@ -34,11 +34,11 @@
 | **A6** | **Success + rewards** — opt-in LINE + **grant Capy Points (server)** | auth: success | A5 | ✅ `claimReward` function **deployed** + `auth.html` เรียกจริง (idempotent) | 1 |
 | **A7** | **Backend providers** — `lineLogin`+`claimReward` deployed · LINE+Guest **e2e ใช้งานจริง** (IAM token-creator ทำแล้ว, channel `2010529290`, LIFF `2010529290-KVVcb2tN`) | — | — | ✅ (Google optional: เปิด provider เมื่อต้องการ; Apple optional) | 1 |
 | **A8** | **Firestore rules + consent storage** — merge เข้า autopost + deploy · แก้ security bug recursive wildcard · verify ครบ | — | A7 | ✅ deployed + verify (profile✓/capyPoints บล็อก✓/journal sub✓) | 1 |
-| **C1** | **Daily Luck Home** — energy hero (พลัง%) + trio chips (สี/เลข/เวลา) + action grid + ดันความรัก | app: home | F3 | ⬜ | 2 |
-| **C2** | **Share-card engine** — restyle ให้ตรง palette/ฟอนต์ใหม่ (ตอนนี้ธีมเข้มเก่า) | app: share preview | F1 | 🟡 `poc-share.html` เสร็จ → restyle | 2 |
-| **C3** | **Fortune Engine** — template หลายหมวด เปิดด้วยรัก+เงิน · fold ของ round1 | app: home/result | F3 | 🟡 logic round1 มี → ทำ engine+UI | 2 |
-| **C4** | **Pick a Card** — ไพ่ 1/3 + ผลเชิงบวก + reshuffle + ปุ่มแชร์หลัก | app: pick | C2,C3 | ⬜ | 3 |
-| **C5** | **Lucky Charm Quiz** — mood + intention → แนะนำ charm (<1 นาที) + แชร์ | app: quiz | C2 | ⬜ | 3 |
+| **C1** | **Daily Luck Home** — energy hero (พลัง%) + trio chips (สี/เลข/เวลา) + fold + action grid + share | app: home | F3 | ✅ `app.html` personalize จาก `users/{uid}` + birthdate sheet | 2 |
+| **C2** | **Share-card engine** — restyle palette/ฟอนต์ใหม่ → `share-card.js` (reusable global `ShareCard`) | app: share preview | F1 | ✅ `share-card.js` + `poc-share.html` restyle | 2 |
+| **C3** | **Fortune Engine** — `fortune-engine.js` (global `Fortune`) · 5 หมวด เปิดด้วยรัก+เงิน · fold round1 (ราศี/นักษัตร/เลขชะตา/สีมงคล) · deterministic | app: home/result | F3 | ✅ engine+UI ใน `app.html` | 2 |
+| **C4** | **Pick a Card** — ไพ่ 1/3 (สำรับ 12 ใบ ผลบวกเสมอ) + flip/dim + reshuffle + share · `Fortune.cards/pickResult` | app: pick | C2,C3 | ✅ view `#pick` ใน `app.html` | 3 |
+| **C5** | **Lucky Charm Quiz** — mood + intention (2 ข้อ <1 นาที) → `Fortune.recommendCharm` (6 charm) + share | app: quiz | C2 | ✅ view `#quiz` ใน `app.html` | 3 |
 | **C6** | **Mood Journal + Streak** — mood รายวัน + streak 7 วัน + ปุ่ม "ตรงไหม?" (flywheel) | app: journal | F3,A7 | ⬜ | 4 |
 | **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง (opt-in จาก A6) | — | A7,C1 | ⬜ | 4 |
 | **D1** | **Charm Shop (lean)** — tab ตาม intention + digital charm <฿99 + grid | app: shop | F3 | ⬜ | 5 |
@@ -58,7 +58,28 @@ Sprint 3 · Viral        C4 Pick a Card + C5 Quiz
 Sprint 4 · Retention    C6 Journal/Streak + C7 LINE push
 Sprint 5 · Commerce     D1 Shop + D2 Detail + D3 Payment
 Sprint 6 · Scale        E1 Profile/Collection + E2 KPI instrumentation
+Sprint R · Redesign     R1→R6 "CAPY POP" (track แยก · รอ product owner)
 ```
+
+---
+
+## 🎨 Sprint R — Redesign "CAPY POP" (ใหม่ · จาก design review + research 2026-06-28)
+> ทิศทาง **research-backed** (Boundev: muted=น่าลืม · Duolingo: มาสคอตมีบุคลิก · Muketing: สายมูไทย mu-nimalistic) + **ล็อกกับ user แล้ว**
+> **ล็อก:** โทน **ส้มมะม่วง `#ff6a2b`** · เสียงแม่หมอ **กวนเต็มแม็กซ์** · สไตล์ **เล่นสนุก POP** (neo-brutalist toy: ขอบ 2px + เงาแข็ง) · **มาสคอตเป็นพระเอก** · ฟอนต์ Anuphan + IBM Plex Mono
+> ⚠️ **track แยกจาก feature sprints · รอ product owner sign-off ก่อน replace "Cute Mystic Premium" ที่ live อยู่**
+> assets พร้อม: [design-tokens-v2.css](design-tokens-v2.css) · [redesign-capypop.html](redesign-capypop.html) (concept ที่จูนแล้ว) · [redesign-minimal.html](redesign-minimal.html) (ALMANAC — reference) · `mascots/m1–m10.png` (ตัดพื้นหลังขาว→โปร่งใส + ย่อ 600px แล้ว)
+
+| # | Task | ใช้ asset | สถานะ |
+|---|---|---|---|
+| **R0** | Design review + research Gen Z + concept 3 ทิศทาง + lock ทิศทาง + ตัดพื้นหลังมาสคอต 10 ท่า | — | ✅ 2026-06-28 |
+| **R1** | Optimize มาสคอต → webp (ตอนนี้ PNG 600px ~0.66MB/ไฟล์) ให้เบาพอ LINE WebView | mascots/ | ⬜ |
+| **R2** | แปลง `app.html` shell → CAPY POP (mango · Anuphan · pop shadow · dark nav) | design-tokens-v2.css | ⬜ |
+| **R3** | Home (C1) ธีมใหม่ + hero ท่า m3 + เสียงแม่หมอกวน + trio chips pop | m3 · m1(avatar) | ⬜ |
+| **R4** | Fortune/Pick-a-card/Quiz ธีมใหม่ + **สลับท่ามาสคอตตามฟีเจอร์** | m4(ไพ่) m5(เงิน) m6(quiz) m9 m8 | ⬜ |
+| **R5** | Share-card canvas ใหม่ — ใส่มาสคอต + palette CAPY POP (growth lever) | share-card.js · mascots | ⬜ |
+| **R6** | Product owner sign-off → replace theme เดิม / หรือ A/B test | — | ⬜ |
+
+**Pose → feature map:** m1 ทักทาย/avatar · m3 พลังวันนี้(hero) · m4 เปิดไพ่ · m5 การเงิน · m6 charm quiz · m7 charm shop · m8 กันลบ/จี้ · m9 บันทึก · m10 โปรไฟล์
 
 ## สิ่งที่ "ต้องแก้" ในของที่ทำไปแล้ว (เพราะดีไซน์ใหม่)
 1. **`poc-share.html`** → เปลี่ยนจากธีมเข้ม/ทอง เป็น palette ใหม่ (violet/pink/mint/gold + ฟอนต์ Inter+Noto Sans Thai) [C2]

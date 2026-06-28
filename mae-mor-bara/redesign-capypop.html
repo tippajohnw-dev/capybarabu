@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>แม่หมอบาร่า · CAPY POP (mascot-forward concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* =================================================================
+   แม่หมอบาร่า — "CAPY POP"  (research-backed redesign · Gen Z/Y)
+   มาสคอตเป็นพระเอก (Duolingo lesson) · สี dopamine แบน ๆ ไม่ gradient
+   ตัวอักษรหนาใหญ่ = identity · มู-nimalistic เก๋ · การ์ดแชร์เป็นพระเอก
+   ================================================================= */
+:root{
+  --cream:#fff6e9; --cream-2:#fdeed8; --ink:#241a12; --ink-2:#5c5042; --muted:#9a8d79;
+  --line:#efe1cd;
+  --mango:#ff6a2b; --mango-2:#e8551a;   /* dopamine primary */
+  --grape:#5b4bff;                        /* cool pop (sparing) */
+  --mint:#16b8a0; --pink:#ff5c93; --sun:#ffc23d;
+  --disp:"Anuphan",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;}
+html,body{background:var(--cream);}
+body{font-family:var(--disp);color:var(--ink);min-height:100vh;display:flex;justify-content:center;font-weight:500;}
+::selection{background:var(--mango);color:#fff;}
+
+.frame{width:min(430px,100%);min-height:100vh;background:var(--cream);overflow:hidden;
+  padding:calc(env(safe-area-inset-top) + 18px) 18px calc(110px + env(safe-area-inset-bottom));}
+
+.r{opacity:0;transform:translateY(16px);animation:rise .6s cubic-bezier(.2,.75,.2,1) forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.pop{animation:pop .5s cubic-bezier(.2,1.5,.4,1) .5s both;}
+@keyframes pop{from{opacity:0;transform:scale(.6) rotate(-6deg);}to{opacity:1;transform:none;}}
+
+/* ---- top bar ---- */
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .lg{width:44px;height:44px;border-radius:14px;background:var(--mango);overflow:hidden;display:grid;place-items:center;border:2px solid var(--ink);}
+.brand .lg img{width:150%;height:150%;object-fit:cover;object-position:50% 14%;}
+.brand b{font-weight:700;font-size:17px;letter-spacing:-.02em;line-height:1;}
+.brand span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--muted);margin-top:3px;text-transform:uppercase;}
+.streak{display:flex;align-items:center;gap:5px;background:var(--ink);color:var(--cream);font-weight:700;font-size:14px;
+  padding:9px 14px;border-radius:999px;}
+
+/* ---- HERO (mascot is the star) ---- */
+.hero{background:var(--mango);border-radius:30px;padding:18px 20px 20px;color:#fff;box-shadow:0 14px 0 -4px var(--mango-2);}
+.hrow{display:flex;align-items:center;gap:6px;}
+.hleft{flex:1;min-width:0;}
+.hero .label{font-weight:600;font-size:14px;opacity:.95;}
+.hero .pwr{font-weight:700;font-size:78px;line-height:.9;letter-spacing:-.04em;display:flex;align-items:flex-start;gap:3px;}
+.hero .pwr small{font-size:28px;margin-top:10px;font-weight:700;}
+.hero .capy{width:158px;flex:0 0 158px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.2));animation:bob 3.6s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-7px) rotate(-1.5deg);}}
+.hero .bubble{background:#fff;color:var(--ink);border-radius:18px 18px 18px 4px;padding:12px 14px;
+  font-size:13.5px;font-weight:500;line-height:1.5;margin-top:2px;box-shadow:0 6px 0 -1px rgba(0,0,0,.08);}
+.hero .bubble b{color:var(--mango-2);font-weight:700;}
+
+/* ---- lucky trio (bold chips) ---- */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0;}
+.chip{background:var(--cream-2);border-radius:20px;padding:13px 8px;text-align:center;border:2px solid var(--ink);
+  box-shadow:0 5px 0 -1px var(--ink);}
+.chip .k{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--ink-2);text-transform:uppercase;}
+.chip .v{font-weight:700;font-size:17px;margin-top:7px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.chip .sw{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);}
+
+/* ---- section ---- */
+.sec{font-weight:700;font-size:18px;letter-spacing:-.02em;margin:24px 2px 12px;}
+
+/* ---- action tiles (flat color blocks) ---- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.tile{border-radius:24px;padding:16px;cursor:pointer;border:2px solid var(--ink);box-shadow:0 6px 0 -1px var(--ink);
+  transition:transform .12s,box-shadow .12s;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;}
+.tile:active{transform:translateY(4px);box-shadow:0 2px 0 -1px var(--ink);}
+.tile .em{font-size:30px;}
+.tile b{font-weight:700;font-size:16px;}
+.tile span{font-size:11.5px;color:var(--ink-2);line-height:1.35;font-weight:500;}
+.t-pink{background:#ffd9e6;} .t-mint{background:#c7f5ec;} .t-sun{background:#ffe9ad;} .t-grape{background:#ddd9ff;}
+
+/* ---- big share CTA (growth lever) ---- */
+.share{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:14px;
+  background:var(--ink);color:var(--cream);border:0;border-radius:22px;padding:18px;font-family:var(--disp);
+  font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 6px 0 -1px #000;}
+.share:active{transform:translateY(3px);box-shadow:0 3px 0 -1px #000;}
+
+/* ---- nav ---- */
+.nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);width:min(404px,calc(100% - 28px));
+  background:var(--ink);border-radius:24px;display:grid;grid-template-columns:repeat(5,1fr);padding:8px;
+  box-shadow:0 10px 30px rgba(36,26,18,.3);}
+.nav a{text-decoration:none;color:#bdae9a;font-size:9px;font-weight:600;text-align:center;padding:8px 0;border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;}
+.nav a .i{font-size:18px;}
+.nav a.on{background:var(--mango);color:#fff;}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="top r" style="animation-delay:.02s">
+    <div class="brand"><div class="lg"><img src="mascots/m1.png?v=1" alt="" /></div><div><b>แม่หมอบาร่า</b><span>capybara oracle</span></div></div>
+    <div class="streak">🔥 7</div>
+  </div>
+
+  <section class="hero r" style="animation-delay:.1s">
+    <div class="hrow">
+      <div class="hleft">
+        <div class="label">พลังของ ตอง วันนี้ ✨</div>
+        <div class="pwr"><span id="pwr">68</span><small>%</small></div>
+      </div>
+      <img class="capy pop" src="mascots/m3.png?v=1" alt="แม่หมอบาร่า" onerror="this.style.display='none'" />
+    </div>
+    <div class="bubble pop">เงินเข้าวันนี้แหละ! แต่มืออย่าลั่นน้า 🫵 <b>กดสั่งของตอนหิว = สิ้นเดือนร้องไห้</b>นะจ๊ะ 😭💸</div>
+  </section>
+
+  <div class="trio r" style="animation-delay:.2s">
+    <div class="chip"><div class="k">สีมงคล</div><div class="v"><span class="sw" style="background:#ffb27a"></span>ส้มอุ่น</div></div>
+    <div class="chip"><div class="k">เลขมงคล</div><div class="v">5 0</div></div>
+    <div class="chip"><div class="k">เวลามงคล</div><div class="v">15:15</div></div>
+  </div>
+
+  <div class="sec r" style="animation-delay:.26s">วันนี้ให้แม่หมอจัดเรื่องไหนดี? 🔮</div>
+  <div class="grid r" style="animation-delay:.3s">
+    <div class="tile t-pink"><div class="em">💘</div><div><b>ดวงความรัก</b><br><span>คนคุย คนเก่า ความสัมพันธ์</span></div></div>
+    <div class="tile t-mint"><div class="em">💸</div><div><b>ดวงการเงิน</b><br><span>รายได้ โชค งานเสริม</span></div></div>
+    <div class="tile t-sun"><div class="em">🃏</div><div><b>เปิดไพ่ 1 ใบ</b><br><span>ตั้งคำถามในใจ</span></div></div>
+    <div class="tile t-grape"><div class="em">🧿</div><div><b>หาเครื่องราง</b><br><span>ควิซสั้น &lt; 1 นาที</span></div></div>
+  </div>
+
+  <button class="share r" style="animation-delay:.4s" onclick="bump(this)">📤 แคปไปอวดเพื่อนเลยจ้า ดวงดีต้องโชว์ ✨</button>
+</div>
+
+<nav class="nav">
+  <a href="#" class="on"><span class="i">🏠</span>หน้าหลัก</a>
+  <a href="#"><span class="i">🔮</span>ดูดวง</a>
+  <a href="#"><span class="i">🧿</span>เครื่องราง</a>
+  <a href="#"><span class="i">📔</span>บันทึก</a>
+  <a href="#"><span class="i">🦫</span>ฉัน</a>
+</nav>
+
+<script>
+(function(){ const el=document.getElementById('pwr'); let n=0; const t=setInterval(()=>{n+=2;if(n>=68){n=68;clearInterval(t);}el.textContent=n;},20); })();
+function bump(b){ b.style.transform='translateY(3px)'; setTimeout(()=>b.style.transform='',120); }
+document.querySelectorAll('.tile').forEach(t=>t.addEventListener('click',()=>{}));
+</script>
+</body>
+</html>

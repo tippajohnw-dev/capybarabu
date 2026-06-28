@@ -1,0 +1,50 @@
+/* =================================================================
+   แม่หมอบาร่า / Capybarabu — Design Tokens V2  "CAPY POP"
+   -----------------------------------------------------------------
+   ทิศทางที่ล็อกร่วมกับ product owner (research-backed, Gen Z/Y):
+     · โทนหลัก   = ส้มมะม่วง (dopamine, warm, gender-neutral, distinctive)
+     · บุคลิก    = "เสียงแม่หมอกวนเต็มแม็กซ์" (Duolingo lesson — มาสคอตมีบุคลิก)
+     · สไตล์     = เล่น-สนุก POP (neo-brutalist toy: ขอบหนา + เงาแข็ง + สีบล็อกสด)
+   หลักการ: มาสคอตคาปิบาราเป็น "พระเอก" ทุกหน้า · flat color ไม่มี gradient/glass
+            · ตัวอักษรหนาใหญ่ = identity · การ์ดแชร์เป็น growth lever
+   อ้างอิง research: Boundev (muted=forgettable), Duolingo mascot, Muketing (สายมูไทย)
+   ================================================================= */
+:root {
+  /* ---- Base surface (cream อุ่น ไม่ใช่ขาวจัด — พรีเมียม + ไทย) ---- */
+  --cream:#fff6e9;  --cream-2:#fdeed8;  --card:#fff9f1;
+  --ink:#241a12;    --ink-2:#5c5042;    --muted:#9a8d79;  --line:#efe1cd;
+
+  /* ---- Primary dopamine (Mango) ---- */
+  --mango:#ff6a2b;  --mango-2:#e8551a;   /* -2 = เงาแข็ง/เน้นข้อความ */
+
+  /* ---- Pop accents (ใช้กับ tile/แต้มสี — flat เท่านั้น) ---- */
+  --grape:#5b4bff;  --mint:#16b8a0;  --pink:#ff5c93;  --sun:#ffc23d;
+  --tile-pink:#ffd9e6;  --tile-mint:#c7f5ec;  --tile-sun:#ffe9ad;  --tile-grape:#ddd9ff;
+
+  /* ---- POP system (neo-brutalist toy) ---- */
+  --pop-border:2px solid var(--ink);
+  --pop-shadow:0 6px 0 -1px var(--ink);      /* เงาแข็ง offset (ไม่ฟุ้ง) */
+  --pop-shadow-sm:0 5px 0 -1px var(--ink);
+  --pop-press:translateY(4px);               /* กดแล้วยุบ */
+
+  /* ---- Radius (โค้งใหญ่แบบ toy แต่ไม่เท่ากันหมด → มี contrast) ---- */
+  --r-hero:30px;  --r-card:24px;  --r-chip:20px;  --r-pill:999px;
+
+  /* ---- Typography ---- */
+  --disp:"Anuphan", ui-sans-serif, system-ui, -apple-system, sans-serif;  /* หนาใหญ่ = identity */
+  --mono:"IBM Plex Mono", ui-monospace, monospace;                        /* ป้ายเล็ก/ตัวเลข */
+
+  /* ---- Lucky-color tokens (สีมงคล 7 วัน — ใช้เป็น accent ไดนามิกได้) ---- */
+  --luck-sun:#ff6f91; --luck-mon:#f7c96f; --luck-tue:#ff9fcf; --luck-wed:#a8e6cf;
+  --luck-thu:#ffb27a; --luck-fri:#7ec8ff; --luck-sat:#b79bff;
+}
+
+/* หมายเหตุการใช้งาน:
+   · Hero "พลังวันนี้" = บล็อก --mango + เงา --pop-shadow (ใช้ --mango-2) + มาสคอตตัวใหญ่ขวาล่าง
+   · Speech bubble = พื้นขาว มุมหยัก (18px 18px 18px 4px) เสียงแม่หมอกวน, คำเน้น = --mango-2
+   · chip/tile = --pop-border + --pop-shadow, :active ใช้ --pop-press แล้วลดเงา
+   · tile สลับสี --tile-* (รัก=pink, เงิน=mint, ไพ่=sun, เครื่องราง=grape)
+   · ปุ่มหลัก/แชร์ = พื้น --ink ตัวอักษร --cream + เงาแข็ง
+   · ตัวเลขพลัง/หัวข้อ = --disp 700 ตัวใหญ่มาก ; ป้ายเล็ก/เวลา/เลข = --mono
+   · มาสคอต = สลับ 10 ท่าตามผล/อารมณ์ (asset ~/Documents/Mae Mhor Capy/img) แบบ Duolingo
+*/

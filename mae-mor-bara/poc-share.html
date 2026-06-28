@@ -2,33 +2,48 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>POC · Share-card Engine · แม่หมอบาร่า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Thai:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-tokens.css" />
 <style>
-  :root { --bg:#1a1030; --card:#271646; --gold:#e8c66a; --purple:#a06cf0; --txt:#efe7ff; }
-  * { box-sizing:border-box; font-family:-apple-system,"Segoe UI",sans-serif; }
-  body { margin:0; background:var(--bg); color:var(--txt); padding:20px; line-height:1.5; }
-  .wrap { max-width:520px; margin:0 auto; }
-  h1 { font-size:20px; color:var(--gold); }
-  p.sub { font-size:13px; opacity:.8; }
-  .preview { width:100%; border-radius:16px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.5); display:block; }
-  button { width:100%; padding:13px; border:0; border-radius:10px; color:#fff; font-size:15px; font-weight:600;
-           cursor:pointer; margin-top:8px; }
-  .b1 { background:var(--purple); } .b2 { background:#3a2860; } .b3 { background:var(--gold); color:#2a1c00; }
-  .label { font-size:12px; color:var(--gold); margin:14px 0 4px; }
-  pre { background:#140a26; border-radius:10px; padding:10px; font-size:12px; white-space:pre-wrap; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--grad-page); color: #fff9ee; font-family: var(--font);
+         min-height: 100vh; padding: 22px; line-height: 1.5; }
+  .wrap { max-width: 460px; margin: 0 auto; }
+  h1 { font-size: 21px; letter-spacing: -.03em; margin: 0 0 4px; }
+  h1 .em { color: var(--gold); }
+  p.sub { font-size: 13px; color: rgba(255,249,238,.72); margin: 0 0 16px; }
+  .preview { width: 100%; border-radius: 22px; overflow: hidden; display: block;
+             box-shadow: 0 22px 60px rgba(0,0,0,.42); border: 1px solid rgba(255,255,255,.12); }
+  .cta { display: grid; gap: 10px; margin-top: 14px; }
+  button { width: 100%; padding: 15px; border: 0; border-radius: 18px; color: #fff; font-size: 15px;
+           font-weight: 900; cursor: pointer; font-family: var(--font);
+           display: flex; align-items: center; justify-content: center; gap: 8px; }
+  button:active { transform: scale(.985); }
+  .b1 { background: var(--grad-primary); box-shadow: 0 12px 26px rgba(124,77,255,.3); }
+  .b2 { background: rgba(255,255,255,.11); border: 1px solid rgba(255,255,255,.18); }
+  .b3 { background: var(--grad-gold); color: var(--deep); box-shadow: 0 12px 26px rgba(247,201,111,.22); }
+  .label { font-size: 12px; color: var(--gold); margin: 18px 0 6px; font-weight: 700; }
+  pre { background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.1); border-radius: 14px;
+        padding: 12px; font-size: 12px; white-space: pre-wrap; color: #d9ffe9;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🔮 POC · Share-card Engine</h1>
-  <p class="sub">Unblocker B — เรนเดอร์ผลลัพธ์เป็น <b>รูป</b> ฝั่ง client (canvas) → ดาวน์โหลด/แชร์ · ใช้ซ้ำได้ทุกผลลัพธ์</p>
+  <h1><span class="em">🔮</span> POC · Share-card Engine</h1>
+  <p class="sub">Unblocker B — เรนเดอร์ผลลัพธ์เป็น <b>รูป</b> ฝั่ง client (canvas) · palette "Cute Mystic Premium" · ใช้ซ้ำได้ทุกผลลัพธ์</p>
 
   <canvas id="card" class="preview"></canvas>
 
-  <button class="b1" id="share">📤 แชร์การ์ด (Web Share)</button>
-  <button class="b3" id="download">⬇️ ดาวน์โหลด PNG</button>
-  <button class="b2" id="shuffle">🎲 สุ่มผลใหม่ (แสดงว่า data-driven)</button>
+  <div class="cta">
+    <button class="b1" id="share">📤 แชร์การ์ด (Web Share)</button>
+    <button class="b3" id="download">⬇️ ดาวน์โหลด PNG</button>
+    <button class="b2" id="shuffle">🎲 สุ่มผลใหม่ (data-driven)</button>
+  </div>
 
   <div class="label">data ที่ป้อนเข้า engine</div>
   <pre id="dataDump"></pre>
@@ -36,162 +51,35 @@
   <pre id="status">กำลังเรนเดอร์…</pre>
 </div>
 
+<script src="share-card.js?v=s3"></script>
 <script>
-// =============================================================
-// Share-card Engine (Unblocker B) — renderCard(canvas, data)
-// contract: data = { power, color, colorHex, number, time, headline, date }
-// ฝั่ง app จะเรียก engine นี้ด้วยผลลัพธ์จริง (Daily / Pick-a-Card / Quiz / Fortune)
-// =============================================================
-const W = 1080, H = 1350;          // 4:5 — เหมาะ IG feed/story, TikTok
-const canvas = document.getElementById('card');
-canvas.width = W; canvas.height = H;
-const ctx = canvas.getContext('2d');
-const statusEl = document.getElementById('status');
-const dumpEl = document.getElementById('dataDump');
+  const canvas = document.getElementById('card');
+  const statusEl = document.getElementById('status');
+  const dumpEl = document.getElementById('dataDump');
 
-let mascot = null;
-const mImg = new Image();
-mImg.onload = () => { mascot = mImg; render(current); };
-mImg.onerror = () => { render(current); };   // ไม่มีรูปก็เรนเดอร์ได้
-mImg.src = 'mascot.png';
+  // sample data (ฝั่ง app จะส่งของจริงเข้ามาผ่าน Fortune.shareData)
+  const SAMPLES = [
+    { power:78, colorName:'ชมพูพีช', colorHex:'#ff9fcf', number:'8 9', time:'09:09', kind:'ดวงความรัก', name:'ตอง', headline:'วันนี้พลังเสน่ห์แรง รักกำลังมาเคาะประตู ✨', date:'28 มิ.ย. 2569' },
+    { power:92, colorName:'ครีมเหลือง', colorHex:'#f7c96f', number:'9 3', time:'14:00', kind:'ดวงการเงิน', name:'', headline:'การเงินไหลเข้า มีโชคก้อนเล็กแบบไม่คาดคิด', date:'28 มิ.ย. 2569' },
+    { power:64, colorName:'มิ้นต์', colorHex:'#a8e6cf', number:'3 7', time:'07:30', kind:'ดวงวันนี้', name:'มิว', headline:'ใจเย็นไว้แล้วจะผ่านฉลุย งานคืบหน้าแน่นอน', date:'28 มิ.ย. 2569' },
+  ];
+  let idx = 0, current = SAMPLES[0];
 
-function roundRect(c, x, y, w, h, r) {
-  c.beginPath();
-  c.moveTo(x + r, y);
-  c.arcTo(x + w, y, x + w, y + h, r);
-  c.arcTo(x + w, y + h, x, y + h, r);
-  c.arcTo(x, y + h, x, y, r);
-  c.arcTo(x, y, x + w, y, r);
-  c.closePath();
-}
-
-function render(d) {
-  // พื้นหลังจักรวาล ม่วง→เข้ม
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, '#2a1656'); g.addColorStop(.55, '#1a1030'); g.addColorStop(1, '#120a24');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-
-  // ดาวประกาย (กระจายแบบ deterministic ตาม power ไม่ต้องใช้ random)
-  ctx.fillStyle = 'rgba(232,198,106,.7)';
-  for (let i = 0; i < 60; i++) {
-    const x = (i * 137.5 % W), y = ((i * i * 53) % H);
-    const s = (i % 3) + 1;
-    ctx.globalAlpha = .15 + (i % 5) / 10;
-    ctx.fillRect(x, y, s, s);
-  }
-  ctx.globalAlpha = 1;
-
-  // กรอบทอง
-  ctx.strokeStyle = 'rgba(232,198,106,.55)'; ctx.lineWidth = 4;
-  roundRect(ctx, 30, 30, W - 60, H - 60, 36); ctx.stroke();
-
-  // หัวแบรนด์
-  ctx.textAlign = 'center'; ctx.fillStyle = '#e8c66a';
-  ctx.font = '600 40px -apple-system,"Segoe UI",sans-serif';
-  ctx.fillText('🔮 แม่หมอบาร่า', W / 2, 120);
-
-  // มาสคอต (ถ้าโหลดได้) — จำกัดความสูงไม่ให้ทับข้อความด้านล่าง
-  if (mascot) {
-    const mh = 300, mw = mh * (mascot.width / mascot.height);
-    ctx.drawImage(mascot, (W - mw) / 2, 150, mw, mh);
+  async function show(d) {
+    statusEl.textContent = 'กำลังเรนเดอร์…';
+    dumpEl.textContent = JSON.stringify(d, null, 2);
+    await ShareCard.render(canvas, d);
+    statusEl.textContent = '✓ เรนเดอร์เสร็จ (' + ShareCard.W + '×' + ShareCard.H + ')';
   }
 
-  // พลังวันนี้
-  ctx.fillStyle = '#efe7ff';
-  ctx.font = '500 44px -apple-system,sans-serif';
-  ctx.fillText('พลังวันนี้', W / 2, 620);
-  ctx.fillStyle = '#e8c66a';
-  ctx.font = '800 170px -apple-system,sans-serif';
-  ctx.fillText(d.power + '%', W / 2, 790);
+  document.getElementById('shuffle').onclick = () => { idx = (idx + 1) % SAMPLES.length; current = SAMPLES[idx]; show(current); };
+  document.getElementById('download').onclick = async () => { await ShareCard.download(canvas); statusEl.textContent = '⬇️ ดาวน์โหลดแล้ว'; };
+  document.getElementById('share').onclick = async () => {
+    const ok = await ShareCard.share(canvas, current);
+    statusEl.textContent = ok ? '📤 แชร์สำเร็จ' : 'ℹ️ อุปกรณ์นี้ไม่รองรับ Web Share — ดาวน์โหลดให้แทนแล้ว (บนมือถือจริงจะแชร์ได้)';
+  };
 
-  // headline คำทำนายสั้น
-  ctx.fillStyle = '#efe7ff';
-  ctx.font = '400 38px -apple-system,sans-serif';
-  wrapText(d.headline, W / 2, 880, W - 200, 50);
-
-  // trio มงคล: สี / เลข / เวลา
-  const y0 = 1010, bw = 280, gap = 30, total = bw * 3 + gap * 2, x0 = (W - total) / 2;
-  drawTile(x0,               y0, bw, 'สีมงคล', d.color, d.colorHex);
-  drawTile(x0 + bw + gap,    y0, bw, 'เลขมงคล', String(d.number), '#a06cf0');
-  drawTile(x0 + (bw+gap)*2,  y0, bw, 'เวลามงคล', d.time, '#06c755');
-
-  // footer
-  ctx.fillStyle = 'rgba(239,231,255,.55)';
-  ctx.font = '400 30px -apple-system,sans-serif';
-  ctx.fillText(d.date + '   ·   capybarabu.app', W / 2, H - 70);
-
-  dumpEl.textContent = JSON.stringify(d, null, 2);
-  statusEl.textContent = '✓ เรนเดอร์เสร็จ (' + W + '×' + H + ')';
-}
-
-function drawTile(x, y, w, label, value, accent) {
-  ctx.fillStyle = 'rgba(255,255,255,.06)';
-  roundRect(ctx, x, y, w, 200, 24); ctx.fill();
-  ctx.strokeStyle = accent + '99'; ctx.lineWidth = 3;
-  roundRect(ctx, x, y, w, 200, 24); ctx.stroke();
-  ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(239,231,255,.7)'; ctx.font = '400 30px -apple-system,sans-serif';
-  ctx.fillText(label, x + w / 2, y + 56);
-  // swatch ถ้าเป็นสี
-  if (/^#/.test(accent) && label === 'สีมงคล') {
-    ctx.fillStyle = accent; ctx.beginPath();
-    ctx.arc(x + w / 2, y + 110, 26, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#efe7ff'; ctx.font = '600 36px -apple-system,sans-serif';
-    ctx.fillText(value, x + w / 2, y + 178);
-  } else {
-    ctx.fillStyle = accent; ctx.font = '800 72px -apple-system,sans-serif';
-    ctx.fillText(value, x + w / 2, y + 150);
-  }
-}
-
-function wrapText(text, cx, y, maxW, lh) {
-  const words = String(text).split(' '); let line = '', yy = y;
-  for (const w of words) {
-    const test = line + w + ' ';
-    if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line.trim(), cx, yy); line = w + ' '; yy += lh; }
-    else line = test;
-  }
-  ctx.fillText(line.trim(), cx, yy);
-}
-
-// ---- sample data (ฝั่ง app จะส่งของจริงเข้ามา) ----
-const SAMPLES = [
-  { power: 78, color: 'ม่วง',  colorHex: '#a06cf0', number: 7, time: '09:09', headline: 'วันนี้พลังเสน่ห์แรง รักกำลังมาเคาะประตู ✨', date: '27 มิ.ย. 2569' },
-  { power: 92, color: 'ทอง',  colorHex: '#e8c66a', number: 9, time: '14:00', headline: 'การเงินไหลเข้า มีโชคก้อนเล็กแบบไม่คาดคิด', date: '27 มิ.ย. 2569' },
-  { power: 64, color: 'เขียว', colorHex: '#06c755', number: 3, time: '07:30', headline: 'ใจเย็นไว้แล้วจะผ่านฉลุย งานคืบหน้าแน่นอน', date: '27 มิ.ย. 2569' },
-];
-let idx = 0, current = SAMPLES[0];
-
-document.getElementById('shuffle').onclick = () => {
-  idx = (idx + 1) % SAMPLES.length; current = SAMPLES[idx]; render(current);
-};
-
-document.getElementById('download').onclick = () => {
-  canvas.toBlob((blob) => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'maemorbara-card.png'; a.click();
-    URL.revokeObjectURL(a.href);
-    statusEl.textContent = '⬇️ ดาวน์โหลดแล้ว';
-  }, 'image/png');
-};
-
-document.getElementById('share').onclick = async () => {
-  try {
-    const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
-    const file = new File([blob], 'maemorbara-card.png', { type: 'image/png' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'ดวงวันนี้จากแม่หมอบาร่า', text: 'พลังวันนี้ ' + current.power + '% 🔮' });
-      statusEl.textContent = '📤 แชร์สำเร็จ';
-    } else {
-      statusEl.textContent = 'ℹ️ อุปกรณ์นี้ไม่รองรับ Web Share (ใช้ปุ่มดาวน์โหลดแทน) — บนมือถือจริงจะแชร์ได้';
-    }
-  } catch (err) {
-    statusEl.textContent = '✕ แชร์ไม่สำเร็จ: ' + err.message;
-  }
-};
-
-render(current);
+  show(current);
 </script>
 </body>
 </html>

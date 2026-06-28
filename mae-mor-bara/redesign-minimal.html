@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>แม่หมอบาร่า · ALMANAC (minimal concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Trirong:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* =================================================================
+   แม่หมอบาร่า — "ALMANAC"  (minimal redesign concept · Gen Z/Y)
+   paper + ink + cinnabar · Trirong serif · IBM Plex Mono labels
+   no gradient · no glass · hairlines · big typographic moments
+   ================================================================= */
+:root{
+  --paper:#efe8d7; --paper-2:#e7dfca; --card:#f4eee0;
+  --ink:#1b1810; --ink-2:#403a2c; --muted:#8b8266; --faint:#a89e80;
+  --line:#d4c9ac; --line-2:#c2b690;
+  --clay:#bf4327; --clay-2:#9a3219; --celadon:#4a665a;
+  --serif:"Trirong",Georgia,serif;
+  --sans:"IBM Plex Sans Thai",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;}
+html,body{background:var(--paper);}
+body{
+  font-family:var(--sans); color:var(--ink); min-height:100vh;
+  display:flex; justify-content:center;
+  /* faint paper grain */
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+::selection{background:var(--clay);color:var(--paper);}
+
+.frame{
+  position:relative; width:min(430px,100%); min-height:100vh; background:var(--paper);
+  padding:calc(env(safe-area-inset-top) + 26px) 26px calc(120px + env(safe-area-inset-bottom));
+  border-left:1px solid var(--line); border-right:1px solid var(--line); overflow:hidden;
+}
+
+/* shared anim — staggered fade up on load */
+.r{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+
+/* ---- masthead ---- */
+.mast{display:flex;justify-content:space-between;align-items:flex-start;
+  padding-bottom:14px;border-bottom:1.5px solid var(--ink);}
+.mast .brand{font-family:var(--serif);font-weight:500;font-size:21px;letter-spacing:-.01em;line-height:1;}
+.mast .brand i{display:block;font-family:var(--mono);font-weight:400;font-size:9.5px;letter-spacing:.32em;
+  color:var(--muted);margin-top:7px;text-transform:uppercase;font-style:normal;}
+.mast .idx{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-align:right;line-height:1.5;}
+.mast .idx b{display:block;color:var(--clay);font-weight:500;font-size:11px;}
+
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  margin:16px 0 0;}
+
+/* ---- hero (the typographic moment) ---- */
+.hero{position:relative;padding:8px 0 18px;}
+.hero .ey{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--ink-2);margin-bottom:-6px;}
+.hero .big{font-family:var(--serif);font-weight:400;font-size:150px;line-height:.9;letter-spacing:-.04em;
+  color:var(--ink);display:flex;align-items:flex-start;gap:2px;}
+.hero .big sup{font-size:34px;font-weight:400;color:var(--clay);margin-top:18px;}
+.hero .read{font-family:var(--serif);font-size:18px;line-height:1.5;color:var(--ink-2);max-width:84%;margin-top:8px;}
+.hero .read em{font-style:italic;color:var(--clay-2);}
+.star{position:absolute;top:6px;right:-2px;width:58px;height:58px;color:var(--clay);
+  animation:spin 24s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ---- rule ---- */
+.rule{height:1px;background:var(--line-2);margin:6px 0;}
+.rule.dot{height:0;border-top:1px dotted var(--line-2);background:none;}
+
+/* ---- trio (almanac data) ---- */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);}
+.trio .t{padding:16px 0 14px;border-right:1px solid var(--line-2);padding-right:14px;}
+.trio .t:last-child{border-right:0;}
+.trio .t+.t{padding-left:14px;}
+.trio .lb{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.trio .vl{font-family:var(--serif);font-size:23px;font-weight:500;margin-top:9px;line-height:1;display:flex;align-items:center;gap:8px;}
+.trio .dot-c{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.18);flex:0 0 auto;}
+
+/* ---- fold line (personal astro) ---- */
+.fold{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);text-align:center;
+  padding:15px 0;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);margin-top:6px;}
+.fold s{color:var(--clay);text-decoration:none;margin:0 7px;}
+
+/* ---- primary CTA ---- */
+.cta{display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--ink);color:var(--paper);
+  border:0;padding:18px 20px;margin-top:20px;cursor:pointer;font-family:var(--serif);font-size:18px;font-weight:500;
+  letter-spacing:-.01em;}
+.cta:active{transform:scale(.99);}
+.cta .ar{font-family:var(--mono);font-size:15px;transition:transform .25s;}
+.cta:hover .ar{transform:translateX(6px);}
+
+/* ---- section head ---- */
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 4px;}
+.sec h2{font-family:var(--serif);font-weight:500;font-size:20px;letter-spacing:-.01em;}
+.sec span{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;}
+
+/* ---- editorial reading list ---- */
+.list{margin-top:6px;}
+.row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:14px;
+  padding:17px 2px;border-top:1px solid var(--line-2);cursor:pointer;}
+.row:last-child{border-bottom:1px solid var(--line-2);}
+.row .no{font-family:var(--mono);font-size:10px;color:var(--faint);}
+.row .nm{font-family:var(--serif);font-size:19px;font-weight:500;}
+.row .nm small{display:block;font-family:var(--sans);font-size:11px;color:var(--muted);font-weight:400;margin-top:2px;letter-spacing:0;}
+.row .pct{font-family:var(--serif);font-size:22px;color:var(--clay);font-weight:500;}
+.row .ar{font-family:var(--mono);color:var(--ink);font-size:13px;transition:transform .2s;}
+.row:hover .ar{transform:translateX(4px);}
+
+/* ---- pick-a-card strip ---- */
+.deck{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:10px;}
+.pc{position:relative;aspect-ratio:3/4.3;border:1px solid var(--ink);background:var(--card);cursor:pointer;
+  display:flex;flex-direction:column;justify-content:space-between;padding:11px;transition:.3s;overflow:hidden;}
+.pc .cn{font-family:var(--mono);font-size:10px;color:var(--muted);}
+.pc .sg{align-self:center;color:var(--clay);width:26px;height:26px;margin:auto 0;transition:.4s;}
+.pc .nm{font-family:var(--serif);font-size:13px;font-weight:500;line-height:1.2;opacity:0;transition:.35s;min-height:30px;}
+.pc:hover{transform:translateY(-4px);}
+.pc.open{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.pc.open .sg{transform:rotate(180deg) scale(1.25);color:var(--paper);}
+.pc.open .nm{opacity:1;}
+.pc.open .cn{color:var(--faint);}
+
+/* ---- footer + nav ---- */
+.foot{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--faint);text-align:center;
+  margin-top:34px;text-transform:uppercase;}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);background:var(--paper);
+  border-top:1.5px solid var(--ink);display:grid;grid-template-columns:repeat(5,1fr);
+  padding:14px 18px calc(16px + env(safe-area-inset-bottom));}
+.nav a{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-align:center;color:var(--muted);
+  text-decoration:none;text-transform:uppercase;position:relative;}
+.nav a.on{color:var(--ink);}
+.nav a.on::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;width:5px;height:5px;
+  background:var(--clay);border-radius:50%;}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <header class="mast r" style="animation-delay:.02s">
+    <div class="brand">แม่หมอบาร่า<i>capybara almanac</i></div>
+    <div class="idx">ฉบับที่<b>๒๘ · ๒๕๖๙</b></div>
+  </header>
+
+  <p class="kicker r" style="animation-delay:.08s">วันเสาร์ — ๒๘ มิถุนายน — ฤกษ์ดีบ่ายสาม</p>
+
+  <section class="hero r" style="animation-delay:.14s">
+    <svg class="star" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+      <path d="M50 4 L57 43 L96 50 L57 57 L50 96 L43 57 L4 50 L43 43 Z"/>
+    </svg>
+    <div class="ey">พลังประจำวันของคุณ</div>
+    <div class="big"><span id="pwr">68</span><sup>%</sup></div>
+    <p class="read">วันของการ<em>เริ่มเล็ก ๆ</em> ที่จะกลายเป็นเรื่องใหญ่ — ใจเย็นไว้ โชคชอบคนที่อดทน</p>
+  </section>
+
+  <div class="trio r" style="animation-delay:.22s">
+    <div class="t"><div class="lb">สีมงคล</div><div class="vl"><span class="dot-c" style="background:#ffb27a"></span>ส้มอุ่น</div></div>
+    <div class="t"><div class="lb">เลขมงคล</div><div class="vl">5 · 0</div></div>
+    <div class="t"><div class="lb">เวลามงคล</div><div class="vl">15:15</div></div>
+  </div>
+
+  <div class="fold r" style="animation-delay:.3s">ราศีสิงห์<s>✦</s>ปีฉลู<s>✦</s>เลขชะตา ๕</div>
+
+  <button class="cta r" style="animation-delay:.36s" onclick="document.getElementById('deck').scrollIntoView({behavior:'smooth'})">
+    เปิดไพ่ประจำวันนี้ <span class="ar">→</span>
+  </button>
+
+  <div class="sec r" style="animation-delay:.42s"><h2>อ่านดวงรายหมวด</h2><span>readings</span></div>
+  <div class="list r" style="animation-delay:.46s">
+    <div class="row"><span class="no">01</span><span class="nm">ความรัก<small>คนคุย · คนเก่า · ความสัมพันธ์</small></span><span class="pct">62%</span><span class="ar">↗</span></div>
+    <div class="row"><span class="no">02</span><span class="nm">การเงิน<small>รายได้ · โชค · งานเสริม</small></span><span class="pct">74%</span><span class="ar">↗</span></div>
+    <div class="row"><span class="no">03</span><span class="nm">การงาน<small>โปรเจกต์ · โอกาส</small></span><span class="pct">81%</span><span class="ar">↗</span></div>
+  </div>
+
+  <div class="sec r" style="animation-delay:.52s"><h2>เลือกไพ่ ๑ ใบ</h2><span>tap to reveal</span></div>
+  <div class="deck r" id="deck" style="animation-delay:.56s">
+    <div class="pc" onclick="flip(this,0)"><span class="cn">I</span>
+      <svg class="sg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3"><path d="M50 8 L58 42 L92 50 L58 58 L50 92 L42 58 L8 50 L42 42 Z"/></svg>
+      <span class="nm"></span></div>
+    <div class="pc" onclick="flip(this,1)"><span class="cn">II</span>
+      <svg class="sg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3"><path d="M50 8 L58 42 L92 50 L58 58 L50 92 L42 58 L8 50 L42 42 Z"/></svg>
+      <span class="nm"></span></div>
+    <div class="pc" onclick="flip(this,2)"><span class="cn">III</span>
+      <svg class="sg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3"><path d="M50 8 L58 42 L92 50 L58 58 L50 92 L42 58 L8 50 L42 42 Z"/></svg>
+      <span class="nm"></span></div>
+  </div>
+
+  <p class="foot r" style="animation-delay:.62s">capybarabu.app — ดูดวงเพื่อความบันเทิง — ๒๕๖๙</p>
+</div>
+
+<nav class="nav">
+  <a href="#" class="on">หน้าหลัก</a><a href="#">ดูดวง</a><a href="#">เครื่องราง</a><a href="#">บันทึก</a><a href="#">โปรไฟล์</a>
+</nav>
+
+<script>
+// hero number count-up (the one delight moment)
+(function(){
+  const el=document.getElementById('pwr'), target=68; let n=0;
+  const t=setInterval(()=>{ n+=2; if(n>=target){n=target;clearInterval(t);} el.textContent=n; }, 22);
+})();
+// pick-a-card reveal
+const CARDS=['ดาวนำทาง','ดวงอาทิตย์','หัวใจเบ่งบาน'];
+function flip(el,i){
+  if(el.classList.contains('open'))return;
+  document.querySelectorAll('.deck .pc').forEach(p=>{ if(p!==el){p.style.opacity='.32';p.style.pointerEvents='none';} });
+  el.classList.add('open'); el.querySelector('.nm').textContent=CARDS[i];
+}
+</script>
+</body>
+</html>
