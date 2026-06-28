@@ -1,9 +1,10 @@
 # แม่หมอบาร่า V2 — Task Backlog & ลำดับการแก้ไข
 ### อ้างอิงดีไซน์: `capybarabu_app_prototype.html` + `capybarabu_auth_first_login_mockup.html`
-### ธีม: **Cute Mystic Premium** · tokens: [design-tokens.css](design-tokens.css)
+### ธีม **production ปัจจุบัน:** Cute Mystic Premium · `design-tokens.css`
+### ธีม **ทิศทางใหม่ที่อนุมัติแล้ว (Sprint R):** **CAPY POP** · `design-tokens-v2.css` (สร้าง `app-v2.html` parallel, รอ product owner ก่อน replace)
+> เอกสารคู่กัน: [ROADMAP-v2.md](ROADMAP-v2.md) (strategy/KPI/Phase 2) · [SPEC.md](SPEC.md) (spec) · [NEXT-SESSION.md](NEXT-SESSION.md) (handoff + prompt)
 
-> รวม **23 tasks** · จัดเป็น 7 sprint ตาม dependency (Foundation → Auth → Core → Commerce → Retention)
-> สถานะ: ✅ เสร็จ · 🟡 มีบางส่วน/ต้องแก้ให้ตรงดีไซน์ · ⬜ ยังไม่เริ่ม
+> รวม **24 feature tasks** (7 sprint) + **Sprint R** redesign (6) · สถานะ: ✅ เสร็จ · 🟡 บางส่วน · ⬜ ยังไม่เริ่ม
 
 ## สรุปจำนวน
 | หมวด | จำนวน | ✅ | 🟡 | ⬜ |
@@ -13,9 +14,12 @@
 | Core features (Phase 1) | 7 | 5 | 0 | 2 |
 | Commerce | 3 | 0 | 0 | 3 |
 | Retention/KPI | 2 | 0 | 0 | 2 |
-| **รวม** | **23** | **16** | **0** | **7** |
+| Landing (P1.9) | 1 | 0 | 0 | 1 |
+| **รวม (feature)** | **24** | **16** | **0** | **8** |
+| Sprint R (redesign) | 6 | 1 (R0) | 0 | 5 |
 
-> ✅ **Sprint 0+1+2+3 เสร็จ** — Auth e2e + Core loop + **Viral (C4 Pick a Card · C5 Charm Quiz)**. **ถัดไป = Sprint 4 (Retention): C6 Journal/Streak + C7 LINE push**
+> ✅ **Sprint 0+1+2+3 เสร็จ** (Auth e2e + Core loop + Viral) · commit/push: `083daf1`
+> **ถัดไป (user เลือก) = Sprint R (Redesign CAPY POP)** · ทางเลือก feature track = Sprint 4 (Retention: C6 Journal/Streak + C7 LINE push)
 
 ---
 
@@ -46,6 +50,7 @@
 | **D3** | **Payment + orders/** — PromptPay/Omise (provider โฮสต์) + `orders/` | — | D1,A7 | ⬜ | 5 |
 | **E1** | **Profile & Collection** — points + badge/collection ชุดเริ่มต้น | app: profile | F3,A7 | ⬜ | 6 |
 | **E2** | **KPI instrumentation** — event D7/Share/CTA/Quiz/ATC/LINE | — | ทุก feature | ⬜ | 6 |
+| **L1** | **Landing Page (P1.9)** — public hero CTA เดียว "เริ่มเช็กดวงเลย" + social proof (ตอนนี้ root `/` ยังเป็นแอปเดิม · welcome อยู่ใน A1) | app: landing | F3 | ⬜ | 6 |
 
 ---
 
@@ -80,6 +85,15 @@ Sprint R · Redesign     R1→R6 "CAPY POP" (track แยก · รอ product o
 | **R6** | Product owner sign-off → replace theme เดิม / หรือ A/B test | — | ⬜ |
 
 **Pose → feature map:** m1 ทักทาย/avatar · m3 พลังวันนี้(hero) · m4 เปิดไพ่ · m5 การเงิน · m6 charm quiz · m7 charm shop · m8 กันลบ/จี้ · m9 บันทึก · m10 โปรไฟล์
+
+---
+
+## 🔭 Phase 2 — หลังผ่าน KPI (strategy-level · ยังไม่แตก task · ดู [ROADMAP-v2.md §3](ROADMAP-v2.md))
+ทำเมื่อ Phase 1 ผ่านเป้า KPI แล้วเท่านั้น — ยังไม่กำหนด task IDs/sprint:
+- Profile & Collection เต็ม (40 ชิ้น · level · progress)
+- **Premium (Gold) tier** — subscription gating → `subscriptions/` (ต้องมี Auth ก่อน ✅)
+- หมวดดวงเชิงลึก (เนื้อคู่/การงาน/สุขภาพ — ต่อยอด reuse รอบ 1)
+- ขยายเครื่องรางของจริง · **LINE automation** (Cloud Scheduler + Messaging API push) · คอลแลบครีเอเตอร์
 
 ## สิ่งที่ "ต้องแก้" ในของที่ทำไปแล้ว (เพราะดีไซน์ใหม่)
 1. **`poc-share.html`** → เปลี่ยนจากธีมเข้ม/ทอง เป็น palette ใหม่ (violet/pink/mint/gold + ฟอนต์ Inter+Noto Sans Thai) [C2]

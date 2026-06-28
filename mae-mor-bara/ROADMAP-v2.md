@@ -12,6 +12,13 @@
 
 ---
 
+## 🎨 อัปเดตทิศทางดีไซน์ (2026-06-28) — "CAPY POP" (Sprint R)
+> หลัง Sprint 0–3 ทำ design review + research Gen Z (Boundev: muted=น่าลืม · Duolingo: มาสคอตมีบุคลิก · Marketing Oops Muketing: สายมูไทย mu-nimalistic).
+> **มติ:** ธีม mockup เดิม "Cute Mystic Premium" (ม่วง gradient) เสี่ยงดู AI-slop สำหรับ Gen Z → เปลี่ยนเป็น **"CAPY POP"**: **มาสคอตคาปิบาราเป็นพระเอก** (asset §7) · สีส้มมะม่วง `#ff6a2b` flat · เสียงแม่หมอกวน · สไตล์เล่นสนุก POP · ฟอนต์ Anuphan.
+> เป็น **re-skin** บนฟีเจอร์เดิม (logic `Fortune`/`ShareCard` reuse) → **Sprint R** ใน [TASKS.md](TASKS.md) (R1–R6, สร้าง `app-v2.html` parallel, รอ product owner sign-off ก่อน replace production). tokens: `design-tokens-v2.css` · concept: `redesign-capypop.html`.
+
+---
+
 ## 0. Gap Analysis — ของที่มีวันนี้ vs. ที่ V2 ต้องการ
 
 | มิติ | As-built วันนี้ | V2 ต้องการ | ช่องว่าง |
@@ -33,12 +40,13 @@
 
 ทุกฟีเจอร์ V2 ที่จำราย user ได้ (journal/streak/collection/shop/premium) **บล็อกอยู่ที่ Auth** และทุก KPI growth บล็อกอยู่ที่ **Share-card**
 
-> **สถานะ POC (2026-06-27):**
-> - 🟡 **A — Auth**: journey เต็ม `auth.html` 7 หน้าจอ (welcome→guest→result→login sheet→PDPA consent→profile→success) · `functions/auth.js` lineLogin · LINE/Google/Apple/Anonymous wired + เขียน `users/{uid}` จริง · walk ครบทุกหน้าจอ verify แล้ว · **รอเปิด provider ใน Console + LINE LIFF เพื่อ test e2e**
-> - ✅ **Firestore rules**: `firestore.rules` (deny-by-default, `users/{uid}` เจ้าของเท่านั้น) — รอ deploy
-> - ✅ **B — Share-card engine**: `poc-share.html` `renderCard()` 1080×1350 · verify เรนเดอร์+ดาวน์โหลด+data-driven แล้ว
-> - ✅ **C — App shell**: `app.html` — component library + bottom-nav 5 แท็บ + hash router (static, no build) · design-tokens.css · verify แล้ว
-> - ✅ **Design system**: `design-tokens.css` + `TASKS.md` (23 tasks) — อิง mockup "Cute Mystic Premium"
+> **สถานะ (อัปเดต 2026-06-28):**
+> - ✅ **A — Auth**: e2e **ใช้งานจริง** — LINE/Guest login (custom token), `auth.html` 7 หน้าจอ + resume state machine, `lineLogin`+`claimReward` deployed (channel `2010529290`, LIFF `2010529290-KVVcb2tN`)
+> - ✅ **Firestore rules**: merge เข้า autopost + **deployed** · แก้ security bug recursive wildcard · verify ครบ
+> - ✅ **B — Share-card engine**: `share-card.js` (global `ShareCard`) 1080×1350 · ใช้จริงใน app + poc-share
+> - ✅ **C — App shell**: `app.html` — component library + bottom-nav 5 แท็บ + hash router (+ sub-views pick/quiz)
+> - ✅ **Design system**: `design-tokens.css` (Cute Mystic, production) + **`design-tokens-v2.css` (CAPY POP, Sprint R)**
+> - ✅ **Core loop + Viral**: C1 Home · C3 Fortune Engine (5 หมวด) · C4 Pick a Card · C5 Charm Quiz — `fortune-engine.js` (global `Fortune`)
 
 ### 🔓 Unblocker A — Identity & Data (Firebase Auth)
 - Firebase **Anonymous auth** = Guest-first (ลองดูดวงได้ทันที ไม่ต้องล็อกอิน)
@@ -136,9 +144,12 @@ Sprint 2  P1.1 Daily Home + P1.3 Fortune Engine (fold รอบ1) + P1.9 Landing
 Sprint 3  P1.4 Pick a Card + P1.5 Charm Quiz  (+ share-card ทุกผล)
 Sprint 4  P1.6 Journal/Streak + P1.10 LINE push  (data flywheel)
 Sprint 5  P1.7 Shop + P1.8 Product Detail + Payment + orders/
-Sprint 6  KPI instrumentation + polish + เปิด MVP → วัดผล
+Sprint 6  P1.9 Landing (L1) + KPI instrumentation + polish + เปิด MVP → วัดผล
+Sprint R  Redesign "CAPY POP" (re-skin, track แยก, รอ product owner) — ดู TASKS.md
 ─────────  ผ่าน KPI → Phase 2 (Profile/Collection, Premium, automation)
 ```
+
+**สถานะจริง (2026-06-28):** Sprint 0–3 ✅ (commit `083daf1`) · ถัดไป = **Sprint R (user เลือก)** หรือ Sprint 4
 
 ---
 

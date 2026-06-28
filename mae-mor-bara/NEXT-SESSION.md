@@ -1,5 +1,22 @@
 # แม่หมอบาร่า V2 — Handoff สำหรับ session ถัดไป
-### อัปเดต 2026-06-28 · หลังจบ Sprint 0+1+2 + **3 (Viral)**
+### อัปเดต 2026-06-28 · หลังจบ Sprint 0+1+2+3 + ออกแบบ Sprint R (CAPY POP) · commit/push `083daf1`
+
+---
+
+## 🗺️ แผนทั้งโปรเจกต์ (มุมเดียว) · ละเอียด → [TASKS.md](TASKS.md) · [ROADMAP-v2.md](ROADMAP-v2.md) · [SPEC.md](SPEC.md)
+| Sprint | งาน | สถานะ |
+|---|---|---|
+| 0 Foundation | F1 tokens · F2 components · F3 app shell | ✅ |
+| 1 Auth | A1–A8 (journey + LINE login e2e + rules) | ✅ |
+| 2 Core loop | C1 Home · C2 share-card · C3 Fortune Engine | ✅ |
+| 3 Viral | C4 Pick a Card · C5 Charm Quiz | ✅ |
+| **4 Retention** | C6 Journal/Streak · C7 LINE push | ⬜ |
+| **5 Commerce** | D1 Shop · D2 Product Detail · D3 Payment+orders/ | ⬜ |
+| **6 Scale** | E1 Profile/Collection · E2 KPI · L1 Landing | ⬜ |
+| **R Redesign** ⭐ | R1–R6 CAPY POP (re-skin, parallel `app-v2.html`, รอ PO) | ⬜ (R0 ✅) |
+| Phase 2 | Premium · Collection เต็ม · LINE automation … (strategy, หลัง KPI) | 🔭 |
+
+**ถัดไป (user เลือก): Sprint R** · ทางเลือก: Sprint 4. **KPI Phase 1:** D7≥25% · Share≥25% · CTA≥15% · Quiz≥60% · ATC≥10% · LINE≥70%
 
 ---
 
