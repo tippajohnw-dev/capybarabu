@@ -555,12 +555,15 @@ function addLineFriend() { if (LINE_OA) window.open('https://line.me/R/ti/p/' + 
 
 function renderNotif() {
   const on = !!(profile.notifPref && profile.notifPref.daily);
+  const isFriend = profile.oaFriend === true;
   document.getElementById('notif-toggle').setAttribute('aria-checked', on ? 'true' : 'false');
-  document.getElementById('friend-btn').style.display = (on && LINE_OA) ? 'flex' : 'none';
-  document.getElementById('notif-hint').textContent = on
-    ? (LINE_OA ? 'เปิดอยู่ · อย่าลืมกด "เพิ่มเพื่อนแม่หมอใน LINE" เพื่อรับข้อความน้า'
-               : 'เปิดรับแล้ว ✓ แม่หมอจะทักทุกเช้า ~8 โมง (ต้องเพิ่มเพื่อน LINE OA ของแม่หมอด้วยน้า)')
-    : 'เปิดเพื่อให้แม่หมอส่งดวงให้ทุกเช้า ☀️';
+  // โชว์ปุ่มเพิ่มเพื่อนเฉพาะตอน: เปิดรับ + มี OA id + ยังไม่เป็นเพื่อน
+  document.getElementById('friend-btn').style.display = (on && LINE_OA && !isFriend) ? 'flex' : 'none';
+  document.getElementById('notif-hint').textContent = !on
+    ? 'เปิดเพื่อให้แม่หมอส่งดวงให้ทุกเช้า ☀️'
+    : isFriend ? 'เป็นเพื่อนแม่หมอแล้ว ✓ รับดวงทุกเช้า ~8 โมงได้เลย 💛'
+    : LINE_OA ? 'เปิดอยู่ · กด "เพิ่มเพื่อนแม่หมอใน LINE" เพื่อเริ่มรับข้อความน้า'
+    : 'เปิดรับแล้ว ✓ (ต้องเพิ่มเพื่อน LINE OA ของแม่หมอด้วยน้า)';
 }
 
 async function toggleNotif() {

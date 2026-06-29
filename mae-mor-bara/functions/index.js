@@ -18,6 +18,9 @@ exports.claimReward = require('./auth').claimReward;
 exports.sendDailyFortune = require('./notify').sendDailyFortune;
 exports.sendDailyFortuneNow = require('./notify').sendDailyFortuneNow;
 
+// C7+: LINE webhook — follow/unfollow → users/{uid}.oaFriend
+exports.lineWebhook = require('./webhook').lineWebhook;
+
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
 // =============================================================
