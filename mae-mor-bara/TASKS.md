@@ -12,10 +12,10 @@
 | Foundation (ดีไซน์/shell) | 3 | 3 | 0 | 0 |
 | Auth journey (Unblocker A) | 8 | 8 | 0 | 0 |
 | Core features (Phase 1) | 7 | 7 | 0 | 0 |
-| Commerce | 3 | 2 | 1 (D3 activate) | 0 |
+| Commerce | 3 | 3 | 0 | 0 |
 | Retention/KPI | 2 | 0 | 0 | 2 |
 | Landing (P1.9) | 1 | 0 | 0 | 1 |
-| **รวม (feature)** | **24** | **20** | **1** (D3 activate) | **3** |
+| **รวม (feature)** | **24** | **21** | **0** | **3** |
 | Sprint R (redesign) | 6 | 6 (R0–R6) | 0 | 0 |
 
 > ✅ **Sprint 0+1+2+3 เสร็จ** (Auth e2e + Core loop + Viral) · commit/push: `083daf1`
@@ -50,7 +50,7 @@
 | **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง · `functions/notify.js` **deployed** (sched 08:00 ICT + manual) · Messaging channel `2010545788` (OA `@291wnbhf`, provider `2005291693`) · **toggle opt-in + ปุ่มเพิ่มเพื่อนในหน้า Profile** | — | A7,C1 | ✅ activated | 4 |
 | **D1** | **Charm Shop (lean)** — `shop-catalog.js` (10 เครื่องรางดิจิทัล ≤฿99) + intention tabs + grid CAPY POP | app: shop | F3 | ✅ `app.html` + deployed | 5 |
 | **D2** | **Product Detail** — มาสคอต + story + bonus + sticky buybar (view `#product`) | app: detail | D1 | ✅ deployed | 5 |
-| **D3** | **Payment + orders/** — checkout UI + `orders/` pending (live) · `functions/payment.js` Omise PromptPay `createCharge`+`omiseWebhook` (**code✅ / activate⬜** → `D3-SETUP.md`) | — | D1,A7 | 🟡 code✅ / activate⬜ | 5 |
+| **D3** | **Payment + orders/** — `functions/payment.js` Omise PromptPay `createCharge`+`omiseWebhook` **deployed** · CHARGE_URL set · rules แก้แล้ว (orders create=pending, paid=server) · เหลือคุณตั้ง webhook URL ใน Omise + test (Test mode) | — | D1,A7 | ✅ deployed (รอ set webhook+test) | 5 |
 | **E1** | **Profile & Collection** — points + badge/collection ชุดเริ่มต้น | app: profile | F3,A7 | ⬜ | 6 |
 | **E2** | **KPI instrumentation** — event D7/Share/CTA/Quiz/ATC/LINE | — | ทุก feature | ⬜ | 6 |
 | **L1** | **Landing Page (P1.9)** — public hero CTA เดียว "เริ่มเช็กดวงเลย" + social proof (ตอนนี้ root `/` ยังเป็นแอปเดิม · welcome อยู่ใน A1) | app: landing | F3 | ⬜ | 6 |

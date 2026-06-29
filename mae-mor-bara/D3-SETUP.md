@@ -1,8 +1,11 @@
-# D3 — Charm Shop Payment (Omise PromptPay) · ขั้นตอน activate
+# D3 — Charm Shop Payment (Omise PromptPay) · ✅ DEPLOYED (2026-06-29)
 
-> โค้ดเสร็จ: `functions/payment.js` (`createCharge` + `omiseWebhook`) wired ใน `index.js`
-> ฝั่งแอป (D1 ร้าน + D2 detail + D3 checkout UI) deployed แล้ว — ตอนนี้ payment เป็น "coming soon" + เก็บ order pending
-> เหลือ **เปิด Omise + secret + deploy + ตั้ง CHARGE_URL + rules** ตามนี้
+> **deployed แล้ว**: `createCharge` + `omiseWebhook` (secret OMISE_SECRET_KEY ตั้งแล้ว · CHARGE_URL set · rules แก้แล้ว)
+> **ค่าจริง (live)**:
+> - createCharge (browser): `https://createcharge-ssgkv4kwca-as.a.run.app` (run.app เลี่ยง CORS) — ตั้งใน `app.html` `CHARGE_URL`
+> - omiseWebhook (Omise→server): `https://omisewebhook-ssgkv4kwca-as.a.run.app`
+> - **เหลือ**: (1) ตั้ง webhook URL ใน Omise Dashboard → Webhooks (2) test ใน Test mode (3) สลับ live key ตอนเปิดจริง
+> รายละเอียดขั้นตอนเดิมด้านล่าง ⬇️
 
 ## ทำไม Omise / PromptPay
 - กก. กำหนด: provider โฮสต์เท่านั้น (Omise/PromptPay) · Function สร้าง charge · **ห้ามแตะบัตรที่ client**
