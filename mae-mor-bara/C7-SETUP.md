@@ -71,7 +71,7 @@ curl -X POST https://senddailyfortunenow-ssgkv4kwca-as.a.run.app \
    firebase deploy --only functions:lineWebhook --project capybarabu-mae-mhor
    ```
 3. ตั้ง **Webhook URL** ใน LINE Developers → channel `2010545788` → แท็บ **Messaging API**:
-   - Webhook URL = `https://linewebhook-ssgkv4kwca-as.a.run.app` (ดู URL จริงจาก output ตอน deploy)
+   - Webhook URL = **`https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/lineWebhook`** (server-to-server ไม่มี CORS จึงใช้ cloudfunctions.net ได้)
    - กด **Verify** (ควรขึ้น Success) → เปิด **"Use webhook"**
 4. OA Manager → ตั้งค่าการตอบกลับ → ปิด auto-reply (ใช้ webhook อย่างเดียว)
 
