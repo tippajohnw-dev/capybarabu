@@ -132,9 +132,29 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 
 /* ---- streak ---- */
 .streak { display: flex; gap: 7px; margin-top: 12px; }
-.day { flex: 1; height: 44px; border-radius: 14px; background: var(--cream-2); display: grid; place-items: center;
-  font-weight: 700; font-size: 15px; color: var(--ink-2); border: var(--pop-border); }
+.day { flex: 1; min-width: 0; height: 50px; border-radius: 14px; background: var(--cream-2); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px; font-weight: 700; font-size: 11px; color: var(--ink-2); border: var(--pop-border); }
+.day .dnum { font-size: 14px; }
 .day.done { background: var(--mango); color: #fff; }
+.day.today { box-shadow: 0 0 0 2px var(--sun); }
+
+/* ---- mood picker (C6) ---- */
+.mood-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-top: 12px; }
+.mood { padding: 10px 4px; border-radius: 16px; background: var(--cream-2); border: var(--pop-border); box-shadow: var(--pop-shadow-sm);
+  cursor: pointer; text-align: center; transition: .12s; }
+.mood:active { transform: var(--pop-press); box-shadow: 0 1px 0 -1px var(--ink); }
+.mood .me { font-size: 26px; display: block; }
+.mood .ml { font-size: 9px; font-weight: 600; color: var(--ink-2); margin-top: 3px; }
+.mood.on { background: var(--tile-sun); }
+.mood.on .ml { color: var(--ink); }
+
+/* ---- journal history (C6) ---- */
+.jrow { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.jrow:first-child { border-top: 0; }
+.jrow .je { font-size: 24px; }
+.jrow .jd { flex: 1; font-size: 12.5px; font-weight: 600; }
+.jrow .jd span { display: block; font-family: var(--mono); font-size: 10px; color: var(--muted); font-weight: 500; }
+.jrow .ja { font-family: var(--mono); font-size: 10px; color: var(--ink-2); padding: 4px 8px; border-radius: 999px; background: var(--cream-2); border: 1px solid var(--line); }
 
 /* ---- placeholder ---- */
 .placeholder { text-align: center; color: var(--muted); padding: 30px 10px; }
@@ -310,20 +330,41 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
     <div class="placeholder"><div class="big">🛍️</div>Charm Shop เต็มรูปแบบ — จะต่อใน Sprint 5</div>
   </section>
 
-  <!-- ===== Journal ===== -->
+  <!-- ===== Journal (C6 Mood Journal + Streak) ===== -->
   <section class="view" id="journal">
     <div class="title-row"><div class="screen-title">สมุดบันทึก 📔</div></div>
+
+    <!-- Streak -->
     <div class="card">
-      <div class="section-title" style="margin-top:0"><h3>🔥 Daily Streak</h3></div>
-      <p style="color:var(--ink-2);font-size:12.5px;margin:0;font-weight:500">เปิดเช็กดวงครบ 7 วัน ปลดล็อก Digital Lucky Charm</p>
-      <div class="streak">
-        <div class="day done">1</div><div class="day done">2</div><div class="day done">3</div>
-        <div class="day">4</div><div class="day">5</div><div class="day">6</div><div class="day">7</div>
+      <div class="section-title" style="margin-top:0"><h3>🔥 Streak <span id="streak-count" class="pill" style="margin-left:6px;padding:4px 10px">0 วัน</span></h3></div>
+      <p style="color:var(--ink-2);font-size:12.5px;margin:0;font-weight:500" id="streak-note">เปิดเช็กดวง + บันทึกอารมณ์ทุกวัน · ครบ 7 วันปลดล็อก Digital Lucky Charm</p>
+      <div class="streak" id="streak-strip"></div>
+    </div>
+
+    <!-- Mood today -->
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>วันนี้รู้สึกยังไง?</h3></div>
+      <div class="mood-row" id="mood-row"></div>
+      <p id="mood-hint" style="color:var(--ink-2);font-size:12px;margin:10px 0 0;font-weight:500">แตะอารมณ์ของวันนี้ — แม่หมอจะจำไว้ให้ 💛</p>
+    </div>
+
+    <!-- Accuracy feedback (flywheel) -->
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>ดวงวันนี้ตรงไหม?</h3></div>
+      <div class="segmented" id="accuracy-seg">
+        <div class="seg" data-acc="spot">ตรงเป๊ะ</div><div class="seg" data-acc="mid">กลาง ๆ</div><div class="seg" data-acc="off">ไม่ตรง</div>
       </div>
     </div>
-    <div class="card">
-      <div class="section-title" style="margin-top:0"><h3>วันนี้ดวงตรงไหม?</h3></div>
-      <div class="segmented"><div class="seg active">ตรงเป๊ะ</div><div class="seg">กลาง ๆ</div><div class="seg">ไม่ตรง</div></div>
+
+    <!-- History -->
+    <div class="card" id="journal-history-card" style="display:none">
+      <div class="section-title" style="margin-top:0"><h3>ย้อนหลัง</h3></div>
+      <div id="journal-history"></div>
+    </div>
+
+    <div class="card mascot-block">
+      <img src="mascots/m9.webp?v=1" alt="" onerror="this.style.display='none'" />
+      <p style="color:var(--ink-2);font-size:12.5px;margin:8px 0 0;font-weight:500">บันทึกทุกวัน แม่หมอจะอ่านใจคุณได้แม่นขึ้นเรื่อย ๆ นะ ✨</p>
     </div>
   </section>
 
@@ -390,6 +431,7 @@ function show(id) {
   window.scrollTo(0, 0);
   if (id === 'pick') enterPick(false);
   if (id === 'quiz') startQuiz();
+  if (id === 'journal') loadJournal();
 }
 function nav(id) { location.hash = '#/' + id; }
 function route() { show((location.hash.replace('#/', '') || 'home')); }
@@ -474,6 +516,7 @@ function renderHome() {
   document.getElementById('fold-text').textContent = d.fold;
 
   document.getElementById('birth-btn').style.display = d.hasBirth ? 'none' : 'inline-flex';
+  recordCheckIn(d.power);          // C6: นับ streak จากการเปิดเช็กดวงรายวัน
 }
 
 function renderProfile() {
@@ -482,6 +525,122 @@ function renderProfile() {
   document.getElementById('profile-name').textContent = nm;
   document.getElementById('profile-sub').textContent = 'สีมงคล ' + d.color.name + ' · เลข ' + d.number;
 }
+
+// =============================================================
+// C6 — Mood Journal + Streak  (เขียน users/{uid}/journal/{YYYY-MM-DD})
+// streak = นับ client-side จาก journal docs (field streak บน user = admin-only กันโกง)
+// =============================================================
+const MOODS = [
+  { val:'great',  e:'😄', label:'ดีมาก' },
+  { val:'good',   e:'🙂', label:'โอเค' },
+  { val:'meh',    e:'😐', label:'เฉย ๆ' },
+  { val:'stress', e:'😟', label:'เครียด' },
+  { val:'bad',    e:'😢', label:'แย่' },
+];
+const MOOD_MAP = Object.fromEntries(MOODS.map(m => [m.val, m]));
+const ACC_LABEL = { spot:'ตรงเป๊ะ', mid:'กลาง ๆ', off:'ไม่ตรง' };
+
+function dayKey(d) { d = d || new Date(); const z = n => String(n).padStart(2,'0');
+  return d.getFullYear() + '-' + z(d.getMonth()+1) + '-' + z(d.getDate()); }
+function thaiDay(key) { const [, m, dd] = key.split('-').map(Number); return dd + ' ' + Fortune.THAI_MONTHS[m-1]; }
+
+let _journal = {};               // { 'YYYY-MM-DD': {date,mood,accuracy,power,...} }
+let _journalLoaded = false;
+function journalRef(uid) { return db.collection('users').doc(uid).collection('journal'); }
+
+// check-in รายวัน (เปิดเช็กดวง = นับ streak) — guard ผ่าน localStorage กันเขียนซ้ำต่อวัน
+async function recordCheckIn(power) {
+  const today = dayKey();
+  if (!_journal[today]) _journal[today] = { date: today, power, checkedIn: true };
+  if (DEMO) return;
+  const k = 'checkin_' + (profile.uid || 'x') + '_' + today;
+  if (localStorage.getItem(k)) return;
+  try {
+    await journalRef(profile.uid).doc(today).set(
+      { date: today, power: power || null, checkedIn: true, createdAt: serverTime() }, { merge: true });
+    localStorage.setItem(k, '1');
+  } catch (e) { console.warn('checkin', e.message); }
+}
+
+async function loadJournal() {
+  if (DEMO && !_journalLoaded) {          // เตรียมตัวอย่างให้เห็น streak/history
+    for (let i = 1; i <= 4; i++) { const dt = new Date(); dt.setDate(dt.getDate() - i); const kk = dayKey(dt);
+      _journal[kk] = { date: kk, mood: MOODS[i % 5].val, accuracy: ['spot','mid','off','spot'][i-1], power: 70 + i }; }
+    _journalLoaded = true;
+  }
+  if (!DEMO && !_journalLoaded && profile.uid) {
+    try {
+      const snap = await journalRef(profile.uid).orderBy('date', 'desc').limit(30).get();
+      snap.forEach(doc => { _journal[doc.id] = doc.data(); });
+      _journalLoaded = true;
+    } catch (e) { console.warn('load journal', e.message); }
+  }
+  renderJournal();
+}
+
+// นับวันต่อเนื่องถึงวันนี้ (ถ้าวันนี้ยังไม่มี → เริ่มนับจากเมื่อวาน, streak ยังไม่ขาด)
+function streakCount() {
+  let n = 0; const d = new Date();
+  if (!_journal[dayKey(d)]) d.setDate(d.getDate() - 1);
+  while (_journal[dayKey(d)]) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+
+function renderJournal() {
+  const today = dayKey();
+  const sc = streakCount();
+  document.getElementById('streak-count').textContent = sc + ' วัน';
+  document.getElementById('streak-note').textContent = sc >= 7
+    ? '🎉 ครบ 7 วัน! ปลดล็อก Digital Lucky Charm แล้ว'
+    : 'อีก ' + (7 - sc) + ' วันปลดล็อก Digital Lucky Charm';
+
+  let strip = '';
+  for (let i = 6; i >= 0; i--) {
+    const dt = new Date(); dt.setDate(dt.getDate() - i);
+    const k = dayKey(dt), j = _journal[k], done = !!j, isToday = k === today;
+    const e = j && j.mood ? MOOD_MAP[j.mood].e : (done ? '✓' : '·');
+    strip += `<div class="day${done ? ' done' : ''}${isToday ? ' today' : ''}"><span class="dnum">${dt.getDate()}</span><span>${e}</span></div>`;
+  }
+  document.getElementById('streak-strip').innerHTML = strip;
+
+  const todayMood = _journal[today] && _journal[today].mood;
+  document.getElementById('mood-row').innerHTML = MOODS.map(m =>
+    `<div class="mood${m.val === todayMood ? ' on' : ''}" onclick="saveMood('${m.val}')"><span class="me">${m.e}</span><span class="ml">${m.label}</span></div>`).join('');
+  document.getElementById('mood-hint').textContent = todayMood
+    ? ('บันทึกแล้ว: ' + MOOD_MAP[todayMood].e + ' ' + MOOD_MAP[todayMood].label + ' — แตะเปลี่ยนได้')
+    : 'แตะอารมณ์ของวันนี้ — แม่หมอจะจำไว้ให้ 💛';
+
+  const acc = _journal[today] && _journal[today].accuracy;
+  document.querySelectorAll('#accuracy-seg .seg').forEach(s => s.classList.toggle('active', s.dataset.acc === acc));
+
+  const keys = Object.keys(_journal).filter(k => k !== today && (_journal[k].mood || _journal[k].accuracy)).sort().reverse().slice(0, 7);
+  const histCard = document.getElementById('journal-history-card');
+  if (keys.length) {
+    histCard.style.display = '';
+    document.getElementById('journal-history').innerHTML = keys.map(k => {
+      const j = _journal[k], m = j.mood ? MOOD_MAP[j.mood] : null;
+      return `<div class="jrow"><div class="je">${m ? m.e : '📔'}</div><div class="jd">${m ? m.label : 'เช็กดวง'}<span>${thaiDay(k)}</span></div>${j.accuracy ? `<div class="ja">${ACC_LABEL[j.accuracy]}</div>` : ''}</div>`;
+    }).join('');
+  } else histCard.style.display = 'none';
+}
+
+async function saveMood(val) {
+  const today = dayKey();
+  _journal[today] = Object.assign({ date: today }, _journal[today], { mood: val });
+  renderJournal();
+  if (DEMO) return;
+  try { await journalRef(profile.uid).doc(today).set({ date: today, mood: val, updatedAt: serverTime() }, { merge: true }); }
+  catch (e) { console.warn('save mood', e.message); }
+}
+async function saveAccuracy(val) {
+  const today = dayKey();
+  _journal[today] = Object.assign({ date: today }, _journal[today], { accuracy: val });
+  renderJournal();
+  if (DEMO) return;
+  try { await journalRef(profile.uid).doc(today).set({ date: today, accuracy: val, updatedAt: serverTime() }, { merge: true }); }
+  catch (e) { console.warn('save accuracy', e.message); }
+}
+document.querySelectorAll('#accuracy-seg .seg').forEach(s => s.addEventListener('click', () => saveAccuracy(s.dataset.acc)));
 
 // ---- C3: Fortune Engine ----
 function buildFortuneCats() {
