@@ -46,7 +46,7 @@
 | **C4** | **Pick a Card** — ไพ่ 1/3 (สำรับ 12 ใบ ผลบวกเสมอ) + flip/dim + reshuffle + share · `Fortune.cards/pickResult` | app: pick | C2,C3 | ✅ view `#pick` ใน `app.html` | 3 |
 | **C5** | **Lucky Charm Quiz** — mood + intention (2 ข้อ <1 นาที) → `Fortune.recommendCharm` (6 charm) + share | app: quiz | C2 | ✅ view `#quiz` ใน `app.html` | 3 |
 | **C6** | **Mood Journal + Streak** — mood รายวัน + streak 7 วัน (นับ client จาก journal) + check-in + "ดวงตรงไหม?" (flywheel) + history | app: journal | F3,A7 | ✅ `app.html` + deployed | 4 |
-| **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง · `functions/notify.js` **deployed** (sched 08:00 ICT + manual) · Messaging channel `2010545788` (OA `@tiger_romeo`, provider `2005291693`) · **toggle opt-in + ปุ่มเพิ่มเพื่อนในหน้า Profile** | — | A7,C1 | ✅ activated | 4 |
+| **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง · `functions/notify.js` **deployed** (sched 08:00 ICT + manual) · Messaging channel `2010545788` (OA `@291wnbhf`, provider `2005291693`) · **toggle opt-in + ปุ่มเพิ่มเพื่อนในหน้า Profile** | — | A7,C1 | ✅ activated | 4 |
 | **D1** | **Charm Shop (lean)** — tab ตาม intention + digital charm <฿99 + grid | app: shop | F3 | ⬜ | 5 |
 | **D2** | **Product Detail** — story สั้น + sticky buy + โบนัส Digital Charm ใน LINE | app: detail | D1 | ⬜ | 5 |
 | **D3** | **Payment + orders/** — PromptPay/Omise (provider โฮสต์) + `orders/` | — | D1,A7 | ⬜ | 5 |

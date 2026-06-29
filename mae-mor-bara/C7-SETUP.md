@@ -7,7 +7,7 @@
 | | ค่า |
 |---|---|
 | Messaging API channel | **`2010545788`** ("แม่หมอบาร่า") |
-| OA Bot basic ID | **`@tiger_romeo`** → friend link `https://line.me/R/ti/p/@tiger_romeo` |
+| OA Bot basic ID | **`@291wnbhf`** → friend link `https://line.me/R/ti/p/@291wnbhf` (⚠️ `@tiger_romeo` = LINE ID ส่วนตัวเจ้าของ ไม่ใช่ OA) |
 | Provider (ต้องตรงกับ Login!) | **`2005291693`** "Capybarabu Mae Mhor" (มีทั้ง Login `2010529290` + Messaging `2010545788`) |
 | Login channel | `2010529290` |
 | secrets | `LINE_MESSAGING_TOKEN`, `NOTIFY_ADMIN_KEY` (ตั้งแล้ว) |
