@@ -14,6 +14,10 @@ const db = admin.firestore();
 exports.lineLogin = require('./auth').lineLogin;
 exports.claimReward = require('./auth').claimReward;
 
+// C7 (Sprint 4): LINE push ดวงรายวัน — scheduled 08:00 ICT + manual trigger
+exports.sendDailyFortune = require('./notify').sendDailyFortune;
+exports.sendDailyFortuneNow = require('./notify').sendDailyFortuneNow;
+
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
 // =============================================================
