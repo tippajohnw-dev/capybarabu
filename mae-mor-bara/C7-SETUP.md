@@ -59,6 +59,24 @@ curl -X POST https://senddailyfortunenow-ssgkv4kwca-as.a.run.app \
 - ลิงก์กลับแอป: `https://capybarabu-mae-mhor.web.app/app.html`
 - log แต่ละรอบที่ Firestore `notifyRuns/` (KPI: LINE push reach · เป้า ≥70% ของ opt-in)
 
+## C7+ — Webhook เช็คสถานะเพื่อน (ซ่อนปุ่มเพิ่มเพื่อนเมื่อเป็นเพื่อนแล้ว)
+โค้ดเสร็จ: `functions/webhook.js` (`lineWebhook`) + `app.html` อ่าน `users/{uid}.oaFriend` แล้ว · **เหลือ activate**:
+
+1. **(แนะนำ) reissue channel secret ก่อน** — ตัวเดิม (`272f98…`) ถูกโชว์ในแชต = exposed
+   - LINE Developers → channel `2010545788` → Basic settings → Channel secret → **Issue/Reissue**
+   - (reissue ไม่กระทบ long-lived access token ที่ใช้ push)
+2. ตั้ง secret + deploy:
+   ```bash
+   firebase functions:secrets:set LINE_MESSAGING_CHANNEL_SECRET --project capybarabu-mae-mhor   # วาง channel secret
+   firebase deploy --only functions:lineWebhook --project capybarabu-mae-mhor
+   ```
+3. ตั้ง **Webhook URL** ใน LINE Developers → channel `2010545788` → แท็บ **Messaging API**:
+   - Webhook URL = `https://linewebhook-ssgkv4kwca-as.a.run.app` (ดู URL จริงจาก output ตอน deploy)
+   - กด **Verify** (ควรขึ้น Success) → เปิด **"Use webhook"**
+4. OA Manager → ตั้งค่าการตอบกลับ → ปิด auto-reply (ใช้ webhook อย่างเดียว)
+
+**พฤติกรรม:** `follow` → `oaFriend=true` · `unfollow` → `false` · จับเฉพาะคนที่กดเพิ่มเพื่อน**หลัง**เปิด webhook (เพื่อนเก่าไม่มี event ย้อนหลัง — แต่ push ยังถึงปกติ เพราะ `oaFriend` แค่คุมการโชว์ปุ่ม ไม่เกี่ยวกับการ push). อยากเทสกับบัญชีตัวเอง: บล็อก OA แล้ว unblock/เพิ่มเพื่อนใหม่ → จะยิง `follow`.
+
 ## TODO ฝั่งแอป (แนะนำทำคู่กัน เพื่อให้ push ถึงจริง)
 - [ ] เพิ่มปุ่ม **"เพิ่มเพื่อน LINE OA"** ที่ success screen (`auth.html`) ตอนผู้ใช้กด "รับดวงรายวัน" → เปิด `https://line.me/R/ti/p/@<OA_ID>` (ไม่งั้น opt-in แต่ push ไม่ถึง)
 - [ ] (option) ปรับข้อความ push เป็น **Flex message** + ปุ่ม CTA เพื่อเพิ่ม CTR
