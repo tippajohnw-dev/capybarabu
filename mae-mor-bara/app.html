@@ -167,6 +167,54 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 .toggle[aria-checked="true"] { background: var(--mango); }
 .toggle[aria-checked="true"] i { transform: translateX(22px); background: #fff; }
 
+/* ---- Charm Shop (D1) ---- */
+.shop-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 14px 0 4px; margin: 0 -2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.shop-tabs::-webkit-scrollbar { display: none; }
+.shop-tab { flex: 0 0 auto; padding: 9px 14px; border-radius: var(--r-pill); background: var(--card); border: var(--pop-border);
+  box-shadow: var(--pop-shadow-sm); font-weight: 600; font-size: 13px; color: var(--ink-2); cursor: pointer; white-space: nowrap; }
+.shop-tab.on { background: var(--mango); color: #fff; }
+.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.prod { border-radius: var(--r-card); padding: 14px; border: var(--pop-border); box-shadow: var(--pop-shadow);
+  cursor: pointer; display: flex; flex-direction: column; min-height: 168px; transition: transform .12s, box-shadow .12s; }
+.prod:active { transform: var(--pop-press); box-shadow: 0 2px 0 -1px var(--ink); }
+.prod .pemoji { font-size: 38px; line-height: 1; }
+.prod b { display: block; font-weight: 700; font-size: 14.5px; margin-top: 8px; letter-spacing: -.01em; }
+.prod .ptag { display: block; color: var(--ink-2); font-size: 11px; font-weight: 500; line-height: 1.35; margin-top: 3px; flex: 1; }
+.prod .prow { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.prod .price { font-family: var(--mono); font-weight: 700; font-size: 16px; color: var(--ink); }
+.prod .price small { font-family: var(--disp); font-size: 11px; color: var(--muted); }
+.prod .padd { width: 34px; height: 34px; border-radius: 12px; background: var(--ink); color: var(--cream); border: 0;
+  font-size: 18px; display: grid; place-items: center; }
+
+/* ---- Product Detail (D2) ---- */
+.pd-hero { border-radius: var(--r-hero); border: var(--pop-border); box-shadow: var(--pop-shadow); padding: 18px;
+  display: flex; align-items: center; gap: 14px; }
+.pd-hero img { width: 110px; flex: 0 0 110px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.18)); }
+.pd-hero .pdh-emoji { font-size: 56px; }
+.pd-hero h2 { margin: 0; font-weight: 700; font-size: 20px; letter-spacing: -.02em; }
+.pd-hero p { margin: 6px 0 0; font-size: 12.5px; font-weight: 500; color: var(--ink-2); line-height: 1.4; }
+.pd-story { font-size: 14px; line-height: 1.7; color: var(--ink); font-weight: 500; }
+.pd-bonus { margin-top: 12px; padding: 14px; border-radius: 16px; background: var(--tile-sun); border: var(--pop-border); }
+.pd-bonus span { display: block; font-family: var(--mono); font-size: 10px; text-transform: uppercase; color: var(--ink-2); margin-bottom: 4px; }
+.pd-bonus b { font-weight: 700; font-size: 13.5px; line-height: 1.5; }
+.buybar { position: fixed; bottom: calc(90px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  width: min(404px, calc(100% - 28px)); z-index: 45; background: var(--card); border: var(--pop-border); border-radius: 22px;
+  box-shadow: var(--pop-shadow); padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+.buybar .bb-price { flex: 0 0 auto; }
+.buybar .bb-price b { font-family: var(--mono); font-weight: 700; font-size: 22px; }
+.buybar .bb-price span { display: block; font-size: 10px; color: var(--muted); font-weight: 500; }
+.buybar .btn { flex: 1; width: auto; }
+
+/* ---- Checkout sheet (D3) ---- */
+.co-line { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 13.5px; font-weight: 500; }
+.co-line.total { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 12px; font-weight: 700; font-size: 15px; }
+.co-line .mono { font-family: var(--mono); }
+.pay-opt { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; background: var(--cream-2);
+  border: var(--pop-border); box-shadow: var(--pop-shadow-sm); margin-top: 10px; font-weight: 700; font-size: 14px; }
+.pay-opt .pe { font-size: 24px; }
+.qr-box { text-align: center; padding: 16px; }
+.qr-box img, .qr-box canvas { width: 220px; height: 220px; border: var(--pop-border); border-radius: 16px; background: #fff; }
+
 /* ---- placeholder ---- */
 .placeholder { text-align: center; color: var(--muted); padding: 30px 10px; }
 .placeholder .big { font-size: 52px; }
@@ -329,16 +377,24 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
     <div id="quizBody"></div>
   </section>
 
-  <!-- ===== Charm (Shop) ===== -->
+  <!-- ===== Charm Shop (D1) ===== -->
   <section class="view" id="charm">
     <div class="title-row"><div class="screen-title">ร้านเครื่องราง 🧿</div></div>
-    <div class="card mascot-block">
+    <span class="pill">🧿 เครื่องรางดิจิทัล · ส่งเข้า LINE ทันที</span>
+    <div class="shop-tabs" id="shop-tabs"></div>
+    <div class="shop-grid" id="shop-grid"></div>
+    <div class="card mascot-block" style="margin-top:16px">
       <img src="mascots/m7.webp?v=1" alt="" onerror="this.style.display='none'" />
-      <div class="hello" style="font-size:17px;margin-top:6px">ยังไม่รู้ว่าเครื่องรางไหนใช่?</div>
-      <p style="color:var(--ink-2);font-size:12.5px;margin:6px 0 14px;font-weight:500">ทำควิซสั้น ๆ ให้แม่หมอช่วยเลือกเครื่องรางที่เข้ากับคุณวันนี้</p>
+      <div class="hello" style="font-size:16px;margin-top:6px">ยังไม่รู้ว่าอันไหนใช่?</div>
+      <p style="color:var(--ink-2);font-size:12.5px;margin:6px 0 12px;font-weight:500">ให้แม่หมอช่วยเลือกเครื่องรางที่เข้ากับคุณวันนี้</p>
       <button class="btn mango" onclick="nav('quiz')">🔮 ทำควิซหาเครื่องราง</button>
     </div>
-    <div class="placeholder"><div class="big">🛍️</div>Charm Shop เต็มรูปแบบ — จะต่อใน Sprint 5</div>
+  </section>
+
+  <!-- ===== Product Detail (D2) ===== -->
+  <section class="view" id="product">
+    <div class="title-row"><button class="back" onclick="nav('charm')">‹</button><div class="screen-title">รายละเอียด</div></div>
+    <div id="productBody"></div>
   </section>
 
   <!-- ===== Journal (C6 Mood Journal + Streak) ===== -->
@@ -417,6 +473,14 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
     </div>
   </div>
 
+  <!-- ===== Checkout sheet (D3) ===== -->
+  <div class="sheet-host" id="checkoutSheet">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div id="checkoutBody"></div>
+    </div>
+  </div>
+
   <!-- hidden canvas สำหรับ share-card -->
   <canvas id="shareCanvas" style="display:none"></canvas>
 
@@ -435,10 +499,11 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="fortune-engine.js?v=s4"></script>
 <script src="share-card.js?v=s4"></script>
+<script src="shop-catalog.js?v=s1"></script>
 <script>
 // ---- hash router (static, no build) — reuse จาก production ----
 const ROUTES = ['home', 'fortune', 'charm', 'journal', 'profile'];
-const SUBVIEWS = { pick: 'fortune', quiz: 'charm' };
+const SUBVIEWS = { pick: 'fortune', quiz: 'charm', product: 'charm' };
 
 // มาสคอตประจำฟีเจอร์ (R4 — สลับท่าตามฟีเจอร์)
 const MASCOT = { hero:'m3', pick:'m4', money:'m5', quiz:'m6', shop:'m7', protect:'m8', journal:'m9', profile:'m10', avatar:'m1' };
@@ -454,6 +519,7 @@ function show(id) {
   if (id === 'pick') enterPick(false);
   if (id === 'quiz') startQuiz();
   if (id === 'journal') loadJournal();
+  if (id === 'charm') renderShop();
 }
 function nav(id) { location.hash = '#/' + id; }
 function route() { show((location.hash.replace('#/', '') || 'home')); }
@@ -690,6 +756,113 @@ async function saveAccuracy(val) {
   catch (e) { console.warn('save accuracy', e.message); }
 }
 document.querySelectorAll('#accuracy-seg .seg').forEach(s => s.addEventListener('click', () => saveAccuracy(s.dataset.acc)));
+
+// =============================================================
+// D1/D2/D3 — Charm Shop · Product Detail · Checkout (Sprint 5)
+// =============================================================
+const CHARGE_URL = '';   // ใส่ URL ของ Cloud Function createCharge เมื่อ activate Omise (ดู D3-SETUP.md)
+let _shopFilter = 'all';
+
+function renderShop() {
+  const tabs = document.getElementById('shop-tabs');
+  tabs.innerHTML = Shop.INTENTIONS.map(i =>
+    `<div class="shop-tab${i.key === _shopFilter ? ' on' : ''}" onclick="setShopFilter('${i.key}')">${i.emoji} ${i.label}</div>`).join('');
+  const grid = document.getElementById('shop-grid');
+  grid.innerHTML = Shop.byIntention(_shopFilter).map(p => `
+    <div class="prod" style="background:${Shop.tile(p.intention)}" onclick="openProduct('${p.id}')">
+      <div class="pemoji">${p.emoji}</div>
+      <b>${esc(p.name)}</b><span class="ptag">${esc(p.tagline)}</span>
+      <div class="prow"><span class="price">฿${p.price}</span><button class="padd" onclick="event.stopPropagation();openProduct('${p.id}')">+</button></div>
+    </div>`).join('');
+}
+function setShopFilter(key) { _shopFilter = key; renderShop(); }
+
+// ---- D2: Product Detail ----
+function openProduct(id) { window._product = id; nav('product'); renderProduct(); }
+function renderProduct() {
+  const p = Shop.get(window._product); if (!p) { nav('charm'); return; }
+  document.getElementById('productBody').innerHTML = `
+    <div class="pd-hero" style="background:${Shop.tile(p.intention)}">
+      <img src="mascots/${p.mascot}.webp?v=1" alt="" onerror="this.outerHTML='<div class=pdh-emoji>'+${JSON.stringify(p.emoji)}+'</div>'" />
+      <div><h2>${p.emoji} ${esc(p.name)}</h2><p>${esc(p.tagline)}</p></div>
+    </div>
+    <div class="card" style="margin-top:14px"><div class="pd-story">${esc(p.story)}</div>
+      <div class="pd-bonus"><span>🎁 รับเพิ่มเมื่อซื้อ</span><b>${esc(p.bonus)}</b></div>
+    </div>
+    <p class="tiny" style="text-align:center;color:var(--muted);font-family:var(--disp);font-size:11.5px;margin:14px 0 0;text-transform:none;letter-spacing:0">เครื่องรางดิจิทัล · ส่งเข้าแอป/LINE ทันทีหลังชำระเงิน</p>
+    <div class="buybar">
+      <div class="bb-price"><b>฿${p.price}</b><span>ราคาเดียว</span></div>
+      <button class="btn mango" onclick="openCheckout('${p.id}')">🛍️ ซื้อเลย</button>
+    </div>`;
+}
+
+// ---- D3: Checkout + orders/ ----
+function openCheckout(id) {
+  const p = Shop.get(id); if (!p) return;
+  window._coProduct = id;
+  document.getElementById('checkoutBody').innerHTML = `
+    <div class="hello" style="font-size:18px">สรุปคำสั่งซื้อ 🛍️</div>
+    <div class="co-line"><span>${p.emoji} ${esc(p.name)}</span><span class="mono">฿${p.price}</span></div>
+    <div class="co-line" style="color:var(--ink-2);font-size:12px;padding-top:0"><span>🎁 ${esc(p.bonus)}</span><span class="mono">ฟรี</span></div>
+    <div class="co-line total"><span>รวมทั้งหมด</span><span class="mono">฿${p.price}</span></div>
+    <div class="pay-opt"><span class="pe">📲</span><div style="flex:1">PromptPay QR<div style="font-weight:500;font-size:11px;color:var(--ink-2)">สแกนจ่ายผ่านแอปธนาคาร</div></div></div>
+    <button class="btn mango" style="margin-top:14px" onclick="payNow()">จ่าย ฿${p.price} ผ่าน PromptPay</button>
+    <button class="btn secondary" style="margin-top:8px" onclick="closeCheckout()">ยกเลิก</button>`;
+  document.getElementById('checkoutSheet').classList.add('open');
+}
+function closeCheckout() { document.getElementById('checkoutSheet').classList.remove('open'); }
+document.getElementById('checkoutSheet').addEventListener('click', (e) => { if (e.target.id === 'checkoutSheet') closeCheckout(); });
+
+async function payNow() {
+  const p = Shop.get(window._coProduct); if (!p) return;
+  // ยังไม่เปิดระบบชำระเงินจริง (รอ activate Omise) → โชว์สถานะ + บันทึก order pending
+  if (DEMO || !CHARGE_URL) {
+    if (!DEMO) { try {
+      await db.collection('users').doc(profile.uid).collection('orders').doc().set(
+        { productId: p.id, price: p.price, status: 'pending', createdAt: serverTime() });
+    } catch (e) { console.warn('order', e.message); } }
+    document.getElementById('checkoutBody').innerHTML = `
+      <div class="mascot-block" style="text-align:center">
+        <div style="font-size:54px">🔜</div>
+        <div class="hello" style="font-size:18px;margin-top:6px">ระบบชำระเงินกำลังจะเปิด!</div>
+        <p style="color:var(--ink-2);font-size:13px;margin:8px 0 0;font-weight:500;line-height:1.6">แม่หมอจดคำสั่งซื้อ <b>${esc(p.name)}</b> (฿${p.price}) ไว้ให้แล้ว 💛<br>PromptPay จะเปิดเร็ว ๆ นี้ เดี๋ยวแม่หมอทักไปทาง LINE น้า</p>
+        <button class="btn mango" style="margin-top:16px" onclick="closeCheckout()">รับทราบ</button>
+      </div>`;
+    return;
+  }
+  // โหมดจริง: สร้าง charge ฝั่ง server (ราคา/ออเดอร์ยืนยันที่ server กัน tamper)
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const res = await fetch(CHARGE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify({ productId: p.id }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'charge failed');
+    showQR(p, data);
+  } catch (e) { alert('เปิดการชำระเงินไม่สำเร็จ: ' + e.message); }
+}
+
+function showQR(p, data) {
+  document.getElementById('checkoutBody').innerHTML = `
+    <div class="hello" style="font-size:18px;text-align:center">สแกนจ่าย ฿${p.price} 📲</div>
+    <div class="qr-box"><img src="${data.qrImage}" alt="PromptPay QR" /></div>
+    <p style="text-align:center;color:var(--ink-2);font-size:12.5px;font-weight:500;margin:0">เปิดแอปธนาคาร → สแกน QR → จ่าย ฿${p.price}<br>แม่หมอจะส่งเครื่องรางให้อัตโนมัติเมื่อจ่ายสำเร็จ ✨</p>
+    <button class="btn secondary" style="margin-top:14px" onclick="closeCheckout()">ปิด</button>`;
+  if (data.orderId) pollOrder(data.orderId);
+}
+function pollOrder(orderId) {
+  const ref = db.collection('users').doc(profile.uid).collection('orders').doc(orderId);
+  const unsub = ref.onSnapshot(snap => {
+    if (snap.exists && snap.data().status === 'paid') {
+      unsub();
+      document.getElementById('checkoutBody').innerHTML = `
+        <div class="mascot-block" style="text-align:center">
+          <img src="mascots/m1.webp?v=1" style="width:120px" onerror="this.outerHTML='<div style=font-size:54px>🎉</div>'" />
+          <div class="hello" style="font-size:19px;margin-top:6px">ขอบคุณน้า! 🎉</div>
+          <p style="color:var(--ink-2);font-size:13px;margin:8px 0 0;font-weight:500">เครื่องรางเป็นของคุณแล้ว แม่หมอส่งให้ทาง LINE เรียบร้อย ✨</p>
+          <button class="btn mango" style="margin-top:16px" onclick="closeCheckout()">เย่!</button>
+        </div>`;
+    }
+  });
+}
 
 // ---- C3: Fortune Engine ----
 function buildFortuneCats() {
