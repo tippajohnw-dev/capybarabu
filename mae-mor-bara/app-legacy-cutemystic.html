@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>แม่หมอบาร่า · Capybarabu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Noto+Sans+Thai:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-tokens.css" />
+<style>
+/* =============================================================
+   F2 Component Library + F3 App Shell  (Cute Mystic Premium)
+   static · no build · hash-router · bottom-nav 5 แท็บ
+   ============================================================= */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font);
+  /* desktop: โชว์เป็นคอลัมน์มือถือบนพื้นจักรวาล · mobile: เต็มจอ */
+  background: var(--grad-page);
+  min-height: 100vh;
+  color: var(--ink);
+}
+
+/* ---- App frame (mobile-first, จำกัดกว้างบน desktop) ---- */
+.app {
+  position: relative;
+  width: min(430px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  background: var(--grad-app);
+  box-shadow: var(--shadow);
+  padding: calc(env(safe-area-inset-top) + 18px) 18px calc(96px + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+}
+
+/* ---- App header ---- */
+.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.user-block { display: flex; gap: 10px; align-items: center; }
+.avatar { width: 44px; height: 44px; border-radius: var(--radius-md);
+  background: linear-gradient(135deg,#ffe9b5,#f6b45c); display: grid; place-items: center;
+  box-shadow: var(--soft-shadow); font-size: 22px; }
+.tiny { font-size: 11px; color: var(--muted); line-height: 1.1; }
+.hello { font-weight: 800; font-size: 16px; letter-spacing: -.02em; color: var(--ink); }
+.icon-btn { width: 42px; height: 42px; border: 0; border-radius: var(--radius-md); background: #fff;
+  box-shadow: var(--soft-shadow); font-size: 18px; color: var(--ink); cursor: pointer; }
+
+/* ===== COMPONENTS ===== */
+
+/* buttons */
+.btn { width: 100%; border: 0; border-radius: 20px; padding: 15px 16px; font-weight: 900; font-size: 15px;
+  cursor: pointer; color: #fff; background: var(--grad-primary); box-shadow: 0 12px 26px rgba(124,77,255,.28);
+  font-family: var(--font); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { transform: scale(.985); }
+.btn.gold { background: var(--grad-gold); color: var(--deep); box-shadow: 0 12px 26px rgba(247,201,111,.24); }
+.btn.secondary { background: #fff; color: var(--deep); border: 1px solid var(--line); box-shadow: var(--soft-shadow); }
+.btn.line { background: var(--line-green); color: #fff; box-shadow: 0 12px 26px rgba(6,199,85,.2); }
+.btn.google, .btn.apple { background: #fff; color: #151127; border: 1px solid var(--line); box-shadow: none; }
+
+/* cards */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 16px; box-shadow: var(--soft-shadow); }
+.card + .card { margin-top: 12px; }
+
+/* hero energy card */
+.hero-card { position: relative; overflow: hidden; border-radius: 32px; padding: 18px; color: #fff;
+  min-height: 232px; background: var(--grad-hero); box-shadow: 0 22px 42px rgba(94,47,150,.28); }
+.hero-card .stars { position: absolute; inset: 0; opacity: .42;
+  background-image: radial-gradient(circle,#fff 1px,transparent 1.6px); background-size: 32px 32px;
+  -webkit-mask-image: linear-gradient(to bottom,#000,transparent); mask-image: linear-gradient(to bottom,#000,transparent); }
+.energy-row { position: relative; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.energy-row h3 { font-size: 18px; margin: 0 0 4px; letter-spacing: -.02em; }
+.energy-row p { margin: 0; color: rgba(255,255,255,.78); font-size: 12px; line-height: 1.45; }
+.energy-score { width: 74px; height: 74px; border-radius: 50%; flex: 0 0 74px;
+  background: conic-gradient(var(--gold) 0 78%, rgba(255,255,255,.18) 78%); display: grid; place-items: center;
+  box-shadow: inset 0 0 0 7px rgba(255,255,255,.16); }
+.energy-score b { font-size: 18px; font-weight: 900; color: #fff; }
+.mascot-hero { position: absolute; right: 8px; bottom: -6px; width: 132px; z-index: 1; opacity: .96;
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,.25)); }
+.bubble-text { position: relative; z-index: 3; margin-top: 16px; background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.22); border-radius: 20px; padding: 11px 13px; backdrop-filter: blur(12px);
+  font-size: 13px; line-height: 1.5; max-width: 78%; }
+
+/* chips */
+.chips { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 14px 0; }
+.chip { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 12px 8px; text-align: center;
+  box-shadow: var(--soft-shadow); }
+.chip span { font-size: 11px; color: var(--muted); display: block; }
+.chip b { display: block; font-size: 14px; margin-top: 4px; color: var(--ink); }
+.chip .sw { width: 16px; height: 16px; border-radius: 50%; margin: 4px auto 0; }
+
+/* section title */
+.section-title { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 10px; }
+.section-title h3 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+.section-title a { font-size: 12px; color: var(--deep); text-decoration: none; font-weight: 800; }
+
+/* action grid */
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.action-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 14px;
+  box-shadow: var(--soft-shadow); min-height: 104px; cursor: pointer; }
+.action-card:active { transform: scale(.98); }
+.action-card .emoji { font-size: 28px; }
+.action-card b { display: block; margin-top: 8px; font-size: 14px; }
+.action-card span { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.35; margin-top: 3px; }
+
+/* title row (sub-page) */
+.title-row { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; }
+.back { border: 0; background: #fff; width: 38px; height: 38px; border-radius: 14px; box-shadow: var(--soft-shadow);
+  font-size: 18px; cursor: pointer; }
+.screen-title { font-size: 22px; font-weight: 900; letter-spacing: -.03em; }
+
+/* pill / badge */
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius-pill);
+  background: rgba(124,77,255,.1); color: var(--deep); font-size: 12px; font-weight: 800; }
+
+/* segmented control */
+.segmented { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.seg { padding: 10px 8px; border-radius: 15px; text-align: center; background: #fff8ed; color: var(--muted);
+  font-size: 12px; border: 1px solid var(--line); cursor: pointer; }
+.seg.active { color: var(--deep); background: var(--mint); font-weight: 900; border-color: transparent; }
+
+/* option grid */
+.option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.option { min-height: 84px; border-radius: 22px; padding: 13px; border: 1px solid var(--line); background: #fff;
+  cursor: pointer; transition: .15s; box-shadow: var(--soft-shadow); }
+.option:hover, .option.selected { border-color: var(--violet); background: #f3edff; transform: translateY(-2px); }
+.option .emoji { font-size: 24px; display: block; margin-bottom: 6px; }
+.option b { display: block; font-size: 13px; }
+.option span { color: var(--muted); font-size: 11px; }
+
+/* streak */
+.streak { display: flex; gap: 7px; margin-top: 12px; }
+.day { width: 38px; height: 42px; border-radius: 14px; background: #efe8ff; display: grid; place-items: center;
+  font-size: 15px; font-weight: 800; color: var(--deep); }
+.day.done { background: var(--deep); color: #fff; }
+
+/* empty placeholder */
+.placeholder { text-align: center; color: var(--muted); padding: 30px 10px; }
+.placeholder .big { font-size: 52px; }
+
+/* ---- F3: views + bottom nav ---- */
+.view { display: none; animation: fade .26s ease both; }
+.view.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.bottom-nav { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  width: min(402px, calc(100% - 28px)); height: 62px; border-radius: 28px; z-index: 50;
+  background: rgba(255,255,255,.9); backdrop-filter: blur(15px); box-shadow: 0 12px 36px rgba(75,34,102,.2);
+  display: grid; grid-template-columns: repeat(5,1fr); padding: 8px; }
+.bottom-nav button { border: 0; background: transparent; border-radius: 20px; font-size: 18px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #7a688f;
+  font-family: var(--font); }
+.bottom-nav button span { font-size: 9px; font-weight: 800; }
+.bottom-nav button.active { background: var(--deep); color: #fff; }
+
+/* ---- C3 fortune result card ---- */
+.fresult { margin-top: 14px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line);
+  background: var(--card); box-shadow: var(--soft-shadow); animation: fade .26s ease both; }
+.fresult .top { padding: 18px; color: #fff; background: var(--grad-hero); position: relative; }
+.fresult .top .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.fresult .top h3 { margin: 0; font-size: 18px; letter-spacing: -.02em; }
+.fresult .top .sc { font-size: 34px; font-weight: 950; color: var(--gold); letter-spacing: -.04em; }
+.fresult .body { padding: 16px; }
+.fresult .ftext { font-size: 14px; line-height: 1.65; color: var(--ink); }
+.fresult .advice { margin-top: 12px; padding: 12px 14px; border-radius: 16px; background: #f3edff;
+  font-size: 13px; color: var(--deep); font-weight: 700; }
+.fresult .advice span { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+.fresult .foldline { margin-top: 12px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.fresult .fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.fresult .fchip { padding: 7px 11px; border-radius: var(--radius-pill); background: #fff; border: 1px solid var(--line);
+  font-size: 12px; color: var(--muted); }
+.fresult .fchip b { color: var(--deep); }
+.fresult .top .mascot-sm { position: absolute; right: 14px; bottom: -4px; width: 92px; opacity: .96;
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.22)); }
+.fresult .meaning { font-size: 13.5px; line-height: 1.6; color: var(--muted); margin-top: 8px; }
+.fresult .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.fresult .actions .btn { width: 100%; }
+
+/* ---- C4 Pick a Card deck ---- */
+.deck { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; perspective: 1000px; }
+.pcard { aspect-ratio: 3/4.4; border-radius: 20px; cursor: pointer; position: relative;
+  background: var(--grad-hero); border: 2px solid rgba(247,201,111,.5); box-shadow: 0 14px 30px rgba(94,47,150,.3);
+  display: grid; place-items: center; transition: transform .2s, box-shadow .2s; overflow: hidden; }
+.pcard::before { content: ""; position: absolute; inset: 0; opacity: .5;
+  background-image: radial-gradient(circle,#fff 1px,transparent 1.6px); background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(#000,transparent); mask-image: linear-gradient(#000,transparent); }
+.pcard .pback { font-size: 34px; z-index: 2; filter: drop-shadow(0 3px 6px rgba(0,0,0,.3)); }
+.pcard:hover, .pcard:active { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 38px rgba(94,47,150,.4); }
+.pcard.dim { opacity: .35; pointer-events: none; transform: none; }
+.pcard.flip { animation: flipIn .5s ease both; background: var(--grad-gold); border-color: #fff2ae; }
+.pcard.flip .pback { font-size: 44px; }
+@keyframes flipIn { 0% { transform: rotateY(90deg) scale(1.05); } 100% { transform: rotateY(0) scale(1); } }
+
+/* ---- C5 Quiz ---- */
+.quiz-progress { display: flex; gap: 6px; margin: 2px 0 16px; }
+.quiz-progress i { flex: 1; height: 6px; border-radius: 999px; background: #efe8ff; }
+.quiz-progress i.on { background: var(--deep); }
+.quiz-q { font-size: 21px; font-weight: 900; letter-spacing: -.02em; margin: 6px 0 16px; }
+.quiz-opts { display: grid; gap: 10px; }
+.quiz-opt { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 18px; background: #fff;
+  border: 1px solid var(--line); box-shadow: var(--soft-shadow); cursor: pointer; transition: .15s; }
+.quiz-opt:hover, .quiz-opt:active { border-color: var(--violet); background: #f3edff; transform: translateY(-2px); }
+.quiz-opt .qe { font-size: 26px; }
+.quiz-opt b { font-size: 15px; }
+.charm-badge { width: 120px; height: 120px; border-radius: 36px; margin: 6px auto 12px; display: grid; place-items: center;
+  font-size: 60px; background: linear-gradient(145deg,#fff3c7,#ffbbe1 50%,#bba7ff); box-shadow: 0 18px 44px rgba(255,183,220,.28); }
+
+/* ---- bottom sheet (birthdate) ---- */
+.sheet-host { position: fixed; inset: 0; background: rgba(8,3,25,.46); display: none; z-index: 60; }
+.sheet-host.open { display: block; }
+.sheet { position: absolute; left: 50%; transform: translateX(-50%) translateY(100%); bottom: 0;
+  width: min(430px, 100%); background: var(--card); border-radius: 28px 28px 0 0; padding: 18px 18px calc(env(safe-area-inset-bottom) + 22px);
+  box-shadow: 0 -20px 60px rgba(0,0,0,.3); transition: transform .3s ease; }
+.sheet-host.open .sheet { transform: translateX(-50%) translateY(0); }
+.grabber { width: 46px; height: 5px; border-radius: 999px; background: #e3d6ea; margin: 0 auto 14px; }
+.date-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; margin: 12px 0; }
+.date-row select { width: 100%; padding: 13px 10px; border-radius: 14px; background: #fff; border: 1px solid var(--line);
+  color: var(--ink); font-size: 14px; font-weight: 700; font-family: var(--font); -webkit-appearance: none; appearance: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Home (C1 Daily Luck) ===== -->
+  <section class="view active" id="home">
+    <div class="app-header">
+      <div class="user-block">
+        <div class="avatar" id="h-avatar">🦫</div>
+        <div><div class="tiny" id="greet-time">สวัสดี</div><div class="hello" id="greet-name">สวัสดี เพื่อน ✨</div></div>
+      </div>
+      <button class="icon-btn" aria-label="แจ้งเตือน">🔔</button>
+    </div>
+
+    <div class="hero-card">
+      <div class="stars"></div>
+      <div class="energy-row">
+        <div><h3>พลังวันนี้</h3><p id="hero-sub">กำลังอ่านพลังของคุณ…</p></div>
+        <div class="energy-score" id="hero-ring"><b id="hero-power">–</b></div>
+      </div>
+      <div class="bubble-text" id="hero-bubble">แม่หมอบาร่ากำลังเปิดไพ่ให้คุณอยู่นะ ✨</div>
+      <img class="mascot-hero" src="mascot.png" alt="" onerror="this.style.display='none'" />
+    </div>
+
+    <div class="chips">
+      <div class="chip"><span>สีมงคล</span><div class="sw" id="chip-color-sw" style="background:var(--mint)"></div><b id="chip-color">–</b></div>
+      <div class="chip"><span>เลขมงคล</span><b id="chip-number" style="margin-top:10px">–</b></div>
+      <div class="chip"><span>เวลามงคล</span><b id="chip-time" style="margin-top:10px">–</b></div>
+    </div>
+
+    <!-- fold round1: ราศี/นักษัตร/เลขชะตา/สีมงคล -->
+    <div class="card" id="fold-card" style="display:flex;gap:10px;align-items:center">
+      <div style="font-size:24px" id="fold-emoji">🌙</div>
+      <div style="flex:1"><div class="tiny" style="font-weight:800;color:var(--deep)" id="fold-title">ศาสตร์เฉพาะคุณ</div>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px" id="fold-text">—</div></div>
+    </div>
+
+    <div class="cta-row" style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:12px">
+      <button class="btn gold" onclick="shareDaily()">📤 แชร์การ์ดวันนี้</button>
+      <button class="btn secondary" id="birth-btn" style="width:auto;padding:15px 16px;display:none" onclick="openBirth()">🎂 ใส่วันเกิด</button>
+    </div>
+
+    <div class="section-title"><h3>วันนี้อยากดูอะไร?</h3><a href="#/fortune">ดูทั้งหมด</a></div>
+    <div class="action-grid">
+      <div class="action-card" onclick="openFortune('love')"><div class="emoji">💘</div><b>ดวงความรัก</b><span>เช็กพลังรักแบบเบา ๆ</span></div>
+      <div class="action-card" onclick="openFortune('money')"><div class="emoji">💰</div><b>ดวงการเงิน</b><span>ดวงเงิน + สิ่งที่ควรทำ</span></div>
+      <div class="action-card" onclick="nav('pick')"><div class="emoji">🃏</div><b>เลือกไพ่ 1 ใบ</b><span>ตั้งคำถามในใจแล้วเปิดไพ่</span></div>
+      <div class="action-card" onclick="nav('quiz')"><div class="emoji">🧿</div><b>หาเครื่องราง</b><span>ควิซสั้น ๆ &lt; 1 นาที</span></div>
+    </div>
+  </section>
+
+  <!-- ===== Fortune Engine (C3) ===== -->
+  <section class="view" id="fortune">
+    <div class="title-row"><div class="screen-title">ดูดวง</div></div>
+    <div class="pill">🔮 Fortune Engine</div>
+    <div class="card" style="margin-top:12px">
+      <div class="section-title" style="margin-top:0"><h3>เลือกหมวดที่อยากเด่น</h3></div>
+      <div class="option-grid" id="fortuneCats"><!-- สร้างจาก Fortune.CATEGORIES --></div>
+      <button class="btn" style="margin-top:14px" onclick="runFortune()">ดูดวงวันนี้</button>
+    </div>
+    <div id="fortuneResult"></div>
+  </section>
+
+  <!-- ===== Pick a Card (C4) ===== -->
+  <section class="view" id="pick">
+    <div class="title-row"><button class="back" onclick="nav('home')">‹</button><div class="screen-title">เลือกไพ่</div></div>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 16px;line-height:1.55" id="pick-hint">ตั้งคำถามในใจ… แล้วเลือกไพ่ 1 ใบที่สะดุดตาที่สุด 🔮</p>
+    <div class="deck" id="deck"></div>
+    <div id="pickResult"></div>
+  </section>
+
+  <!-- ===== Lucky Charm Quiz (C5) ===== -->
+  <section class="view" id="quiz">
+    <div class="title-row"><button class="back" onclick="nav('home')">‹</button><div class="screen-title">หาเครื่องราง</div></div>
+    <div id="quizBody"></div>
+  </section>
+
+  <!-- ===== Charm (Shop) ===== -->
+  <section class="view" id="charm">
+    <div class="title-row"><div class="screen-title">ร้านเครื่องราง</div></div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:46px">🧿</div>
+      <div class="hello" style="font-size:16px;margin-top:6px">ยังไม่รู้ว่าเครื่องรางไหนใช่?</div>
+      <p style="color:var(--muted);font-size:12.5px;margin:6px 0 12px">ทำควิซสั้น ๆ ให้แม่หมอช่วยเลือกเครื่องรางที่เข้ากับคุณวันนี้</p>
+      <button class="btn" onclick="nav('quiz')">🔮 ทำควิซหาเครื่องราง</button>
+    </div>
+    <div class="placeholder"><div class="big">🛍️</div>Charm Shop เต็มรูปแบบ — จะต่อใน Sprint 5</div>
+  </section>
+
+  <!-- ===== Journal ===== -->
+  <section class="view" id="journal">
+    <div class="title-row"><div class="screen-title">สมุดบันทึก</div></div>
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>Daily Streak</h3></div>
+      <p style="color:var(--muted);font-size:12.5px;margin:0">เปิดเช็กดวงครบ 7 วัน ปลดล็อก Digital Lucky Charm</p>
+      <div class="streak">
+        <div class="day done">1</div><div class="day done">2</div><div class="day done">3</div>
+        <div class="day">4</div><div class="day">5</div><div class="day">6</div><div class="day">7</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>วันนี้ดวงตรงไหม?</h3></div>
+      <div class="segmented"><div class="seg active">ตรง</div><div class="seg">กลาง ๆ</div><div class="seg">ไม่ตรง</div></div>
+    </div>
+  </section>
+
+  <!-- ===== Profile ===== -->
+  <section class="view" id="profile">
+    <div class="title-row"><div class="screen-title">โปรไฟล์</div></div>
+    <div class="card" style="text-align:center">
+      <div class="avatar" style="width:84px;height:84px;border-radius:30px;margin:4px auto 12px;font-size:42px">🦫</div>
+      <div class="hello" style="font-size:18px">โปรไฟล์ของฉัน</div>
+      <p style="color:var(--muted);font-size:12.5px;margin:4px 0 0">สาย Money Flow · สีมงคล มิ้นต์ · เลข 89</p>
+      <div class="chips" style="margin-bottom:0">
+        <div class="chip"><span>การ์ดที่เก็บ</span><b style="margin-top:8px">12</b></div>
+        <div class="chip"><span>เครื่องราง</span><b style="margin-top:8px">3</b></div>
+        <div class="chip"><span>Streak</span><b style="margin-top:8px">7</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Birthdate sheet ===== -->
+  <div class="sheet-host" id="birthSheet">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="hello" style="font-size:18px">ใส่วันเกิดของคุณ</div>
+      <p style="color:var(--muted);font-size:12.5px;margin:6px 0 0">เพื่อให้แม่หมออ่านราศี · ปีนักษัตร · เลขชะตา · สีมงคลได้แม่นขึ้น</p>
+      <div class="date-row"><select id="bd"></select><select id="bm"></select><select id="by"></select></div>
+      <button class="btn" onclick="saveBirth()">บันทึกวันเกิด</button>
+      <button class="btn secondary" style="margin-top:8px" onclick="closeBirth()">ไว้ทีหลัง</button>
+    </div>
+  </div>
+
+  <!-- hidden canvas สำหรับ share-card -->
+  <canvas id="shareCanvas" style="display:none"></canvas>
+
+  <!-- ===== Bottom nav (F3) ===== -->
+  <nav class="bottom-nav">
+    <button class="active" data-route="home"   onclick="nav('home')">🏠<span>หน้าหลัก</span></button>
+    <button data-route="fortune" onclick="nav('fortune')">🔮<span>ดูดวง</span></button>
+    <button data-route="charm"   onclick="nav('charm')">🧿<span>เครื่องราง</span></button>
+    <button data-route="journal" onclick="nav('journal')">📝<span>บันทึก</span></button>
+    <button data-route="profile" onclick="nav('profile')">👤<span>โปรไฟล์</span></button>
+  </nav>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="fortune-engine.js?v=s3"></script>
+<script src="share-card-legacy.js?v=s3"></script>
+<script>
+// ---- F3: hash router (static, no build) ----
+const ROUTES = ['home', 'fortune', 'charm', 'journal', 'profile'];
+const SUBVIEWS = { pick: 'fortune', quiz: 'charm' };   // sub-view → tab ที่ไฮไลต์
+
+function show(id) {
+  if (!ROUTES.includes(id) && !SUBVIEWS[id]) id = 'home';
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+  const navId = SUBVIEWS[id] || id;
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.route === navId));
+  document.querySelector('.app').scrollTo(0, 0);
+  window.scrollTo(0, 0);
+  if (id === 'pick') enterPick(false);   // สำรับใหม่ทุกครั้งที่เข้า (ไพ่ deterministic ต่อวัน)
+  if (id === 'quiz') startQuiz();
+}
+function nav(id) { location.hash = '#/' + id; }        // ทุกการนำทางผ่าน hash → back/forward ใช้ได้
+function route() { show((location.hash.replace('#/', '') || 'home')); }
+
+window.addEventListener('hashchange', route);
+// route() เรียกท้ายสคริปต์ (หลังนิยาม profile/enterPick/startQuiz เพื่อเลี่ยง TDZ)
+
+// option / segmented — single-select demo (component behavior)
+document.querySelectorAll('.option-grid, .segmented').forEach(group => {
+  const items = group.querySelectorAll('.option, .seg');
+  items.forEach(it => it.addEventListener('click', () => {
+    items.forEach(x => x.classList.remove(x.classList.contains('option') ? 'selected' : 'active'));
+    it.classList.add(it.classList.contains('option') ? 'selected' : 'active');
+  }));
+});
+
+// =============================================================
+// Sprint 2 — Core loop  (C1 Daily Home · C3 Fortune Engine · share)
+// =============================================================
+const CONFIG = {
+  AUTH_URL: 'auth.html',
+  firebase: {
+    apiKey: 'AIzaSyCawvpDlKji0-p3UW7wvN9ZURkQLoaTBPs',
+    authDomain: 'capybarabu-mae-mhor.firebaseapp.com',
+    projectId: 'capybarabu-mae-mhor',
+    appId: '1:814731135939:web:0f6bf33ba3dac593e84b76',
+    messagingSenderId: '814731135939',
+  },
+};
+
+firebase.initializeApp(CONFIG.firebase);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const serverTime = () => firebase.firestore.FieldValue.serverTimestamp();
+
+// profile = { uid, displayName, birthDate, intention, interests, tone, ... }
+let profile = { uid: null };
+let selectedCat = 'love';
+const FORTUNE_EMOJI = { love:'💘', money:'💸', work:'💼', protect:'🧿', health:'🌿' };
+
+// ---- demo mode (?demo=1) — รีวิวดีไซน์/พรีวิวโดยไม่ต้องล็อกอิน · ไม่เขียน Firestore ----
+const DEMO = new URLSearchParams(location.search).get('demo') === '1';
+
+// ---- boot ----
+if (DEMO) {
+  profile = { uid: 'demo', displayName: 'ตอง', birthDate: { d: 7, m: 8, beYear: 2540 }, tone: 'ขำ ๆ' };
+  renderHome(); buildFortuneCats();
+} else
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    // ยังไม่ล็อกอิน/ไม่มี guest session → ส่งไป onboarding
+    // (เผื่อเปิด app.html ตรง ๆ โดยไม่ผ่าน auth.html)
+    location.href = CONFIG.AUTH_URL; return;
+  }
+  profile.uid = user.uid;
+  profile.displayName = user.displayName || '';
+  profile.photoURL = user.photoURL || '';
+  try {
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (snap.exists) Object.assign(profile, snap.data());
+  } catch (e) { console.warn('load profile', e.message); }
+  profile.uid = user.uid;               // กัน Object.assign ทับ uid
+  renderHome();
+  buildFortuneCats();
+});
+
+// ---- C1: Daily Luck Home ----
+function greetWord() {
+  const h = new Date().getHours();
+  if (h < 11) return 'สวัสดีตอนเช้า';
+  if (h < 17) return 'สวัสดีตอนบ่าย';
+  if (h < 20) return 'สวัสดีตอนเย็น';
+  return 'สวัสดีตอนค่ำ';
+}
+function renderHome() {
+  const d = Fortune.daily(profile);
+  const nm = profile.displayName || 'เพื่อน';
+  document.getElementById('greet-time').textContent = greetWord();
+  document.getElementById('greet-name').textContent = 'สวัสดี ' + nm + ' ✨';
+  document.getElementById('hero-sub').textContent = d.headline;
+  document.getElementById('hero-power').textContent = d.power + '%';
+  // วงแหวน conic gradient ตาม power
+  document.getElementById('hero-ring').style.background =
+    'conic-gradient(var(--gold) 0 ' + d.power + '%, rgba(255,255,255,.18) ' + d.power + '%)';
+  document.getElementById('hero-bubble').textContent = d.bubble;
+
+  document.getElementById('chip-color-sw').style.background = d.color.hex;
+  document.getElementById('chip-color').textContent = d.color.name;
+  document.getElementById('chip-number').textContent = d.number;
+  document.getElementById('chip-time').textContent = d.time;
+
+  // fold round1
+  document.getElementById('fold-emoji').textContent = d.hasBirth && d.zodiac ? d.zodiac.emoji : '🌙';
+  document.getElementById('fold-title').textContent = d.hasBirth
+    ? ('ราศี' + d.zodiac.name + ' · ปี' + d.chinese + ' · เลขชะตา ' + d.lifePath)
+    : 'ศาสตร์เฉพาะคุณ';
+  document.getElementById('fold-text').textContent = d.fold;
+
+  // ปุ่มใส่วันเกิด — โชว์เฉพาะตอนยังไม่มี birthDate
+  document.getElementById('birth-btn').style.display = d.hasBirth ? 'none' : 'inline-flex';
+}
+
+// ---- C3: Fortune Engine ----
+function buildFortuneCats() {
+  const host = document.getElementById('fortuneCats');
+  host.innerHTML = Fortune.CATEGORIES.map(c => `
+    <div class="option${c.key === selectedCat ? ' selected' : ''}" data-cat="${c.key}">
+      <span class="emoji">${c.emoji}</span><b>${c.label}${c.featured ? ' ⭐' : ''}</b><span>${c.desc}</span>
+    </div>`).join('');
+  host.querySelectorAll('.option').forEach(o => o.addEventListener('click', () => {
+    host.querySelectorAll('.option').forEach(x => x.classList.remove('selected'));
+    o.classList.add('selected'); selectedCat = o.dataset.cat;
+  }));
+}
+
+function runFortune() {
+  const r = Fortune.category(selectedCat, profile);
+  window._lastFortune = r;
+  document.getElementById('fortuneResult').innerHTML = `
+    <div class="fresult">
+      <div class="top"><div class="row">
+        <h3>${r.emoji} ดวง${r.label}วันนี้</h3><div class="sc">${r.score}%</div>
+      </div></div>
+      <div class="body">
+        <div class="ftext">${esc(r.text)}</div>
+        <div class="advice"><span>สิ่งที่ควรทำวันนี้</span>✅ ${esc(r.advice)}</div>
+        <div class="foldline">🔮 ${esc(r.fold)}</div>
+        <div class="fchips">
+          <span class="fchip">สีมงคล <b>${esc(r.color.name)}</b></span>
+          <span class="fchip">เลขมงคล <b>${esc(r.number)}</b></span>
+          <span class="fchip">เวลามงคล <b>${esc(r.time)}</b></span>
+        </div>
+        <button class="btn gold" style="margin-top:14px" onclick="shareFortune()">📤 แชร์ดวง${esc(r.label)}นี้</button>
+      </div>
+    </div>`;
+  document.getElementById('fortuneResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// เปิดหน้าดูดวงพร้อมเลือกหมวด + รันเลย (จาก action-card บนหน้าหลัก)
+function openFortune(cat) {
+  selectedCat = cat;
+  nav('fortune');
+  buildFortuneCats();
+  setTimeout(runFortune, 60);
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+// ---- C4: Pick a Card ----
+let _pickSalt = 0;
+function enterPick(reshuffle) {
+  if (reshuffle) _pickSalt++;
+  window._pickCards = Fortune.cards(profile, _pickSalt);
+  window._lastPick = null;
+  document.getElementById('pick-hint').textContent = 'ตั้งคำถามในใจ… แล้วเลือกไพ่ 1 ใบที่สะดุดตาที่สุด 🔮';
+  document.getElementById('deck').innerHTML = window._pickCards
+    .map((c, i) => `<div class="pcard" onclick="revealCard(${i})"><span class="pback">🔮</span></div>`).join('');
+  document.getElementById('pickResult').innerHTML = '';
+}
+function revealCard(i) {
+  const card = window._pickCards[i];
+  const r = Fortune.pickResult(card, profile, _pickSalt);
+  window._lastPick = r;
+  document.querySelectorAll('#deck .pcard').forEach((el, idx) => {
+    if (idx === i) { el.classList.add('flip'); el.querySelector('.pback').textContent = card.emoji; }
+    else el.classList.add('dim');
+  });
+  document.getElementById('pick-hint').textContent = 'ไพ่ที่เลือกให้คุณคือ…';
+  setTimeout(() => {
+    document.getElementById('pickResult').innerHTML = `
+      <div class="fresult">
+        <div class="top"><div class="row"><h3>${esc(card.emoji + ' ' + card.name)}</h3><div class="sc">${r.power}%</div></div></div>
+        <div class="body">
+          <div class="ftext">${esc(card.headline)}</div>
+          <div class="meaning">${esc(card.meaning)}</div>
+          <div class="advice"><span>สิ่งที่ควรทำ</span>✅ ${esc(card.advice)}</div>
+          <div class="fchips">
+            <span class="fchip">สีมงคล <b>${esc(r.color.name)}</b></span>
+            <span class="fchip">เลขมงคล <b>${esc(r.number)}</b></span>
+            <span class="fchip">เวลามงคล <b>${esc(r.time)}</b></span>
+          </div>
+          <div class="actions">
+            <button class="btn gold" onclick="sharePick()">📤 แชร์ไพ่นี้</button>
+            <button class="btn secondary" onclick="enterPick(true)">🎲 สับไพ่ใหม่</button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('pickResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 360);
+}
+async function sharePick() { await shareWith(Fortune.shareData(window._lastPick, profile)); }
+
+// ---- C5: Lucky Charm Quiz ----
+const QUIZ = [
+  { key: 'mood', q: 'ตอนนี้คุณรู้สึกยังไง?', opts: [
+    { val: 'calm',    e: '😌', label: 'ใจสงบ สบาย ๆ' },
+    { val: 'tired',   e: '😮‍💨', label: 'เหนื่อยล้า อยากพัก' },
+    { val: 'anxious', e: '😟', label: 'กังวล คิดมาก' },
+    { val: 'fired',   e: '🤩', label: 'มีไฟ พร้อมลุย' },
+  ] },
+  { key: 'intention', q: 'อยากให้แม่หมอเสริมเรื่องไหน?', opts: [
+    { val: 'money',   e: '💸', label: 'การเงิน รายได้' },
+    { val: 'love',    e: '💘', label: 'ความรัก' },
+    { val: 'work',    e: '💼', label: 'การงาน โอกาส' },
+    { val: 'protect', e: '🧿', label: 'กันพลังลบ ใจนิ่ง' },
+    { val: 'health',  e: '🌿', label: 'สุขภาพกายใจ' },
+  ] },
+];
+let _quizStep = 0, _quizAns = {};
+function startQuiz() { _quizStep = 0; _quizAns = {}; renderQuiz(); }
+function renderQuiz() {
+  const body = document.getElementById('quizBody');
+  if (_quizStep >= QUIZ.length) { renderCharm(); return; }
+  const step = QUIZ[_quizStep];
+  body.innerHTML = `
+    <div class="quiz-progress">${QUIZ.map((_, i) => `<i class="${i <= _quizStep ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="quiz-q">${esc(step.q)}</div>
+    <div class="quiz-opts">${step.opts.map(o =>
+      `<div class="quiz-opt" onclick="answerQuiz('${o.val}')"><span class="qe">${o.e}</span><b>${esc(o.label)}</b></div>`).join('')}</div>`;
+}
+function answerQuiz(val) { _quizAns[QUIZ[_quizStep].key] = val; _quizStep++; renderQuiz(); }
+function renderCharm() {
+  const r = Fortune.recommendCharm(_quizAns, profile);
+  window._lastCharm = r;
+  document.getElementById('quizBody').innerHTML = `
+    <div class="charm-badge">${r.emoji}</div>
+    <div class="fresult">
+      <div class="top"><div class="row"><h3>${esc(r.name)}</h3><div class="sc">${r.power}%</div></div></div>
+      <div class="body">
+        <div class="ftext">${esc(r.headline)}</div>
+        <div class="meaning">${esc(r.story)}</div>
+        <div class="fchips">
+          <span class="fchip">สีมงคล <b>${esc(r.color.name)}</b></span>
+          <span class="fchip">เลขมงคล <b>${esc(r.number)}</b></span>
+          <span class="fchip">เวลามงคล <b>${esc(r.time)}</b></span>
+        </div>
+        <div class="actions">
+          <button class="btn gold" onclick="shareCharm()">📤 แชร์เครื่องราง</button>
+          <button class="btn secondary" onclick="startQuiz()">↺ ทำใหม่</button>
+        </div>
+        <button class="btn" style="margin-top:10px" onclick="nav('charm')">🛍️ ดูเครื่องรางทั้งหมด</button>
+      </div>
+    </div>`;
+}
+async function shareCharm() { await shareWith(Fortune.shareData(window._lastCharm, profile)); }
+
+// ---- share (canvas) ----
+async function shareDaily() {
+  const d = Fortune.daily(profile);
+  await shareWith(Fortune.shareData(d, profile), '🔮 กำลังสร้างการ์ด…');
+}
+async function shareFortune() {
+  const r = window._lastFortune || Fortune.category(selectedCat, profile);
+  await shareWith(Fortune.shareData(r, profile));
+}
+async function shareWith(data) {
+  const canvas = document.getElementById('shareCanvas');
+  try {
+    await ShareCard.render(canvas, data);
+    await ShareCard.share(canvas, data);
+  } catch (e) { console.warn('share', e.message); alert('แชร์ไม่สำเร็จ: ' + e.message); }
+}
+
+// ---- birthdate sheet ----
+(function fillDates() {
+  const bd = document.getElementById('bd'), bm = document.getElementById('bm'), by = document.getElementById('by');
+  const months = Fortune.THAI_MONTHS;
+  bd.innerHTML = '<option value="">วัน</option>' + Array.from({ length: 31 }, (_, i) => `<option>${i + 1}</option>`).join('');
+  bm.innerHTML = '<option value="">เดือน</option>' + months.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+  const thisBE = new Date().getFullYear() + 543;
+  by.innerHTML = '<option value="">ปี พ.ศ.</option>' + Array.from({ length: 90 }, (_, i) => `<option>${thisBE - 12 - i}</option>`).join('');
+})();
+function openBirth() {
+  const b = profile.birthDate;
+  if (b && b.d) { document.getElementById('bd').value = b.d; document.getElementById('bm').value = b.m; document.getElementById('by').value = b.beYear; }
+  document.getElementById('birthSheet').classList.add('open');
+}
+function closeBirth() { document.getElementById('birthSheet').classList.remove('open'); }
+async function saveBirth() {
+  const d = +document.getElementById('bd').value, m = +document.getElementById('bm').value, beYear = +document.getElementById('by').value;
+  if (!d || !m || !beYear) { alert('เลือกวัน เดือน ปี ให้ครบก่อนน้า'); return; }
+  const birthDate = { d, m, beYear };
+  profile.birthDate = birthDate;
+  if (!DEMO) {
+    try { await db.collection('users').doc(profile.uid).set({ birthDate, updatedAt: serverTime() }, { merge: true }); }
+    catch (e) { console.warn('save birth', e.message); }
+  }
+  closeBirth();
+  renderHome();
+  if (document.getElementById('fortune').classList.contains('active') && window._lastFortune) runFortune();
+}
+document.getElementById('birthSheet').addEventListener('click', (e) => { if (e.target.id === 'birthSheet') closeBirth(); });
+
+// เริ่ม routing หลังนิยามทุกอย่างครบ (เลี่ยง TDZ ของ let profile)
+route();
+</script>
+</body>
+</html>

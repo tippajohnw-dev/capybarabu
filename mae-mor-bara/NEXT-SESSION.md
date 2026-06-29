@@ -13,10 +13,11 @@
 | **4 Retention** | C6 Journal/Streak · C7 LINE push | ⬜ |
 | **5 Commerce** | D1 Shop · D2 Product Detail · D3 Payment+orders/ | ⬜ |
 | **6 Scale** | E1 Profile/Collection · E2 KPI · L1 Landing | ⬜ |
-| **R Redesign** ⭐ | R1–R5 CAPY POP (re-skin, parallel `app-v2.html`) ✅ · R6 = รอ PO sign-off | ✅ (R0–R5) · R6 ⬜ |
+| **R Redesign** ⭐ | R0–R6 CAPY POP **replace production แล้ว** (app/share-card/auth = CAPY POP, theme เดิม backup) | ✅ (R0–R6) |
 | Phase 2 | Premium · Collection เต็ม · LINE automation … (strategy, หลัง KPI) | 🔭 |
 
-**ถัดไป: R6 (รอ product owner sign-off)** หรือ feature track **Sprint 4** (Retention). **KPI Phase 1:** D7≥25% · Share≥25% · CTA≥15% · Quiz≥60% · ATC≥10% · LINE≥70%
+**ถัดไป: Sprint 4** (Retention: C6 Journal/Streak + C7 LINE push) บน `app.html` (ธีม CAPY POP). **KPI Phase 1:** D7≥25% · Share≥25% · CTA≥15% · Quiz≥60% · ATC≥10% · LINE≥70%
+> ⚠️ **เหลือ deploy hosting** (`firebase deploy --only hosting --project capybarabu-mae-mhor`) เพื่อให้ CAPY POP ขึ้น production จริง
 
 ---
 
@@ -28,19 +29,18 @@
 อ่าน context จาก: mae-mor-bara/NEXT-SESSION.md, TASKS.md, SPEC.md, ROADMAP-v2.md
 และ memory: mae-mor-bara-v2-roadmap.md
 
-สถานะ: Sprint 0+1+2+3 เสร็จ (16/24) + Sprint R (Redesign CAPY POP) R1–R5 เสร็จ
-- production live (theme เดิม Cute Mystic): app.html + share-card.js — /app?demo=1
-- ใหม่ (parallel ยังไม่ replace): app-v2.html + share-card-v2.js ธีม CAPY POP — /app-v2?demo=1
-  reuse window.Fortune เดิม 100% · มาสคอต mascots/m*.webp (<100KB) สลับท่าตามฟีเจอร์
-- เหลือ R6 = product owner sign-off (A/B: /app-v2?demo=1 เทียบ /app?demo=1) ก่อน replace
+สถานะ: Sprint 0+1+2+3 เสร็จ (16/24) + Sprint R (Redesign CAPY POP) R0–R6 เสร็จ — replace production แล้ว
+- ธีมปัจจุบัน = CAPY POP (ส้มมะม่วง #ff6a2b, neo-brutalist toy, มาสคอตพระเอก): app.html + share-card.js + auth.html
+- engine reuse: window.Fortune เดิม 100% · มาสคอต mascots/m*.webp (<100KB) สลับท่าตามฟีเจอร์ · พรีวิว /app?demo=1
+- theme เดิม Cute Mystic backup: app-legacy-cutemystic.html · auth-legacy-cutemystic.html · share-card-legacy.js
+- ⚠️ ถ้ายังไม่ได้ deploy: cd mae-mor-bara && firebase deploy --only hosting --project capybarabu-mae-mhor
 
-เลือกทำอย่างใดอย่างหนึ่ง:
-(a) R6 — รอ/ขอ sign-off แล้ว replace app.html+share-card.js ด้วย v2 (หรือ A/B)
-(b) Sprint 4 Retention = C6 Journal/Streak (เขียน users/{uid}/journal/) + C7 LINE push
-    ⚠️ ถ้าทำ feature ใหม่ต่อ ให้ทำบน app-v2.html (ธีมที่จะใช้จริง) ไม่ใช่ app.html เดิม
+ถัดไป = Sprint 4 Retention (ทำบน app.html ธีม CAPY POP):
+- C6 Journal/Streak — mood รายวัน + streak 7 วัน + ปุ่ม "ตรงไหม?" เขียน users/{uid}/journal/ (rules อนุญาต owner แล้ว, มีโครง journal view ใน app.html)
+- C7 LINE push — ดวงรายวัน 1 ครั้ง (Function + Cloud Scheduler, ใช้ notifPref จาก A6)
 
 ยึด static no-build + Firebase (SPEC §1-4) · capybarabu-mae-mhor แชร์ Firestore+Hosting กับ autopost
-JS cache: bump ?v=sN ที่ script src · พรีวิว serve clean-url ตัด query → เปิด /app-v2?demo=1 (ไม่ใส่ .html)
+JS cache: bump ?v=sN ที่ script src (ตอนนี้ s4) · พรีวิว serve clean-url ตัด query → เปิด /app?demo=1 (ไม่ใส่ .html)
 ```
 
 ---
@@ -62,7 +62,9 @@ JS cache: bump ?v=sN ที่ script src · พรีวิว serve clean-url 
 - **R2/R3/R4 ✅** `app-v2.html` (**parallel ไม่ทับ `app.html` production**) — re-skin CAPY POP เต็มทุก view, **reuse logic เดิม 100%** (hash router · Firebase · `window.Fortune` · birthdate sheet · quiz/pick/fortune). hero m3 + speech bubble กวน + trio chips pop + action tiles flat + dark nav mango-active. สลับมาสคอตตามฟีเจอร์ (m1 avatar · m3 hero · m4 ไพ่ · m5 เงิน · m6 quiz · m7 shop · m10 โปรไฟล์)
 - **R5 ✅** `share-card-v2.js` (global `ShareCard`, drop-in แทน `share-card.js` เฉพาะหน้า v2) — canvas 1080×1350 palette CAPY POP (cream/mango/ink) + เงาแข็ง popBlock + มาสคอต (ส่ง `data.mascot` ตามผล) + ฟอนต์ Anuphan
 - **verify (local 3457, `/app-v2?demo=1`):** ✅ home (78% + m3) · fortune เงิน (m5) · pick (deck flip/dim + m4) · quiz→charm (m6) · share canvas เรนเดอร์ mango/tile ไม่ taint · ไม่มี console error · แก้ overlap มาสคอต-คะแนนใน result header
-- **R6 ⬜ เหลืออย่างเดียว:** product owner sign-off → replace `app.html`/`share-card.js` ด้วย v2 หรือ A/B test (`/app-v2?demo=1` เทียบ `/app?demo=1`). **ยังไม่ replace production**
+- **R6 ✅ Replace เต็ม (PO เลือก) 2026-06-29:** `app.html` + `share-card.js` + `auth.html` = **CAPY POP production** (ลบ `app-v2.html`/`share-card-v2.js` เหลือ canonical เดียว). re-skin `auth.html` ครบ 7 หน้าจอ (welcome m1 · guest · result m5 · consent · profile · success m10) reuse logic LIFF/Firebase/onboarding 100%. verify local ผ่านทุกหน้า ไม่มี console error.
+  - **theme เดิม backup (rollback):** `app-legacy-cutemystic.html` (ชี้ `share-card-legacy.js`) · `auth-legacy-cutemystic.html` · `share-card-legacy.js` · `design-tokens.css` ยังอยู่
+  - **⚠️ เหลือ deploy:** `cd mae-mor-bara && firebase deploy --only hosting --project capybarabu-mae-mhor`
 - **assets อ้างอิง:** `design-tokens-v2.css` · `redesign-capypop.html` (concept) · `redesign-minimal.html` (ALMANAC reference)
 
 ---
