@@ -1,7 +1,22 @@
-# C7 — LINE Push ดวงรายวัน · ขั้นตอน activate (console + deploy)
+# C7 — LINE Push ดวงรายวัน · สถานะ ✅ ACTIVATED (2026-06-29)
 
-> โค้ดเสร็จแล้ว: `functions/notify.js` (`sendDailyFortune` scheduled 08:00 ICT + `sendDailyFortuneNow` manual) wired ใน `functions/index.js`
-> เหลือ **งาน console + secret + deploy** (ทำแทนใน automation ไม่ได้) — ทำตามนี้
+> โค้ด: `functions/notify.js` (`sendDailyFortune` scheduled 08:00 ICT + `sendDailyFortuneNow` manual) wired ใน `functions/index.js`
+> **deployed แล้ว** ที่ capybarabu-mae-mhor · secrets ตั้งแล้ว · toggle opt-in + ปุ่มเพิ่มเพื่อนอยู่ในหน้า Profile (`app.html`)
+
+## ค่าจริง (live)
+| | ค่า |
+|---|---|
+| Messaging API channel | **`2010545788`** ("แม่หมอบาร่า") |
+| OA Bot basic ID | **`@tiger_romeo`** → friend link `https://line.me/R/ti/p/@tiger_romeo` |
+| Provider (ต้องตรงกับ Login!) | **`2005291693`** "Capybarabu Mae Mhor" (มีทั้ง Login `2010529290` + Messaging `2010545788`) |
+| Login channel | `2010529290` |
+| secrets | `LINE_MESSAGING_TOKEN`, `NOTIFY_ADMIN_KEY` (ตั้งแล้ว) |
+| test URL | `https://senddailyfortunenow-ssgkv4kwca-as.a.run.app` (POST + header `x-admin-key`) |
+
+> ⚠️ **บทเรียน (gotcha สำคัญ):** LINE userId ผูกกับ **provider** ไม่ใช่ channel. ครั้งแรกสร้าง Messaging channel ผิดไปอยู่ provider "Capybarabu" (channel `2010545304` — เลิกใช้/ลบได้) ทำให้ userId ไม่ตรงกับที่ Login channel เก็บ → push ไม่ถึง. ต้องสร้าง Messaging channel ใน **provider เดียวกับ Login channel** (`2005291693`) เท่านั้น. flow ใหม่ของ LINE: สร้าง OA → OA Manager เปิด Messaging API → **เลือก provider ที่มี Login channel** (อย่ากด "สร้างโพรไวเดอร์ใหม่").
+
+---
+## (อ้างอิง) ขั้นตอนเดิม — งาน console + secret + deploy
 
 ## ทำไมต้อง setup เพิ่ม
 - **LINE Login channel** (`2010529290`) ใช้ "เข้าสู่ระบบ" ได้ แต่ **push ข้อความไม่ได้**

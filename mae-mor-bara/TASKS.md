@@ -11,11 +11,11 @@
 |---|---|---|---|---|
 | Foundation (ดีไซน์/shell) | 3 | 3 | 0 | 0 |
 | Auth journey (Unblocker A) | 8 | 8 | 0 | 0 |
-| Core features (Phase 1) | 7 | 6 | 1 (C7 activate) | 0 |
+| Core features (Phase 1) | 7 | 7 | 0 | 0 |
 | Commerce | 3 | 0 | 0 | 3 |
 | Retention/KPI | 2 | 0 | 0 | 2 |
 | Landing (P1.9) | 1 | 0 | 0 | 1 |
-| **รวม (feature)** | **24** | **17** | **1** (C7 activate) | **6** |
+| **รวม (feature)** | **24** | **18** | **0** | **6** |
 | Sprint R (redesign) | 6 | 6 (R0–R6) | 0 | 0 |
 
 > ✅ **Sprint 0+1+2+3 เสร็จ** (Auth e2e + Core loop + Viral) · commit/push: `083daf1`
@@ -46,7 +46,7 @@
 | **C4** | **Pick a Card** — ไพ่ 1/3 (สำรับ 12 ใบ ผลบวกเสมอ) + flip/dim + reshuffle + share · `Fortune.cards/pickResult` | app: pick | C2,C3 | ✅ view `#pick` ใน `app.html` | 3 |
 | **C5** | **Lucky Charm Quiz** — mood + intention (2 ข้อ <1 นาที) → `Fortune.recommendCharm` (6 charm) + share | app: quiz | C2 | ✅ view `#quiz` ใน `app.html` | 3 |
 | **C6** | **Mood Journal + Streak** — mood รายวัน + streak 7 วัน (นับ client จาก journal) + check-in + "ดวงตรงไหม?" (flywheel) + history | app: journal | F3,A7 | ✅ `app.html` + deployed | 4 |
-| **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง (opt-in จาก A6) · **โค้ดเสร็จ** `functions/notify.js` (scheduled 08:00 ICT + manual, multicast) · **เหลือ activate** (Messaging API channel + secrets + deploy → `C7-SETUP.md`) | — | A7,C1 | 🟡 code✅ / activate⬜ | 4 |
+| **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง · `functions/notify.js` **deployed** (sched 08:00 ICT + manual) · Messaging channel `2010545788` (OA `@tiger_romeo`, provider `2005291693`) · **toggle opt-in + ปุ่มเพิ่มเพื่อนในหน้า Profile** | — | A7,C1 | ✅ activated | 4 |
 | **D1** | **Charm Shop (lean)** — tab ตาม intention + digital charm <฿99 + grid | app: shop | F3 | ⬜ | 5 |
 | **D2** | **Product Detail** — story สั้น + sticky buy + โบนัส Digital Charm ใน LINE | app: detail | D1 | ⬜ | 5 |
 | **D3** | **Payment + orders/** — PromptPay/Omise (provider โฮสต์) + `orders/` | — | D1,A7 | ⬜ | 5 |
