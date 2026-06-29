@@ -13,10 +13,10 @@
 | **4 Retention** | C6 Journal/Streak · C7 LINE push | ⬜ |
 | **5 Commerce** | D1 Shop · D2 Product Detail · D3 Payment+orders/ | ⬜ |
 | **6 Scale** | E1 Profile/Collection · E2 KPI · L1 Landing | ⬜ |
-| **R Redesign** ⭐ | R1–R6 CAPY POP (re-skin, parallel `app-v2.html`, รอ PO) | ⬜ (R0 ✅) |
+| **R Redesign** ⭐ | R1–R5 CAPY POP (re-skin, parallel `app-v2.html`) ✅ · R6 = รอ PO sign-off | ✅ (R0–R5) · R6 ⬜ |
 | Phase 2 | Premium · Collection เต็ม · LINE automation … (strategy, หลัง KPI) | 🔭 |
 
-**ถัดไป (user เลือก): Sprint R** · ทางเลือก: Sprint 4. **KPI Phase 1:** D7≥25% · Share≥25% · CTA≥15% · Quiz≥60% · ATC≥10% · LINE≥70%
+**ถัดไป: R6 (รอ product owner sign-off)** หรือ feature track **Sprint 4** (Retention). **KPI Phase 1:** D7≥25% · Share≥25% · CTA≥15% · Quiz≥60% · ATC≥10% · LINE≥70%
 
 ---
 
@@ -28,19 +28,19 @@
 อ่าน context จาก: mae-mor-bara/NEXT-SESSION.md, TASKS.md, SPEC.md, ROADMAP-v2.md
 และ memory: mae-mor-bara-v2-roadmap.md
 
-สถานะ: Sprint 0+1+2+3 เสร็จ (16/23) + ดีไซน์ใหม่ "CAPY POP" ออกแบบ+ล็อกแล้ว (Sprint R)
-- production live (theme เดิม Cute Mystic): C1 Home · C3 Fortune · C4 Pick a Card · C5 Quiz
-- engine reuse: window.Fortune + window.ShareCard · พรีวิว /app?demo=1 (ไม่เขียน Firestore)
+สถานะ: Sprint 0+1+2+3 เสร็จ (16/24) + Sprint R (Redesign CAPY POP) R1–R5 เสร็จ
+- production live (theme เดิม Cute Mystic): app.html + share-card.js — /app?demo=1
+- ใหม่ (parallel ยังไม่ replace): app-v2.html + share-card-v2.js ธีม CAPY POP — /app-v2?demo=1
+  reuse window.Fortune เดิม 100% · มาสคอต mascots/m*.webp (<100KB) สลับท่าตามฟีเจอร์
+- เหลือ R6 = product owner sign-off (A/B: /app-v2?demo=1 เทียบ /app?demo=1) ก่อน replace
 
-ขอเริ่ม Sprint R — Redesign "CAPY POP" (ดู TASKS.md ส่วน Sprint R):
-- ทิศทาง LOCK แล้ว: ส้มมะม่วง #ff6a2b + เสียงแม่หมอกวนเต็มแม็กซ์ + เล่นสนุก POP + มาสคอตเป็นพระเอก
-- assets พร้อม: design-tokens-v2.css · redesign-capypop.html (concept จูนแล้ว) · mascots/m1-m10.png (โปร่งใส+ย่อ 600px)
-- งาน: R1 optimize→webp · R2 แปลง app shell · R3 Home(hero m3) · R4 Fortune/Pick/Quiz+สลับท่ามาสคอต · R5 share-card
-- pose map: m1 avatar · m3 hero · m4 ไพ่ · m5 เงิน · m6 quiz · m9 บันทึก · m10 โปรไฟล์
-- ⚠️ track แยก · รอ product owner ก่อน replace production
+เลือกทำอย่างใดอย่างหนึ่ง:
+(a) R6 — รอ/ขอ sign-off แล้ว replace app.html+share-card.js ด้วย v2 (หรือ A/B)
+(b) Sprint 4 Retention = C6 Journal/Streak (เขียน users/{uid}/journal/) + C7 LINE push
+    ⚠️ ถ้าทำ feature ใหม่ต่อ ให้ทำบน app-v2.html (ธีมที่จะใช้จริง) ไม่ใช่ app.html เดิม
 
-(ทางเลือก feature track: Sprint 4 Retention = C6 Journal/Streak + C7 LINE push)
 ยึด static no-build + Firebase (SPEC §1-4) · capybarabu-mae-mhor แชร์ Firestore+Hosting กับ autopost
+JS cache: bump ?v=sN ที่ script src · พรีวิว serve clean-url ตัด query → เปิด /app-v2?demo=1 (ไม่ใส่ .html)
 ```
 
 ---
@@ -55,13 +55,15 @@
 
 ---
 
-## 🎨 พร้อมทำ (Sprint R — Redesign "CAPY POP") · ออกแบบ+ล็อกแล้ว 2026-06-28
+## ✅ เสร็จแล้ว (Sprint R — Redesign "CAPY POP") · 2026-06-29
 - **ทำไม:** research Gen Z (Boundev: muted=น่าลืม · Duolingo: มาสคอตมีบุคลิก · สายมูไทย mu-nimalistic) → theme เดิม "Cute Mystic" (ม่วง gradient) เสี่ยงดู AI-slop
-- **ล็อกกับ user:** ส้มมะม่วง `#ff6a2b` · เสียงแม่หมอกวนเต็มแม็กซ์ · เล่นสนุก POP (neo-brutalist toy) · มาสคอตเป็นพระเอก · Anuphan+IBM Plex Mono
-- **assets:** `design-tokens-v2.css` · `redesign-capypop.html` (concept จูนแล้ว — ม่วง×ส้ม complementary, hero ใช้ท่า m3) · `redesign-minimal.html` (ALMANAC editorial = reference) · `mascots/m1–m10.png` (**ตัดพื้นหลังขาว→โปร่งใส flood-fill + ย่อ 600px แล้ว**, เดิม PNG ไม่มี alpha)
-- **งานเหลือ:** R1 optimize→webp · R2 app shell · R3 Home · R4 Fortune/Pick/Quiz+สลับท่ามาสคอต · R5 share-card · R6 product-owner sign-off (ดู TASKS.md)
-- **pose map:** m1 avatar · m3 hero(พลังวันนี้) · m4 เปิดไพ่ · m5 การเงิน · m6 quiz · m7 shop · m8 กันลบ · m9 บันทึก · m10 โปรไฟล์
-- **TODO ก่อน production:** ย่อรูป→webp · รอ product owner (ยังไม่ replace theme เดิม)
+- **ล็อกกับ user:** ส้มมะม่วง `#ff6a2b` · เสียงแม่หมอกวนเต็มแม็กซ์ · เล่นสนุก POP (neo-brutalist toy: ขอบ 2px + เงาแข็ง) · มาสคอตเป็นพระเอก · Anuphan+IBM Plex Mono
+- **R1 ✅** มาสคอต `mascots/m1–m10.webp` (PIL: ย่อ 480px + quality tune → **ทุกไฟล์ <100KB**, จาก PNG ~0.66MB). PNG เดิมยังอยู่ (ตัด bg โปร่งใสแล้ว)
+- **R2/R3/R4 ✅** `app-v2.html` (**parallel ไม่ทับ `app.html` production**) — re-skin CAPY POP เต็มทุก view, **reuse logic เดิม 100%** (hash router · Firebase · `window.Fortune` · birthdate sheet · quiz/pick/fortune). hero m3 + speech bubble กวน + trio chips pop + action tiles flat + dark nav mango-active. สลับมาสคอตตามฟีเจอร์ (m1 avatar · m3 hero · m4 ไพ่ · m5 เงิน · m6 quiz · m7 shop · m10 โปรไฟล์)
+- **R5 ✅** `share-card-v2.js` (global `ShareCard`, drop-in แทน `share-card.js` เฉพาะหน้า v2) — canvas 1080×1350 palette CAPY POP (cream/mango/ink) + เงาแข็ง popBlock + มาสคอต (ส่ง `data.mascot` ตามผล) + ฟอนต์ Anuphan
+- **verify (local 3457, `/app-v2?demo=1`):** ✅ home (78% + m3) · fortune เงิน (m5) · pick (deck flip/dim + m4) · quiz→charm (m6) · share canvas เรนเดอร์ mango/tile ไม่ taint · ไม่มี console error · แก้ overlap มาสคอต-คะแนนใน result header
+- **R6 ⬜ เหลืออย่างเดียว:** product owner sign-off → replace `app.html`/`share-card.js` ด้วย v2 หรือ A/B test (`/app-v2?demo=1` เทียบ `/app?demo=1`). **ยังไม่ replace production**
+- **assets อ้างอิง:** `design-tokens-v2.css` · `redesign-capypop.html` (concept) · `redesign-minimal.html` (ALMANAC reference)
 
 ---
 

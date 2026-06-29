@@ -16,10 +16,11 @@
 | Retention/KPI | 2 | 0 | 0 | 2 |
 | Landing (P1.9) | 1 | 0 | 0 | 1 |
 | **รวม (feature)** | **24** | **16** | **0** | **8** |
-| Sprint R (redesign) | 6 | 1 (R0) | 0 | 5 |
+| Sprint R (redesign) | 6 | 5 (R0–R5) | 0 | 1 (R6 รอ PO) |
 
 > ✅ **Sprint 0+1+2+3 เสร็จ** (Auth e2e + Core loop + Viral) · commit/push: `083daf1`
-> **ถัดไป (user เลือก) = Sprint R (Redesign CAPY POP)** · ทางเลือก feature track = Sprint 4 (Retention: C6 Journal/Streak + C7 LINE push)
+> ✅ **Sprint R (R1–R5) เสร็จ** — `app-v2.html` parallel ธีม CAPY POP (verify local ผ่าน: home/fortune/pick/quiz/share, สลับมาสคอต, ไม่มี console error). **เหลือ R6 = product owner sign-off** ก่อน replace production
+> **ถัดไป = R6 (รอ PO) หรือ feature track Sprint 4** (Retention: C6 Journal/Streak + C7 LINE push)
 
 ---
 
@@ -77,12 +78,12 @@ Sprint R · Redesign     R1→R6 "CAPY POP" (track แยก · รอ product o
 | # | Task | ใช้ asset | สถานะ |
 |---|---|---|---|
 | **R0** | Design review + research Gen Z + concept 3 ทิศทาง + lock ทิศทาง + ตัดพื้นหลังมาสคอต 10 ท่า | — | ✅ 2026-06-28 |
-| **R1** | Optimize มาสคอต → webp (ตอนนี้ PNG 600px ~0.66MB/ไฟล์) ให้เบาพอ LINE WebView | mascots/ | ⬜ |
-| **R2** | แปลง `app.html` shell → CAPY POP (mango · Anuphan · pop shadow · dark nav) | design-tokens-v2.css | ⬜ |
-| **R3** | Home (C1) ธีมใหม่ + hero ท่า m3 + เสียงแม่หมอกวน + trio chips pop | m3 · m1(avatar) | ⬜ |
-| **R4** | Fortune/Pick-a-card/Quiz ธีมใหม่ + **สลับท่ามาสคอตตามฟีเจอร์** | m4(ไพ่) m5(เงิน) m6(quiz) m9 m8 | ⬜ |
-| **R5** | Share-card canvas ใหม่ — ใส่มาสคอต + palette CAPY POP (growth lever) | share-card.js · mascots | ⬜ |
-| **R6** | Product owner sign-off → replace theme เดิม / หรือ A/B test | — | ⬜ |
+| **R1** | Optimize มาสคอต → webp (m1–m10, 480px, ทุกไฟล์ <100KB เบาพอ LINE WebView) | `mascots/m*.webp` | ✅ 2026-06-29 |
+| **R2** | สร้าง `app-v2.html` (parallel, ไม่ทับ production) shell CAPY POP (mango · Anuphan · pop shadow · dark nav) — reuse router/Firebase/Fortune | design-tokens-v2.css | ✅ |
+| **R3** | Home (C1) ธีมใหม่ + hero ท่า m3 + เสียงแม่หมอกวน + trio chips pop + avatar m1 | m3 · m1(avatar) | ✅ |
+| **R4** | Fortune/Pick-a-card/Quiz ธีมใหม่ + **สลับท่ามาสคอตตามฟีเจอร์** (m5 เงิน · m4 ไพ่ · m6 quiz · m7 shop · m10 โปรไฟล์) | m4 m5 m6 m7 m8 m10 | ✅ |
+| **R5** | Share-card canvas ใหม่ `share-card-v2.js` (global `ShareCard`) — มาสคอต + palette CAPY POP (growth lever) | share-card-v2.js · mascots | ✅ |
+| **R6** | Product owner sign-off → replace theme เดิม / หรือ A/B test (`/app-v2?demo=1` vs `/app?demo=1`) | — | ⬜ (รอ PO) |
 
 **Pose → feature map:** m1 ทักทาย/avatar · m3 พลังวันนี้(hero) · m4 เปิดไพ่ · m5 การเงิน · m6 charm quiz · m7 charm shop · m8 กันลบ/จี้ · m9 บันทึก · m10 โปรไฟล์
 

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>แม่หมอบาร่า · CAPY POP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-tokens-v2.css" />
+<style>
+/* =============================================================
+   app-v2 — CAPY POP shell (parallel track, รอ product owner)
+   neo-brutalist toy: ขอบ 2px + เงาแข็ง · มาสคอตเป็นพระเอก
+   reuse logic เดิม (router · Firebase · Fortune · ShareCard)
+   ============================================================= */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; }
+html, body { background: var(--cream); }
+body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weight: 500; }
+::selection { background: var(--mango); color: #fff; }
+
+/* ---- App frame ---- */
+.app { position: relative; width: min(430px, 100%); min-height: 100vh; margin: 0 auto;
+  background: var(--cream); overflow-x: hidden;
+  padding: calc(env(safe-area-inset-top) + 18px) 18px calc(110px + env(safe-area-inset-bottom)); }
+
+/* ---- header ---- */
+.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.user-block { display: flex; gap: 10px; align-items: center; }
+.avatar { width: 46px; height: 46px; border-radius: 15px; background: var(--mango); overflow: hidden;
+  display: grid; place-items: center; border: var(--pop-border); box-shadow: var(--pop-shadow-sm); font-size: 22px; }
+.avatar img { width: 150%; height: 150%; object-fit: cover; object-position: 50% 14%; }
+.tiny { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--muted); line-height: 1.1; text-transform: uppercase; }
+.hello { font-weight: 700; font-size: 17px; letter-spacing: -.02em; color: var(--ink); }
+.icon-btn { display: flex; align-items: center; gap: 6px; background: var(--ink); color: var(--cream);
+  font-weight: 700; font-size: 14px; padding: 10px 14px; border: 0; border-radius: var(--r-pill);
+  font-family: var(--disp); cursor: pointer; }
+
+/* ===== COMPONENTS (POP) ===== */
+.btn { width: 100%; border: 0; border-radius: 20px; padding: 16px; font-weight: 700; font-size: 16px;
+  cursor: pointer; color: var(--cream); background: var(--ink); font-family: var(--disp);
+  display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 0 -1px #000; }
+.btn:active { transform: var(--pop-press); box-shadow: 0 2px 0 -1px #000; }
+.btn.mango { background: var(--mango); color: #fff; box-shadow: 0 6px 0 -1px var(--mango-2); }
+.btn.mango:active { box-shadow: 0 2px 0 -1px var(--mango-2); }
+.btn.secondary { background: var(--card); color: var(--ink); border: var(--pop-border); box-shadow: var(--pop-shadow-sm); }
+.btn.secondary:active { box-shadow: 0 1px 0 -1px var(--ink); }
+
+.card { background: var(--card); border: var(--pop-border); border-radius: var(--r-card);
+  padding: 16px; box-shadow: var(--pop-shadow-sm); }
+.card + .card { margin-top: 14px; }
+
+/* ---- HERO (mascot is the star) ---- */
+.hero { background: var(--mango); border-radius: var(--r-hero); padding: 18px 20px 20px; color: #fff;
+  box-shadow: 0 14px 0 -4px var(--mango-2); border: var(--pop-border); }
+.hrow { display: flex; align-items: center; gap: 6px; }
+.hleft { flex: 1; min-width: 0; }
+.hero .label { font-weight: 600; font-size: 14px; opacity: .95; }
+.hero .pwr { font-weight: 700; font-size: 76px; line-height: .9; letter-spacing: -.04em; display: flex; align-items: flex-start; gap: 3px; }
+.hero .pwr small { font-size: 28px; margin-top: 10px; font-weight: 700; }
+.hero .hsub { font-size: 13px; font-weight: 500; opacity: .95; margin-top: 6px; max-width: 92%; line-height: 1.4; }
+.hero .capy { width: 152px; flex: 0 0 152px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.2)); animation: bob 3.6s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-7px) rotate(-1.5deg); } }
+.hero .bubble { background: #fff; color: var(--ink); border-radius: 18px 18px 18px 4px; padding: 12px 14px;
+  font-size: 13.5px; font-weight: 500; line-height: 1.5; margin-top: 8px; box-shadow: 0 6px 0 -1px rgba(0,0,0,.12); }
+.hero .bubble b { color: var(--mango-2); font-weight: 700; }
+
+/* ---- lucky trio (bold chips) ---- */
+.chips { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 18px 0; }
+.chip { background: var(--cream-2); border-radius: var(--r-chip); padding: 13px 8px; text-align: center;
+  border: var(--pop-border); box-shadow: var(--pop-shadow-sm); }
+.chip span { font-family: var(--mono); font-size: 9px; letter-spacing: .06em; color: var(--ink-2); text-transform: uppercase; display: block; }
+.chip b { display: block; font-weight: 700; font-size: 17px; margin-top: 7px; }
+.chip .sw { width: 16px; height: 16px; border-radius: 50%; border: var(--pop-border); margin: 4px auto 0; }
+
+/* ---- fold card ---- */
+.fold { display: flex; gap: 10px; align-items: center; }
+.fold .fe { font-size: 26px; }
+.fold .ft { font-weight: 700; font-size: 13px; color: var(--mango-2); }
+.fold .fx { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; margin-top: 2px; }
+
+/* ---- section title ---- */
+.section-title { display: flex; align-items: center; justify-content: space-between; margin: 24px 2px 12px; }
+.section-title h3 { margin: 0; font-weight: 700; font-size: 18px; letter-spacing: -.02em; }
+.section-title a { font-family: var(--mono); font-size: 11px; color: var(--mango-2); text-decoration: none; font-weight: 500; }
+
+/* ---- action tiles (flat color blocks) ---- */
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.action-card { border-radius: var(--r-card); padding: 16px; cursor: pointer; border: var(--pop-border);
+  box-shadow: var(--pop-shadow); min-height: 116px; display: flex; flex-direction: column; justify-content: space-between;
+  transition: transform .12s, box-shadow .12s; }
+.action-card:active { transform: var(--pop-press); box-shadow: 0 2px 0 -1px var(--ink); }
+.action-card .emoji { font-size: 30px; }
+.action-card b { display: block; font-weight: 700; font-size: 16px; }
+.action-card span { display: block; color: var(--ink-2); font-size: 11.5px; line-height: 1.35; margin-top: 3px; font-weight: 500; }
+.t-pink { background: var(--tile-pink); } .t-mint { background: var(--tile-mint); }
+.t-sun { background: var(--tile-sun); } .t-grape { background: var(--tile-grape); }
+
+/* ---- big share CTA (growth lever) ---- */
+.share-cta { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 14px;
+  background: var(--ink); color: var(--cream); border: 0; border-radius: 22px; padding: 18px; font-family: var(--disp);
+  font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 6px 0 -1px #000; }
+.share-cta:active { transform: var(--pop-press); box-shadow: 0 2px 0 -1px #000; }
+
+/* ---- title row (sub-page) ---- */
+.title-row { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; }
+.back { border: var(--pop-border); background: var(--card); width: 42px; height: 42px; border-radius: 14px;
+  box-shadow: var(--pop-shadow-sm); font-size: 18px; cursor: pointer; font-family: var(--disp); }
+.back:active { transform: var(--pop-press); box-shadow: 0 1px 0 -1px var(--ink); }
+.screen-title { font-size: 24px; font-weight: 700; letter-spacing: -.03em; }
+
+/* ---- pill ---- */
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--r-pill);
+  background: var(--mango); color: #fff; font-size: 12px; font-weight: 700; border: var(--pop-border); box-shadow: var(--pop-shadow-sm); }
+
+/* ---- segmented control ---- */
+.segmented { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.seg { padding: 12px 8px; border-radius: 15px; text-align: center; background: var(--cream-2); color: var(--ink-2);
+  font-size: 13px; font-weight: 600; border: var(--pop-border); box-shadow: var(--pop-shadow-sm); cursor: pointer; }
+.seg.active { color: #fff; background: var(--mango); }
+
+/* ---- option grid (fortune category) ---- */
+.option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.option { min-height: 92px; border-radius: var(--r-chip); padding: 13px; border: var(--pop-border); background: var(--card);
+  cursor: pointer; transition: .12s; box-shadow: var(--pop-shadow-sm); }
+.option:active { transform: var(--pop-press); }
+.option.selected { background: var(--tile-sun); }
+.option .emoji { font-size: 26px; display: block; margin-bottom: 6px; }
+.option b { display: block; font-weight: 700; font-size: 14px; }
+.option span { color: var(--ink-2); font-size: 11px; font-weight: 500; }
+
+/* ---- streak ---- */
+.streak { display: flex; gap: 7px; margin-top: 12px; }
+.day { flex: 1; height: 44px; border-radius: 14px; background: var(--cream-2); display: grid; place-items: center;
+  font-weight: 700; font-size: 15px; color: var(--ink-2); border: var(--pop-border); }
+.day.done { background: var(--mango); color: #fff; }
+
+/* ---- placeholder ---- */
+.placeholder { text-align: center; color: var(--muted); padding: 30px 10px; }
+.placeholder .big { font-size: 52px; }
+
+/* ---- views + bottom nav ---- */
+.view { display: none; animation: fade .26s ease both; }
+.view.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.bottom-nav { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  width: min(404px, calc(100% - 28px)); z-index: 50; background: var(--ink); border-radius: 24px;
+  display: grid; grid-template-columns: repeat(5,1fr); padding: 8px; box-shadow: 0 10px 30px rgba(36,26,18,.3); }
+.bottom-nav button { border: 0; background: transparent; border-radius: 16px; font-size: 18px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #bdae9a;
+  font-weight: 600; font-family: var(--disp); padding: 8px 0; }
+.bottom-nav button span { font-size: 9px; font-weight: 600; }
+.bottom-nav button.active { background: var(--mango); color: #fff; }
+
+/* ---- fortune/pick/charm result card (POP) ---- */
+.fresult { margin-top: 16px; border-radius: var(--r-card); overflow: hidden; border: var(--pop-border);
+  background: var(--card); box-shadow: var(--pop-shadow); animation: fade .26s ease both; }
+.fresult .top { padding: 18px; color: #fff; background: var(--mango); position: relative; border-bottom: var(--pop-border); }
+.fresult .top .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-right: 78px; }
+.fresult .top h3 { margin: 0; font-weight: 700; font-size: 19px; letter-spacing: -.02em; max-width: 62%; }
+.fresult .top .sc { font-weight: 700; font-size: 40px; letter-spacing: -.04em; }
+.fresult .top .mascot-sm { position: absolute; right: 8px; bottom: -2px; width: 78px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.22)); }
+.fresult .body { padding: 16px; }
+.fresult .ftext { font-size: 14.5px; line-height: 1.65; color: var(--ink); font-weight: 500; }
+.fresult .meaning { font-size: 13.5px; line-height: 1.6; color: var(--ink-2); margin-top: 8px; font-weight: 500; }
+.fresult .advice { margin-top: 12px; padding: 12px 14px; border-radius: 16px; background: var(--tile-mint);
+  font-size: 13px; color: var(--ink); font-weight: 700; border: var(--pop-border); }
+.fresult .advice span { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); font-weight: 500; margin-bottom: 3px; text-transform: uppercase; }
+.fresult .foldline { margin-top: 12px; font-size: 12.5px; color: var(--ink-2); line-height: 1.5; font-weight: 500; }
+.fresult .fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.fresult .fchip { padding: 8px 12px; border-radius: var(--r-pill); background: var(--cream-2); border: var(--pop-border);
+  font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+.fresult .fchip b { font-family: var(--disp); color: var(--ink); }
+.fresult .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+
+/* ---- Pick a Card deck (POP) ---- */
+.deck { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; perspective: 1000px; }
+.pcard { aspect-ratio: 3/4.4; border-radius: 18px; cursor: pointer; position: relative; background: var(--grape);
+  border: var(--pop-border); box-shadow: var(--pop-shadow); display: grid; place-items: center;
+  transition: transform .2s, box-shadow .2s; overflow: hidden; }
+.pcard .pback { font-size: 34px; z-index: 2; filter: drop-shadow(0 3px 5px rgba(0,0,0,.25)); }
+.pcard:active { transform: translateY(-4px); }
+.pcard.dim { opacity: .3; pointer-events: none; transform: none; }
+.pcard.flip { animation: flipIn .5s ease both; background: var(--sun); }
+.pcard.flip .pback { font-size: 46px; }
+@keyframes flipIn { 0% { transform: rotateY(90deg) scale(1.05); } 100% { transform: rotateY(0) scale(1); } }
+
+/* ---- Quiz (POP) ---- */
+.quiz-progress { display: flex; gap: 6px; margin: 2px 0 18px; }
+.quiz-progress i { flex: 1; height: 8px; border-radius: 999px; background: var(--cream-2); border: var(--pop-border); }
+.quiz-progress i.on { background: var(--mango); }
+.quiz-q { font-size: 22px; font-weight: 700; letter-spacing: -.02em; margin: 6px 0 18px; }
+.quiz-opts { display: grid; gap: 10px; }
+.quiz-opt { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 18px; background: var(--card);
+  border: var(--pop-border); box-shadow: var(--pop-shadow-sm); cursor: pointer; transition: .12s; }
+.quiz-opt:active { transform: var(--pop-press); box-shadow: 0 1px 0 -1px var(--ink); }
+.quiz-opt .qe { font-size: 26px; }
+.quiz-opt b { font-size: 15px; font-weight: 700; }
+.charm-badge { width: 132px; height: 132px; border-radius: 36px; margin: 8px auto 14px; display: grid; place-items: center;
+  font-size: 64px; background: var(--tile-grape); border: var(--pop-border); box-shadow: var(--pop-shadow); }
+
+/* ---- big mascot block (charm shop / journal / profile) ---- */
+.mascot-block { text-align: center; }
+.mascot-block img { width: 120px; filter: drop-shadow(0 8px 12px rgba(0,0,0,.18)); }
+
+/* ---- bottom sheet (birthdate) ---- */
+.sheet-host { position: fixed; inset: 0; background: rgba(36,26,18,.5); display: none; z-index: 60; }
+.sheet-host.open { display: block; }
+.sheet { position: absolute; left: 50%; transform: translateX(-50%) translateY(100%); bottom: 0;
+  width: min(430px, 100%); background: var(--card); border-radius: 28px 28px 0 0; border: var(--pop-border);
+  padding: 18px 18px calc(env(safe-area-inset-bottom) + 22px); transition: transform .3s ease; }
+.sheet-host.open .sheet { transform: translateX(-50%) translateY(0); }
+.grabber { width: 46px; height: 5px; border-radius: 999px; background: var(--line); margin: 0 auto 14px; }
+.date-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; margin: 12px 0; }
+.date-row select { width: 100%; padding: 13px 10px; border-radius: 14px; background: var(--cream); border: var(--pop-border);
+  color: var(--ink); font-size: 14px; font-weight: 600; font-family: var(--disp); -webkit-appearance: none; appearance: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Home (C1 Daily Luck) ===== -->
+  <section class="view active" id="home">
+    <div class="app-header">
+      <div class="user-block">
+        <div class="avatar" id="h-avatar"><img src="mascots/m1.webp?v=1" alt="" onerror="this.parentNode.textContent='🦫'" /></div>
+        <div><div class="tiny" id="greet-time">สวัสดี</div><div class="hello" id="greet-name">สวัสดี เพื่อน ✨</div></div>
+      </div>
+      <button class="icon-btn" id="streak-pill">🔥 7</button>
+    </div>
+
+    <section class="hero">
+      <div class="hrow">
+        <div class="hleft">
+          <div class="label" id="hero-label">พลังวันนี้ ✨</div>
+          <div class="pwr"><span id="hero-power">–</span><small>%</small></div>
+          <div class="hsub" id="hero-sub">กำลังอ่านพลังของคุณ…</div>
+        </div>
+        <img class="capy" id="hero-mascot" src="mascots/m3.webp?v=1" alt="แม่หมอบาร่า" onerror="this.style.display='none'" />
+      </div>
+      <div class="bubble" id="hero-bubble">แม่หมอบาร่ากำลังเปิดไพ่ให้คุณอยู่นะ ✨</div>
+    </section>
+
+    <div class="chips">
+      <div class="chip"><span>สีมงคล</span><b id="chip-color" style="display:flex;align-items:center;justify-content:center;gap:6px"><i class="sw" id="chip-color-sw" style="display:inline-block;background:var(--mint)"></i><span id="chip-color-name" style="font-family:var(--disp);font-size:16px;color:var(--ink);text-transform:none;letter-spacing:0">–</span></b></div>
+      <div class="chip"><span>เลขมงคล</span><b id="chip-number">–</b></div>
+      <div class="chip"><span>เวลามงคล</span><b id="chip-time">–</b></div>
+    </div>
+
+    <!-- fold round1: ราศี/นักษัตร/เลขชะตา/สีมงคล -->
+    <div class="card fold">
+      <div class="fe" id="fold-emoji">🌙</div>
+      <div style="flex:1"><div class="ft" id="fold-title">ศาสตร์เฉพาะคุณ</div>
+        <div class="fx" id="fold-text">—</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:12px">
+      <button class="btn mango" onclick="shareDaily()">📤 แชร์การ์ดวันนี้</button>
+      <button class="btn secondary" id="birth-btn" style="width:auto;padding:16px;display:none" onclick="openBirth()">🎂</button>
+    </div>
+
+    <div class="section-title"><h3>วันนี้ให้แม่หมอจัดเรื่องไหนดี? 🔮</h3><a href="#/fortune">ดูทั้งหมด</a></div>
+    <div class="action-grid">
+      <div class="action-card t-pink" onclick="openFortune('love')"><div class="emoji">💘</div><div><b>ดวงความรัก</b><span>คนคุย คนเก่า ความสัมพันธ์</span></div></div>
+      <div class="action-card t-mint" onclick="openFortune('money')"><div class="emoji">💸</div><div><b>ดวงการเงิน</b><span>รายได้ โชค งานเสริม</span></div></div>
+      <div class="action-card t-sun" onclick="nav('pick')"><div class="emoji">🃏</div><div><b>เปิดไพ่ 1 ใบ</b><span>ตั้งคำถามในใจ</span></div></div>
+      <div class="action-card t-grape" onclick="nav('quiz')"><div class="emoji">🧿</div><div><b>หาเครื่องราง</b><span>ควิซสั้น &lt; 1 นาที</span></div></div>
+    </div>
+
+    <button class="share-cta" onclick="shareDaily()">📤 แคปไปอวดเพื่อนเลยจ้า ดวงดีต้องโชว์ ✨</button>
+  </section>
+
+  <!-- ===== Fortune Engine (C3) ===== -->
+  <section class="view" id="fortune">
+    <div class="title-row"><div class="screen-title">ดูดวง 🔮</div></div>
+    <span class="pill">🔮 เลือกเรื่องที่อยากให้แม่หมอจัด</span>
+    <div class="card" style="margin-top:14px">
+      <div class="section-title" style="margin-top:0"><h3>วันนี้อยากเด่นเรื่องไหน?</h3></div>
+      <div class="option-grid" id="fortuneCats"></div>
+      <button class="btn mango" style="margin-top:14px" onclick="runFortune()">ให้แม่หมอทักเลย ✨</button>
+    </div>
+    <div id="fortuneResult"></div>
+  </section>
+
+  <!-- ===== Pick a Card (C4) ===== -->
+  <section class="view" id="pick">
+    <div class="title-row"><button class="back" onclick="nav('home')">‹</button><div class="screen-title">เปิดไพ่ 🃏</div></div>
+    <p style="color:var(--ink-2);font-size:13px;margin:0 0 16px;line-height:1.55;font-weight:500" id="pick-hint">ตั้งคำถามในใจ… แล้วเลือกไพ่ 1 ใบที่สะดุดตาที่สุด 🔮</p>
+    <div class="deck" id="deck"></div>
+    <div id="pickResult"></div>
+  </section>
+
+  <!-- ===== Lucky Charm Quiz (C5) ===== -->
+  <section class="view" id="quiz">
+    <div class="title-row"><button class="back" onclick="nav('home')">‹</button><div class="screen-title">หาเครื่องราง 🧿</div></div>
+    <div id="quizBody"></div>
+  </section>
+
+  <!-- ===== Charm (Shop) ===== -->
+  <section class="view" id="charm">
+    <div class="title-row"><div class="screen-title">ร้านเครื่องราง 🧿</div></div>
+    <div class="card mascot-block">
+      <img src="mascots/m7.webp?v=1" alt="" onerror="this.style.display='none'" />
+      <div class="hello" style="font-size:17px;margin-top:6px">ยังไม่รู้ว่าเครื่องรางไหนใช่?</div>
+      <p style="color:var(--ink-2);font-size:12.5px;margin:6px 0 14px;font-weight:500">ทำควิซสั้น ๆ ให้แม่หมอช่วยเลือกเครื่องรางที่เข้ากับคุณวันนี้</p>
+      <button class="btn mango" onclick="nav('quiz')">🔮 ทำควิซหาเครื่องราง</button>
+    </div>
+    <div class="placeholder"><div class="big">🛍️</div>Charm Shop เต็มรูปแบบ — จะต่อใน Sprint 5</div>
+  </section>
+
+  <!-- ===== Journal ===== -->
+  <section class="view" id="journal">
+    <div class="title-row"><div class="screen-title">สมุดบันทึก 📔</div></div>
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>🔥 Daily Streak</h3></div>
+      <p style="color:var(--ink-2);font-size:12.5px;margin:0;font-weight:500">เปิดเช็กดวงครบ 7 วัน ปลดล็อก Digital Lucky Charm</p>
+      <div class="streak">
+        <div class="day done">1</div><div class="day done">2</div><div class="day done">3</div>
+        <div class="day">4</div><div class="day">5</div><div class="day">6</div><div class="day">7</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>วันนี้ดวงตรงไหม?</h3></div>
+      <div class="segmented"><div class="seg active">ตรงเป๊ะ</div><div class="seg">กลาง ๆ</div><div class="seg">ไม่ตรง</div></div>
+    </div>
+  </section>
+
+  <!-- ===== Profile ===== -->
+  <section class="view" id="profile">
+    <div class="title-row"><div class="screen-title">โปรไฟล์ 🦫</div></div>
+    <div class="card mascot-block">
+      <img src="mascots/m10.webp?v=1" alt="" onerror="this.style.display='none'" />
+      <div class="hello" style="font-size:18px;margin-top:6px" id="profile-name">โปรไฟล์ของฉัน</div>
+      <p style="color:var(--ink-2);font-size:12.5px;margin:4px 0 0;font-weight:500" id="profile-sub">สาย Money Flow · สีมงคล มิ้นต์</p>
+      <div class="chips" style="margin-bottom:0">
+        <div class="chip"><span>การ์ดที่เก็บ</span><b>12</b></div>
+        <div class="chip"><span>เครื่องราง</span><b>3</b></div>
+        <div class="chip"><span>Streak</span><b>7</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Birthdate sheet ===== -->
+  <div class="sheet-host" id="birthSheet">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div class="hello" style="font-size:18px">ใส่วันเกิดของคุณ 🎂</div>
+      <p style="color:var(--ink-2);font-size:12.5px;margin:6px 0 0;font-weight:500">เพื่อให้แม่หมออ่านราศี · ปีนักษัตร · เลขชะตา · สีมงคลได้แม่นขึ้น</p>
+      <div class="date-row"><select id="bd"></select><select id="bm"></select><select id="by"></select></div>
+      <button class="btn mango" onclick="saveBirth()">บันทึกวันเกิด</button>
+      <button class="btn secondary" style="margin-top:8px" onclick="closeBirth()">ไว้ทีหลัง</button>
+    </div>
+  </div>
+
+  <!-- hidden canvas สำหรับ share-card -->
+  <canvas id="shareCanvas" style="display:none"></canvas>
+
+  <!-- ===== Bottom nav ===== -->
+  <nav class="bottom-nav">
+    <button class="active" data-route="home"   onclick="nav('home')">🏠<span>หน้าหลัก</span></button>
+    <button data-route="fortune" onclick="nav('fortune')">🔮<span>ดูดวง</span></button>
+    <button data-route="charm"   onclick="nav('charm')">🧿<span>เครื่องราง</span></button>
+    <button data-route="journal" onclick="nav('journal')">📔<span>บันทึก</span></button>
+    <button data-route="profile" onclick="nav('profile')">🦫<span>ฉัน</span></button>
+  </nav>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="fortune-engine.js?v=s4"></script>
+<script src="share-card-v2.js?v=s4"></script>
+<script>
+// ---- hash router (static, no build) — reuse จาก production ----
+const ROUTES = ['home', 'fortune', 'charm', 'journal', 'profile'];
+const SUBVIEWS = { pick: 'fortune', quiz: 'charm' };
+
+// มาสคอตประจำฟีเจอร์ (R4 — สลับท่าตามฟีเจอร์)
+const MASCOT = { hero:'m3', pick:'m4', money:'m5', quiz:'m6', shop:'m7', protect:'m8', journal:'m9', profile:'m10', avatar:'m1' };
+const mPath = (k) => 'mascots/' + (MASCOT[k] || 'm3') + '.webp?v=1';
+
+function show(id) {
+  if (!ROUTES.includes(id) && !SUBVIEWS[id]) id = 'home';
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+  const navId = SUBVIEWS[id] || id;
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.toggle('active', b.dataset.route === navId));
+  document.querySelector('.app').scrollTo(0, 0);
+  window.scrollTo(0, 0);
+  if (id === 'pick') enterPick(false);
+  if (id === 'quiz') startQuiz();
+}
+function nav(id) { location.hash = '#/' + id; }
+function route() { show((location.hash.replace('#/', '') || 'home')); }
+window.addEventListener('hashchange', route);
+
+// segmented — single-select demo
+document.querySelectorAll('.segmented').forEach(group => {
+  const items = group.querySelectorAll('.seg');
+  items.forEach(it => it.addEventListener('click', () => {
+    items.forEach(x => x.classList.remove('active')); it.classList.add('active');
+  }));
+});
+
+// =============================================================
+// Core loop (reuse จาก production app.html — เปลี่ยนแค่ skin)
+// =============================================================
+const CONFIG = {
+  AUTH_URL: 'auth.html',
+  firebase: {
+    apiKey: 'AIzaSyCawvpDlKji0-p3UW7wvN9ZURkQLoaTBPs',
+    authDomain: 'capybarabu-mae-mhor.firebaseapp.com',
+    projectId: 'capybarabu-mae-mhor',
+    appId: '1:814731135939:web:0f6bf33ba3dac593e84b76',
+    messagingSenderId: '814731135939',
+  },
+};
+
+firebase.initializeApp(CONFIG.firebase);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const serverTime = () => firebase.firestore.FieldValue.serverTimestamp();
+
+let profile = { uid: null };
+let selectedCat = 'love';
+
+const DEMO = new URLSearchParams(location.search).get('demo') === '1';
+
+if (DEMO) {
+  profile = { uid: 'demo', displayName: 'ตอง', birthDate: { d: 7, m: 8, beYear: 2540 }, tone: 'ขำ ๆ' };
+  renderHome(); buildFortuneCats(); renderProfile();
+} else
+auth.onAuthStateChanged(async (user) => {
+  if (!user) { location.href = CONFIG.AUTH_URL; return; }
+  profile.uid = user.uid;
+  profile.displayName = user.displayName || '';
+  profile.photoURL = user.photoURL || '';
+  try {
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (snap.exists) Object.assign(profile, snap.data());
+  } catch (e) { console.warn('load profile', e.message); }
+  profile.uid = user.uid;
+  renderHome(); buildFortuneCats(); renderProfile();
+});
+
+// ---- C1: Daily Luck Home ----
+function greetWord() {
+  const h = new Date().getHours();
+  if (h < 11) return 'อรุณสวัสดิ์';
+  if (h < 17) return 'สวัสดีตอนบ่าย';
+  if (h < 20) return 'สวัสดีตอนเย็น';
+  return 'ราตรีสวัสดิ์';
+}
+function renderHome() {
+  const d = Fortune.daily(profile);
+  const nm = profile.displayName || 'เพื่อน';
+  document.getElementById('greet-time').textContent = greetWord();
+  document.getElementById('greet-name').textContent = 'สวัสดี ' + nm + ' ✨';
+  document.getElementById('hero-label').textContent = 'พลังของ ' + nm + ' วันนี้ ✨';
+  document.getElementById('hero-power').textContent = d.power;
+  document.getElementById('hero-sub').textContent = d.headline;
+  document.getElementById('hero-bubble').textContent = d.bubble;
+
+  document.getElementById('chip-color-sw').style.background = d.color.hex;
+  document.getElementById('chip-color-name').textContent = d.color.name;
+  document.getElementById('chip-number').textContent = d.number;
+  document.getElementById('chip-time').textContent = d.time;
+
+  document.getElementById('fold-emoji').textContent = d.hasBirth && d.zodiac ? d.zodiac.emoji : '🌙';
+  document.getElementById('fold-title').textContent = d.hasBirth
+    ? ('ราศี' + d.zodiac.name + ' · ปี' + d.chinese + ' · เลขชะตา ' + d.lifePath)
+    : 'ศาสตร์เฉพาะคุณ';
+  document.getElementById('fold-text').textContent = d.fold;
+
+  document.getElementById('birth-btn').style.display = d.hasBirth ? 'none' : 'inline-flex';
+}
+
+function renderProfile() {
+  const nm = profile.displayName || 'เพื่อน';
+  const d = Fortune.daily(profile);
+  document.getElementById('profile-name').textContent = nm;
+  document.getElementById('profile-sub').textContent = 'สีมงคล ' + d.color.name + ' · เลข ' + d.number;
+}
+
+// ---- C3: Fortune Engine ----
+function buildFortuneCats() {
+  const host = document.getElementById('fortuneCats');
+  host.innerHTML = Fortune.CATEGORIES.map(c => `
+    <div class="option${c.key === selectedCat ? ' selected' : ''}" data-cat="${c.key}">
+      <span class="emoji">${c.emoji}</span><b>${c.label}${c.featured ? ' ⭐' : ''}</b><span>${c.desc}</span>
+    </div>`).join('');
+  host.querySelectorAll('.option').forEach(o => o.addEventListener('click', () => {
+    host.querySelectorAll('.option').forEach(x => x.classList.remove('selected'));
+    o.classList.add('selected'); selectedCat = o.dataset.cat;
+  }));
+}
+
+// มาสคอตประจำหมวดดูดวง
+function catMascot(key) { return key === 'money' ? mPath('money') : key === 'protect' ? mPath('protect') : mPath('hero'); }
+
+function runFortune() {
+  const r = Fortune.category(selectedCat, profile);
+  window._lastFortune = r;
+  document.getElementById('fortuneResult').innerHTML = `
+    <div class="fresult">
+      <div class="top"><div class="row">
+        <h3>${r.emoji} ดวง${r.label}วันนี้</h3><div class="sc">${r.score}%</div>
+      </div><img class="mascot-sm" src="${catMascot(r.key)}" alt="" onerror="this.style.display='none'" /></div>
+      <div class="body">
+        <div class="ftext">${esc(r.text)}</div>
+        <div class="advice"><span>สิ่งที่ควรทำวันนี้</span>✅ ${esc(r.advice)}</div>
+        <div class="foldline">🔮 ${esc(r.fold)}</div>
+        <div class="fchips">
+          <span class="fchip">สีมงคล <b>${esc(r.color.name)}</b></span>
+          <span class="fchip">เลขมงคล <b>${esc(r.number)}</b></span>
+          <span class="fchip">เวลามงคล <b>${esc(r.time)}</b></span>
+        </div>
+        <button class="btn mango" style="margin-top:14px" onclick="shareFortune()">📤 แชร์ดวง${esc(r.label)}นี้</button>
+      </div>
+    </div>`;
+  document.getElementById('fortuneResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function openFortune(cat) {
+  selectedCat = cat;
+  nav('fortune');
+  buildFortuneCats();
+  setTimeout(runFortune, 60);
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+// ---- C4: Pick a Card ----
+let _pickSalt = 0;
+function enterPick(reshuffle) {
+  if (reshuffle) _pickSalt++;
+  window._pickCards = Fortune.cards(profile, _pickSalt);
+  window._lastPick = null;
+  document.getElementById('pick-hint').textContent = 'ตั้งคำถามในใจ… แล้วเลือกไพ่ 1 ใบที่สะดุดตาที่สุด 🔮';
+  document.getElementById('deck').innerHTML = window._pickCards
+    .map((c, i) => `<div class="pcard" onclick="revealCard(${i})"><span class="pback">🔮</span></div>`).join('');
+  document.getElementById('pickResult').innerHTML = '';
+}
+function revealCard(i) {
+  const card = window._pickCards[i];
+  const r = Fortune.pickResult(card, profile, _pickSalt);
+  window._lastPick = r;
+  document.querySelectorAll('#deck .pcard').forEach((el, idx) => {
+    if (idx === i) { el.classList.add('flip'); el.querySelector('.pback').textContent = card.emoji; }
+    else el.classList.add('dim');
+  });
+  document.getElementById('pick-hint').textContent = 'ไพ่ที่เลือกให้คุณคือ…';
+  setTimeout(() => {
+    document.getElementById('pickResult').innerHTML = `
+      <div class="fresult">
+        <div class="top"><div class="row"><h3>${esc(card.emoji + ' ' + card.name)}</h3><div class="sc">${r.power}%</div></div>
+        <img class="mascot-sm" src="${mPath('pick')}" alt="" onerror="this.style.display='none'" /></div>
+        <div class="body">
+          <div class="ftext">${esc(card.headline)}</div>
+          <div class="meaning">${esc(card.meaning)}</div>
+          <div class="advice"><span>สิ่งที่ควรทำ</span>✅ ${esc(card.advice)}</div>
+          <div class="fchips">
+            <span class="fchip">สีมงคล <b>${esc(r.color.name)}</b></span>
+            <span class="fchip">เลขมงคล <b>${esc(r.number)}</b></span>
+            <span class="fchip">เวลามงคล <b>${esc(r.time)}</b></span>
+          </div>
+          <div class="actions">
+            <button class="btn mango" onclick="sharePick()">📤 แชร์ไพ่นี้</button>
+            <button class="btn secondary" onclick="enterPick(true)">🎲 สับไพ่ใหม่</button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('pickResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 360);
+}
+async function sharePick() { await shareWith(Fortune.shareData(window._lastPick, profile), mPath('pick')); }
+
+// ---- C5: Lucky Charm Quiz ----
+const QUIZ = [
+  { key: 'mood', q: 'ตอนนี้คุณรู้สึกยังไง?', opts: [
+    { val: 'calm',    e: '😌', label: 'ใจสงบ สบาย ๆ' },
+    { val: 'tired',   e: '😮‍💨', label: 'เหนื่อยล้า อยากพัก' },
+    { val: 'anxious', e: '😟', label: 'กังวล คิดมาก' },
+    { val: 'fired',   e: '🤩', label: 'มีไฟ พร้อมลุย' },
+  ] },
+  { key: 'intention', q: 'อยากให้แม่หมอเสริมเรื่องไหน?', opts: [
+    { val: 'money',   e: '💸', label: 'การเงิน รายได้' },
+    { val: 'love',    e: '💘', label: 'ความรัก' },
+    { val: 'work',    e: '💼', label: 'การงาน โอกาส' },
+    { val: 'protect', e: '🧿', label: 'กันพลังลบ ใจนิ่ง' },
+    { val: 'health',  e: '🌿', label: 'สุขภาพกายใจ' },
+  ] },
+];
+let _quizStep = 0, _quizAns = {};
+function startQuiz() { _quizStep = 0; _quizAns = {}; renderQuiz(); }
+function renderQuiz() {
+  const body = document.getElementById('quizBody');
+  if (_quizStep >= QUIZ.length) { renderCharm(); return; }
+  const step = QUIZ[_quizStep];
+  body.innerHTML = `
+    <div class="quiz-progress">${QUIZ.map((_, i) => `<i class="${i <= _quizStep ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="quiz-q">${esc(step.q)}</div>
+    <div class="quiz-opts">${step.opts.map(o =>
+      `<div class="quiz-opt" onclick="answerQuiz('${o.val}')"><span class="qe">${o.e}</span><b>${esc(o.label)}</b></div>`).join('')}</div>`;
+}
+function answerQuiz(val) { _quizAns[QUIZ[_quizStep].key] = val; _quizStep++; renderQuiz(); }
+function renderCharm() {
+  const r = Fortune.recommendCharm(_quizAns, profile);
+  window._lastCharm = r;
+  document.getElementById('quizBody').innerHTML = `
+    <div class="charm-badge">${r.emoji}</div>
+    <div class="fresult">
+      <div class="top"><div class="row"><h3>${esc(r.name)}</h3><div class="sc">${r.power}%</div></div>
+      <img class="mascot-sm" src="${mPath('quiz')}" alt="" onerror="this.style.display='none'" /></div>
+      <div class="body">
+        <div class="ftext">${esc(r.headline)}</div>
+        <div class="meaning">${esc(r.story)}</div>
+        <div class="fchips">
+          <span class="fchip">สีมงคล <b>${esc(r.color.name)}</b></span>
+          <span class="fchip">เลขมงคล <b>${esc(r.number)}</b></span>
+          <span class="fchip">เวลามงคล <b>${esc(r.time)}</b></span>
+        </div>
+        <div class="actions">
+          <button class="btn mango" onclick="shareCharm()">📤 แชร์เครื่องราง</button>
+          <button class="btn secondary" onclick="startQuiz()">↺ ทำใหม่</button>
+        </div>
+        <button class="btn" style="margin-top:10px" onclick="nav('charm')">🛍️ ดูเครื่องรางทั้งหมด</button>
+      </div>
+    </div>`;
+}
+async function shareCharm() { await shareWith(Fortune.shareData(window._lastCharm, profile), mPath('quiz')); }
+
+// ---- share (canvas) ----
+async function shareDaily() {
+  const d = Fortune.daily(profile);
+  await shareWith(Fortune.shareData(d, profile), mPath('hero'));
+}
+async function shareFortune() {
+  const r = window._lastFortune || Fortune.category(selectedCat, profile);
+  await shareWith(Fortune.shareData(r, profile), catMascot(r.key));
+}
+async function shareWith(data, mascot) {
+  if (mascot) data.mascot = mascot;
+  const canvas = document.getElementById('shareCanvas');
+  try {
+    await ShareCard.render(canvas, data);
+    await ShareCard.share(canvas, data);
+  } catch (e) { console.warn('share', e.message); alert('แชร์ไม่สำเร็จ: ' + e.message); }
+}
+
+// ---- birthdate sheet ----
+(function fillDates() {
+  const bd = document.getElementById('bd'), bm = document.getElementById('bm'), by = document.getElementById('by');
+  const months = Fortune.THAI_MONTHS;
+  bd.innerHTML = '<option value="">วัน</option>' + Array.from({ length: 31 }, (_, i) => `<option>${i + 1}</option>`).join('');
+  bm.innerHTML = '<option value="">เดือน</option>' + months.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+  const thisBE = new Date().getFullYear() + 543;
+  by.innerHTML = '<option value="">ปี พ.ศ.</option>' + Array.from({ length: 90 }, (_, i) => `<option>${thisBE - 12 - i}</option>`).join('');
+})();
+function openBirth() {
+  const b = profile.birthDate;
+  if (b && b.d) { document.getElementById('bd').value = b.d; document.getElementById('bm').value = b.m; document.getElementById('by').value = b.beYear; }
+  document.getElementById('birthSheet').classList.add('open');
+}
+function closeBirth() { document.getElementById('birthSheet').classList.remove('open'); }
+async function saveBirth() {
+  const d = +document.getElementById('bd').value, m = +document.getElementById('bm').value, beYear = +document.getElementById('by').value;
+  if (!d || !m || !beYear) { alert('เลือกวัน เดือน ปี ให้ครบก่อนน้า'); return; }
+  const birthDate = { d, m, beYear };
+  profile.birthDate = birthDate;
+  if (!DEMO) {
+    try { await db.collection('users').doc(profile.uid).set({ birthDate, updatedAt: serverTime() }, { merge: true }); }
+    catch (e) { console.warn('save birth', e.message); }
+  }
+  closeBirth();
+  renderHome(); renderProfile();
+  if (document.getElementById('fortune').classList.contains('active') && window._lastFortune) runFortune();
+}
+document.getElementById('birthSheet').addEventListener('click', (e) => { if (e.target.id === 'birthSheet') closeBirth(); });
+
+// เริ่ม routing หลังนิยามทุกอย่างครบ (เลี่ยง TDZ ของ let profile)
+route();
+</script>
+</body>
+</html>
