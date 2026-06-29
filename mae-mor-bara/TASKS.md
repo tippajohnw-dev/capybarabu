@@ -12,16 +12,17 @@
 | Foundation (ดีไซน์/shell) | 3 | 3 | 0 | 0 |
 | Auth journey (Unblocker A) | 8 | 8 | 0 | 0 |
 | Core features (Phase 1) | 7 | 7 | 0 | 0 |
-| Commerce | 3 | 0 | 0 | 3 |
+| Commerce | 3 | 2 | 1 (D3 activate) | 0 |
 | Retention/KPI | 2 | 0 | 0 | 2 |
 | Landing (P1.9) | 1 | 0 | 0 | 1 |
-| **รวม (feature)** | **24** | **18** | **0** | **6** |
+| **รวม (feature)** | **24** | **20** | **1** (D3 activate) | **3** |
 | Sprint R (redesign) | 6 | 6 (R0–R6) | 0 | 0 |
 
 > ✅ **Sprint 0+1+2+3 เสร็จ** (Auth e2e + Core loop + Viral) · commit/push: `083daf1`
 > ✅ **Sprint R (R0–R6) เสร็จ** — CAPY POP replace production + deploy แล้ว (theme เดิม backup `*-legacy-cutemystic.*`)
-> ✅ **Sprint 4 — C6 เสร็จ + deployed** (Mood Journal/Streak/check-in/accuracy/history) · **C7 โค้ดเสร็จ** (`functions/notify.js`) เหลือ activate console (ดู `C7-SETUP.md`)
-> **ถัดไป = Sprint 5 (Commerce)** D1 Shop · D2 Detail · D3 Payment — หรือ activate C7 (Messaging API channel + deploy)
+> ✅ **Sprint 4 เสร็จ** — C6 Journal/Streak + C7 LINE push/webhook **activated** (OA `@291wnbhf`)
+> ✅ **Sprint 5 — D1 ร้าน + D2 detail + D3 checkout UI deployed** · **D3 payment backend code เสร็จ** (`functions/payment.js` Omise) เหลือ activate (ดู `D3-SETUP.md`)
+> **ถัดไป = Sprint 6 (Scale)** E1 Profile/Collection · E2 KPI · L1 Landing — หรือ activate D3 (Omise key + deploy + rules)
 
 ---
 
@@ -47,9 +48,9 @@
 | **C5** | **Lucky Charm Quiz** — mood + intention (2 ข้อ <1 นาที) → `Fortune.recommendCharm` (6 charm) + share | app: quiz | C2 | ✅ view `#quiz` ใน `app.html` | 3 |
 | **C6** | **Mood Journal + Streak** — mood รายวัน + streak 7 วัน (นับ client จาก journal) + check-in + "ดวงตรงไหม?" (flywheel) + history | app: journal | F3,A7 | ✅ `app.html` + deployed | 4 |
 | **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง · `functions/notify.js` **deployed** (sched 08:00 ICT + manual) · Messaging channel `2010545788` (OA `@291wnbhf`, provider `2005291693`) · **toggle opt-in + ปุ่มเพิ่มเพื่อนในหน้า Profile** | — | A7,C1 | ✅ activated | 4 |
-| **D1** | **Charm Shop (lean)** — tab ตาม intention + digital charm <฿99 + grid | app: shop | F3 | ⬜ | 5 |
-| **D2** | **Product Detail** — story สั้น + sticky buy + โบนัส Digital Charm ใน LINE | app: detail | D1 | ⬜ | 5 |
-| **D3** | **Payment + orders/** — PromptPay/Omise (provider โฮสต์) + `orders/` | — | D1,A7 | ⬜ | 5 |
+| **D1** | **Charm Shop (lean)** — `shop-catalog.js` (10 เครื่องรางดิจิทัล ≤฿99) + intention tabs + grid CAPY POP | app: shop | F3 | ✅ `app.html` + deployed | 5 |
+| **D2** | **Product Detail** — มาสคอต + story + bonus + sticky buybar (view `#product`) | app: detail | D1 | ✅ deployed | 5 |
+| **D3** | **Payment + orders/** — checkout UI + `orders/` pending (live) · `functions/payment.js` Omise PromptPay `createCharge`+`omiseWebhook` (**code✅ / activate⬜** → `D3-SETUP.md`) | — | D1,A7 | 🟡 code✅ / activate⬜ | 5 |
 | **E1** | **Profile & Collection** — points + badge/collection ชุดเริ่มต้น | app: profile | F3,A7 | ⬜ | 6 |
 | **E2** | **KPI instrumentation** — event D7/Share/CTA/Quiz/ATC/LINE | — | ทุก feature | ⬜ | 6 |
 | **L1** | **Landing Page (P1.9)** — public hero CTA เดียว "เริ่มเช็กดวงเลย" + social proof (ตอนนี้ root `/` ยังเป็นแอปเดิม · welcome อยู่ใน A1) | app: landing | F3 | ⬜ | 6 |

@@ -11,7 +11,7 @@
 | 2 Core loop | C1 Home · C2 share-card · C3 Fortune Engine | ✅ |
 | 3 Viral | C4 Pick a Card · C5 Charm Quiz | ✅ |
 | **4 Retention** | C6 Journal/Streak ✅ · C7 LINE push + webhook ✅ deployed+activated (OA `@291wnbhf`, ch `2010545788`) | ✅ |
-| **5 Commerce** | D1 Shop · D2 Product Detail · D3 Payment+orders/ | ⬜ |
+| **5 Commerce** | D1 Shop ✅ · D2 Detail ✅ · D3 checkout UI ✅ deployed · D3 payment backend (code ✅ Omise, activate ⬜) | 🟡 |
 | **6 Scale** | E1 Profile/Collection · E2 KPI · L1 Landing | ⬜ |
 | **R Redesign** ⭐ | R0–R6 CAPY POP **replace production แล้ว** (app/share-card/auth = CAPY POP, theme เดิม backup) | ✅ (R0–R6) |
 | Phase 2 | Premium · Collection เต็ม · LINE automation … (strategy, หลัง KPI) | 🔭 |
