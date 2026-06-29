@@ -50,7 +50,7 @@
 | **C7** | **LINE push** — ดวงรายวัน 1 ครั้ง · `functions/notify.js` **deployed** (sched 08:00 ICT + manual) · Messaging channel `2010545788` (OA `@291wnbhf`, provider `2005291693`) · **toggle opt-in + ปุ่มเพิ่มเพื่อนในหน้า Profile** | — | A7,C1 | ✅ activated | 4 |
 | **D1** | **Charm Shop (lean)** — `shop-catalog.js` (10 เครื่องรางดิจิทัล ≤฿99) + intention tabs + grid CAPY POP | app: shop | F3 | ✅ `app.html` + deployed | 5 |
 | **D2** | **Product Detail** — มาสคอต + story + bonus + sticky buybar (view `#product`) | app: detail | D1 | ✅ deployed | 5 |
-| **D3** | **Payment + orders/** — `functions/payment.js` Omise PromptPay `createCharge`+`omiseWebhook` **deployed** · CHARGE_URL set · rules แก้แล้ว (orders create=pending, paid=server) · เหลือคุณตั้ง webhook URL ใน Omise + test (Test mode) | — | D1,A7 | ✅ deployed (รอ set webhook+test) | 5 |
+| **D3** | **Payment + orders/** — Omise PromptPay deployed + **verified e2e** (Test: createCharge→QR→webhook→paid→ขอบคุณ ✅) · CHARGE_URL set · rules แก้แล้ว · go-live: สลับ skey_live + ลงทะเบียน webhook โหมด live | — | D1,A7 | ✅ verified (Test mode) | 5 |
 | **E1** | **Profile & Collection** — points + badge/collection ชุดเริ่มต้น | app: profile | F3,A7 | ⬜ | 6 |
 | **E2** | **KPI instrumentation** — event D7/Share/CTA/Quiz/ATC/LINE | — | ทุก feature | ⬜ | 6 |
 | **L1** | **Landing Page (P1.9)** — public hero CTA เดียว "เริ่มเช็กดวงเลย" + social proof (ตอนนี้ root `/` ยังเป็นแอปเดิม · welcome อยู่ใน A1) | app: landing | F3 | ⬜ | 6 |
