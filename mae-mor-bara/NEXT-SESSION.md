@@ -10,14 +10,14 @@
 | 1 Auth | A1–A8 (journey + LINE login e2e + rules) | ✅ |
 | 2 Core loop | C1 Home · C2 share-card · C3 Fortune Engine | ✅ |
 | 3 Viral | C4 Pick a Card · C5 Charm Quiz | ✅ |
-| **4 Retention** | C6 Journal/Streak · C7 LINE push | ⬜ |
+| **4 Retention** | C6 Journal/Streak ✅ deployed · C7 LINE push (code ✅, activate ⬜) | 🟡 |
 | **5 Commerce** | D1 Shop · D2 Product Detail · D3 Payment+orders/ | ⬜ |
 | **6 Scale** | E1 Profile/Collection · E2 KPI · L1 Landing | ⬜ |
 | **R Redesign** ⭐ | R0–R6 CAPY POP **replace production แล้ว** (app/share-card/auth = CAPY POP, theme เดิม backup) | ✅ (R0–R6) |
 | Phase 2 | Premium · Collection เต็ม · LINE automation … (strategy, หลัง KPI) | 🔭 |
 
-**ถัดไป: Sprint 4** (Retention: C6 Journal/Streak + C7 LINE push) บน `app.html` (ธีม CAPY POP). **KPI Phase 1:** D7≥25% · Share≥25% · CTA≥15% · Quiz≥60% · ATC≥10% · LINE≥70%
-> ⚠️ **เหลือ deploy hosting** (`firebase deploy --only hosting --project capybarabu-mae-mhor`) เพื่อให้ CAPY POP ขึ้น production จริง
+**ถัดไป: Sprint 5 (Commerce)** D1 Shop · D2 Product Detail · D3 Payment — หรือ activate C7 (LINE Messaging API channel + secrets + deploy, ดู `C7-SETUP.md`). **KPI Phase 1:** D7≥25% · Share≥25% · CTA≥15% · Quiz≥60% · ATC≥10% · LINE≥70%
+> ✅ Sprint 4: **C6 Journal/Streak deployed** · **C7 code เสร็จ** (`functions/notify.js`) รอ activate
 
 ---
 
@@ -35,9 +35,11 @@
 - theme เดิม Cute Mystic backup: app-legacy-cutemystic.html · auth-legacy-cutemystic.html · share-card-legacy.js
 - ⚠️ ถ้ายังไม่ได้ deploy: cd mae-mor-bara && firebase deploy --only hosting --project capybarabu-mae-mhor
 
-ถัดไป = Sprint 4 Retention (ทำบน app.html ธีม CAPY POP):
-- C6 Journal/Streak — mood รายวัน + streak 7 วัน + ปุ่ม "ตรงไหม?" เขียน users/{uid}/journal/ (rules อนุญาต owner แล้ว, มีโครง journal view ใน app.html)
-- C7 LINE push — ดวงรายวัน 1 ครั้ง (Function + Cloud Scheduler, ใช้ notifPref จาก A6)
+Sprint 4 เสร็จ: C6 Journal/Streak (deployed) · C7 LINE push (code เสร็จ functions/notify.js, รอ activate → C7-SETUP.md)
+ถัดไป = Sprint 5 Commerce (ทำบน app.html ธีม CAPY POP):
+- D1 Charm Shop (lean) — tab ตาม intention + digital charm <฿99 + grid (มี charm view โครงอยู่แล้ว)
+- D2 Product Detail — story + sticky buy · D3 Payment + orders/ (PromptPay/Omise provider โฮสต์)
+(หรือ activate C7: สร้าง LINE Messaging API channel + secrets + deploy 2 ฟังก์ชัน — ดู C7-SETUP.md)
 
 ยึด static no-build + Firebase (SPEC §1-4) · capybarabu-mae-mhor แชร์ Firestore+Hosting กับ autopost
 JS cache: bump ?v=sN ที่ script src (ตอนนี้ s4) · พรีวิว serve clean-url ตัด query → เปิด /app?demo=1 (ไม่ใส่ .html)
