@@ -21,6 +21,10 @@ exports.sendDailyFortuneNow = require('./notify').sendDailyFortuneNow;
 // C7+: LINE webhook — follow/unfollow → users/{uid}.oaFriend
 exports.lineWebhook = require('./webhook').lineWebhook;
 
+// D3 (Sprint 5): Charm Shop payment — Omise PromptPay charge + webhook
+exports.createCharge = require('./payment').createCharge;
+exports.omiseWebhook = require('./payment').omiseWebhook;
+
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
 // =============================================================
