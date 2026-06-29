@@ -760,7 +760,7 @@ document.querySelectorAll('#accuracy-seg .seg').forEach(s => s.addEventListener(
 // =============================================================
 // D1/D2/D3 — Charm Shop · Product Detail · Checkout (Sprint 5)
 // =============================================================
-const CHARGE_URL = '';   // ใส่ URL ของ Cloud Function createCharge เมื่อ activate Omise (ดู D3-SETUP.md)
+const CHARGE_URL = 'https://createcharge-ssgkv4kwca-as.a.run.app';   // Omise PromptPay charge (run.app ตรง เลี่ยง CORS)
 let _shopFilter = 'all';
 
 function renderShop() {
