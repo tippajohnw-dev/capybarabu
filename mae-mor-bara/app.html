@@ -589,11 +589,18 @@ const db = firebase.firestore();
 const serverTime = () => firebase.firestore.FieldValue.serverTimestamp();
 
 // LIFF — เปิดทาง shareTargetPicker (แชร์การ์ดเข้าแชต LINE จริง). best-effort, ไม่บล็อกแอป
+// เก็บ promise ไว้ await ก่อนแชร์ (กัน race: กดแชร์ก่อน init resolve → isApiAvailable throw)
 const LIFF_ID = '2010529290-KVVcb2tN';
-(async function initLiff() {
-  try { if (typeof liff !== 'undefined') await liff.init({ liffId: LIFF_ID }); }
-  catch (e) { console.warn('liff init', e.message); }
+let _liffReady = Promise.resolve(false);
+(function initLiff() {
+  if (typeof liff === 'undefined') return;
+  _liffReady = liff.init({ liffId: LIFF_ID }).then(() => true).catch((e) => { console.warn('liff init', e.message); return false; });
 })();
+// อยู่ใน LINE in-app browser ไหม (download ถูกบล็อก → ห้ามตกไป download)
+function inLineApp() {
+  try { if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) return true; } catch (e) {}
+  return /\bLine\//i.test(navigator.userAgent || '');
+}
 
 let profile = { uid: null };
 let selectedCat = 'love';
@@ -1159,18 +1166,30 @@ async function shareWith(data, mascot) {
     await ShareCard.render(canvas, data);
     // 1) ใน LINE → shareTargetPicker ส่งการ์ด Flex เข้าแชตเพื่อน/กลุ่มจริง (ไม่ใช่ดาวน์โหลด)
     if (await shareToLine(data)) return;
-    // 2) เบราว์เซอร์อื่น → Web Share (รูป → IG/TikTok/…); fallback ลิงก์; สุดท้ายค่อยดาวน์โหลด
+    // 2) ใน LINE แต่ picker ใช้ไม่ได้ → แชร์ "ลิงก์" เข้า LINE (LINE บล็อก download → ห้ามตกไป download)
+    if (inLineApp()) { shareLineLink(data); return; }
+    // 3) เบราว์เซอร์อื่น → Web Share (รูป → IG/TikTok/…); fallback ลิงก์; สุดท้ายค่อยดาวน์โหลด
     await ShareCard.share(canvas, data);
-  } catch (e) { console.warn('share', e.message); }
+  } catch (e) { console.warn('share', e.message); if (inLineApp()) shareLineLink(data); }
 }
 
 // แชร์การ์ด Flex เข้า LINE (shareTargetPicker) — คืน true ถ้า handled แล้ว (เปิด picker), false ถ้าใช้ไม่ได้
 async function shareToLine(data) {
   try {
-    if (typeof liff === 'undefined' || typeof liff.isApiAvailable !== 'function' || !liff.isApiAvailable('shareTargetPicker')) return false;
+    if (typeof liff === 'undefined') return false;
+    await _liffReady;                              // รอ init resolve ก่อน (กัน race)
+    if (typeof liff.isApiAvailable !== 'function' || !liff.isApiAvailable('shareTargetPicker')) return false;
     await liff.shareTargetPicker([{ type: 'flex', altText: 'ดวงวันนี้จากแม่หมอบาร่า 🔮', contents: buildShareFlex(data) }]);
     return true;   // เปิด picker สำเร็จ (กดส่งหรือยกเลิกก็ถือว่า handled — ไม่ตกไปดาวน์โหลด)
   } catch (e) { console.warn('shareTargetPicker', e.message); return false; }
+}
+
+// fallback ใน LINE: เปิด LINE share (แชร์ลิงก์ + OG preview) — เลี่ยง download ที่ LINE WebView บล็อก
+function shareLineLink(data) {
+  const shareUrl = 'https://capybarabu-mae-mhor.web.app/landing.html';
+  const url = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(shareUrl);
+  try { if (typeof liff !== 'undefined' && liff.openWindow) { liff.openWindow({ url: url, external: true }); return; } } catch (e) {}
+  window.open(url, '_blank');
 }
 
 // Flex bubble CAPY POP (client) — sync ดีไซน์กับ functions/notify.js · image ต้องเป็น PNG/JPEG hosted
