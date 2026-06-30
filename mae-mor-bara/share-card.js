@@ -237,12 +237,19 @@
   async function share(canvas, d) {
     const blob = await toBlob(canvas);
     const file = new File([blob], 'maemorbara-card.png', { type: 'image/png' });
+    const text = 'พลังวันนี้ ' + d.power + '% 🔮 ลองเช็กดวงคุณบ้าง';
+    const url = 'https://capybarabu-mae-mhor.web.app/app.html';
+    // 1) แชร์ "รูป" ออก social sheet (IG/TikTok/…) ถ้าอุปกรณ์รองรับ file share
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: 'ดวงวันนี้จากแม่หมอบาร่า', text: 'พลังวันนี้ ' + d.power + '% 🔮 ลองเช็กดวงคุณบ้าง → capybarabu.app' });
-        return true;
-      } catch (e) { return false; }
+      try { await navigator.share({ files: [file], title: 'ดวงวันนี้จากแม่หมอบาร่า', text: text + ' → capybarabu.app' }); return true; }
+      catch (e) { if (e && e.name === 'AbortError') return true; }   // user ยกเลิก = handled แล้ว
     }
+    // 2) แชร์ "ลิงก์" ออก share sheet (ดีกว่าดาวน์โหลดเงียบ ๆ)
+    if (navigator.share) {
+      try { await navigator.share({ title: 'แม่หมอบาร่า 🔮', text, url }); return true; }
+      catch (e) { if (e && e.name === 'AbortError') return true; }
+    }
+    // 3) สุดท้ายจริง ๆ → ดาวน์โหลดรูปไว้โพสต์เอง
     await download(canvas);
     return false;
   }

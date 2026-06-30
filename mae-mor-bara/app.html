@@ -531,8 +531,9 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="fortune-engine.js?v=s4"></script>
-<script src="share-card.js?v=s6"></script>
+<script src="share-card.js?v=s7"></script>
 <script src="shop-catalog.js?v=s1"></script>
 <script>
 // ---- hash router (static, no build) — reuse จาก production ----
@@ -586,6 +587,13 @@ firebase.initializeApp(CONFIG.firebase);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const serverTime = () => firebase.firestore.FieldValue.serverTimestamp();
+
+// LIFF — เปิดทาง shareTargetPicker (แชร์การ์ดเข้าแชต LINE จริง). best-effort, ไม่บล็อกแอป
+const LIFF_ID = '2010529290-KVVcb2tN';
+(async function initLiff() {
+  try { if (typeof liff !== 'undefined') await liff.init({ liffId: LIFF_ID }); }
+  catch (e) { console.warn('liff init', e.message); }
+})();
 
 let profile = { uid: null };
 let selectedCat = 'love';
@@ -1149,8 +1157,66 @@ async function shareWith(data, mascot) {
   const canvas = document.getElementById('shareCanvas');
   try {
     await ShareCard.render(canvas, data);
+    // 1) ใน LINE → shareTargetPicker ส่งการ์ด Flex เข้าแชตเพื่อน/กลุ่มจริง (ไม่ใช่ดาวน์โหลด)
+    if (await shareToLine(data)) return;
+    // 2) เบราว์เซอร์อื่น → Web Share (รูป → IG/TikTok/…); fallback ลิงก์; สุดท้ายค่อยดาวน์โหลด
     await ShareCard.share(canvas, data);
-  } catch (e) { console.warn('share', e.message); alert('แชร์ไม่สำเร็จ: ' + e.message); }
+  } catch (e) { console.warn('share', e.message); }
+}
+
+// แชร์การ์ด Flex เข้า LINE (shareTargetPicker) — คืน true ถ้า handled แล้ว (เปิด picker), false ถ้าใช้ไม่ได้
+async function shareToLine(data) {
+  try {
+    if (typeof liff === 'undefined' || typeof liff.isApiAvailable !== 'function' || !liff.isApiAvailable('shareTargetPicker')) return false;
+    await liff.shareTargetPicker([{ type: 'flex', altText: 'ดวงวันนี้จากแม่หมอบาร่า 🔮', contents: buildShareFlex(data) }]);
+    return true;   // เปิด picker สำเร็จ (กดส่งหรือยกเลิกก็ถือว่า handled — ไม่ตกไปดาวน์โหลด)
+  } catch (e) { console.warn('shareTargetPicker', e.message); return false; }
+}
+
+// Flex bubble CAPY POP (client) — sync ดีไซน์กับ functions/notify.js · image ต้องเป็น PNG/JPEG hosted
+const SHARE_HERO_IMG = 'https://capybarabu-mae-mhor.web.app/mascots/line-hero.png';
+const SHARE_APP_LINK = 'https://capybarabu-mae-mhor.web.app/app.html';
+function flexStat(label, value, bg) {
+  return { type: 'box', layout: 'vertical', flex: 1, backgroundColor: bg, cornerRadius: '12px',
+    paddingAll: '10px', borderWidth: '2px', borderColor: '#241a12', contents: [
+      { type: 'text', text: label, size: 'xxs', color: '#5c5042', align: 'center', weight: 'bold' },
+      { type: 'text', text: String(value), size: 'md', color: '#241a12', align: 'center', weight: 'bold', margin: 'xs', wrap: true },
+    ] };
+}
+function buildShareFlex(d) {
+  const name = (d.name && String(d.name).trim()) || 'คุณ';
+  const title = d.kind || 'ดวงวันนี้';
+  return { type: 'bubble', size: 'mega', body: {
+    type: 'box', layout: 'vertical', paddingAll: '0px', backgroundColor: '#fff9f1', contents: [
+      { type: 'box', layout: 'vertical', backgroundColor: '#ff6a2b', paddingAll: '18px', spacing: 'sm', contents: [
+        { type: 'text', text: '🔮 แม่หมอบาร่า · ' + title, size: 'sm', color: '#ffffff', weight: 'bold', wrap: true },
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'box', layout: 'vertical', flex: 5, justifyContent: 'center', contents: [
+            { type: 'text', text: 'พลังของ ' + name + ' วันนี้', size: 'sm', color: '#ffffffe6', weight: 'bold', wrap: true },
+            { type: 'box', layout: 'baseline', margin: 'sm', contents: [
+              { type: 'text', text: String(d.power), size: '5xl', color: '#ffffff', weight: 'bold', flex: 0 },
+              { type: 'text', text: '%', size: 'xxl', color: '#ffffff', weight: 'bold', flex: 0, margin: 'sm' },
+            ] },
+          ] },
+          { type: 'image', url: SHARE_HERO_IMG, flex: 4, size: 'full', aspectRatio: '1:1', aspectMode: 'fit', gravity: 'bottom' },
+        ] },
+      ] },
+      { type: 'box', layout: 'vertical', paddingAll: '16px', spacing: 'md', contents: [
+        { type: 'box', layout: 'vertical', backgroundColor: '#fff6e9', cornerRadius: '14px', paddingAll: '14px',
+          borderWidth: '2px', borderColor: '#241a12', contents: [
+          { type: 'text', text: 'แม่หมอบอกว่า…', size: 'xs', color: '#e8551a', weight: 'bold' },
+          { type: 'text', text: d.headline || '', size: 'sm', color: '#241a12', wrap: true, margin: 'sm' },
+        ] },
+        { type: 'box', layout: 'horizontal', spacing: 'sm', contents: [
+          flexStat('สีมงคล', d.colorName, '#ffd9e6'),
+          flexStat('เลขมงคล', d.number, '#c7f5ec'),
+          flexStat('เวลามงคล', d.time, '#ffe9ad'),
+        ] },
+        { type: 'button', style: 'primary', color: '#241a12', height: 'md',
+          action: { type: 'uri', label: 'เช็กดวงของคุณบ้าง ✨', uri: SHARE_APP_LINK } },
+      ] },
+    ],
+  } };
 }
 
 // ---- birthdate sheet ----
