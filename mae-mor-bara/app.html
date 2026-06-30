@@ -1162,32 +1162,36 @@ async function shareFortune() {
 async function shareWith(data, mascot) {
   if (mascot) data.mascot = mascot;
   logEvent('share', { kind: data.kind || 'daily' });   // E2: Share rate
+  // 1) LINE picker ก่อน — ยังไม่ await render หนัก ๆ (กัน popup ถูกบล็อกเพราะหลุด user gesture)
+  try { if (await shareToLine(data)) return; } catch (e) { console.warn('share line', e.message); }
+  if (inLineApp()) { shareLineLink(data); return; }
+  // 2) เบราว์เซอร์อื่น → render รูปแล้ว Web Share (รูป → IG/TikTok/…); fallback ลิงก์; ดาวน์โหลด
   const canvas = document.getElementById('shareCanvas');
-  try {
-    await ShareCard.render(canvas, data);
-    // 1) ใน LINE → shareTargetPicker ส่งการ์ด Flex เข้าแชตเพื่อน/กลุ่มจริง (ไม่ใช่ดาวน์โหลด)
-    if (await shareToLine(data)) return;
-    // 2) ใน LINE แต่ picker ใช้ไม่ได้ → แชร์ "ลิงก์" เข้า LINE (LINE บล็อก download → ห้ามตกไป download)
-    if (inLineApp()) { shareLineLink(data); return; }
-    // 3) เบราว์เซอร์อื่น → Web Share (รูป → IG/TikTok/…); fallback ลิงก์; สุดท้ายค่อยดาวน์โหลด
-    await ShareCard.share(canvas, data);
-  } catch (e) { console.warn('share', e.message); if (inLineApp()) shareLineLink(data); }
+  try { await ShareCard.render(canvas, data); await ShareCard.share(canvas, data); }
+  catch (e) { console.warn('share', e.message); }
 }
 
-// แชร์การ์ด Flex เข้า LINE (shareTargetPicker) — คืน true ถ้า handled แล้ว (เปิด picker), false ถ้าใช้ไม่ได้
+// แชร์การ์ด Flex เข้า LINE (shareTargetPicker) — คืน true ถ้า handled แล้ว (เปิด picker/กำลัง login), false ถ้าใช้ไม่ได้
+// shareTargetPicker ทำงานได้แม้ isInClient=false ถ้า "login LIFF แล้ว" → ถ้ายังไม่ login ให้ login ก่อน (เด้งกลับมาเปิด picker เอง)
 async function shareToLine(data) {
   try {
     if (typeof liff === 'undefined') return false;
     await _liffReady;                              // รอ init resolve ก่อน (กัน race)
-    if (typeof liff.isApiAvailable !== 'function' || !liff.isApiAvailable('shareTargetPicker')) return false;
-    await liff.shareTargetPicker([{ type: 'flex', altText: 'ดวงวันนี้จากแม่หมอบาร่า 🔮', contents: buildShareFlex(data) }]);
-    return true;   // เปิด picker สำเร็จ (กดส่งหรือยกเลิกก็ถือว่า handled — ไม่ตกไปดาวน์โหลด)
-  } catch (e) { console.warn('shareTargetPicker', e.message); return false; }
+    // ⚠️ เรียก picker เฉพาะตอนรันเป็น LIFF จริง (isInClient) เท่านั้น — ถ้า isInClient=false
+    // LINE บล็อก popup ของ picker → หน้ากลายเป็น about:blank#blocked. ไม่ใช่ LIFF → ตกไปแชร์ลิงก์แทน
+    if (!(typeof liff.isInClient === 'function' && liff.isInClient())) return false;
+    if (typeof liff.isApiAvailable === 'function' && liff.isApiAvailable('shareTargetPicker')) {
+      await liff.shareTargetPicker([{ type: 'flex', altText: 'ดวงวันนี้จากแม่หมอบาร่า 🔮', contents: buildShareFlex(data) }]);
+      return true;
+    }
+  } catch (e) { console.warn('shareTargetPicker', e.message); }
+  return false;
 }
 
 // fallback ใน LINE: เปิด LINE share (แชร์ลิงก์ + OG preview) — เลี่ยง download ที่ LINE WebView บล็อก
 function shareLineLink(data) {
-  const shareUrl = 'https://capybarabu-mae-mhor.web.app/landing.html';
+  // ?s=N = bust cache preview ของ LINE (LINE จำ preview ต่อ URL — เปลี่ยน param ให้ crawl og:image ใหม่)
+  const shareUrl = 'https://capybarabu-mae-mhor.web.app/landing.html?s=2';
   const url = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(shareUrl);
   try { if (typeof liff !== 'undefined' && liff.openWindow) { liff.openWindow({ url: url, external: true }); return; } } catch (e) {}
   window.open(url, '_blank');
