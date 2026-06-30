@@ -26,23 +26,37 @@
 ```
 ทำงานต่อ Mae Mor Bara V2 (แม่หมอบาร่า) — branch feat/mae-mor-bara-source
 
-อ่าน context จาก: mae-mor-bara/NEXT-SESSION.md, TASKS.md, SPEC.md, ROADMAP-v2.md
-และ memory: mae-mor-bara-v2-roadmap.md
+อ่าน context จาก: mae-mor-bara/NEXT-SESSION.md, TASKS.md, SPEC.md, ROADMAP-v2.md,
+C7-SETUP.md, D3-SETUP.md · และ memory: mae-mor-bara-v2-roadmap.md
 
-สถานะ: Sprint 0+1+2+3 เสร็จ (16/24) + Sprint R (Redesign CAPY POP) R0–R6 เสร็จ — replace production แล้ว
-- ธีมปัจจุบัน = CAPY POP (ส้มมะม่วง #ff6a2b, neo-brutalist toy, มาสคอตพระเอก): app.html + share-card.js + auth.html
-- engine reuse: window.Fortune เดิม 100% · มาสคอต mascots/m*.webp (<100KB) สลับท่าตามฟีเจอร์ · พรีวิว /app?demo=1
-- theme เดิม Cute Mystic backup: app-legacy-cutemystic.html · auth-legacy-cutemystic.html · share-card-legacy.js
-- ⚠️ ถ้ายังไม่ได้ deploy: cd mae-mor-bara && firebase deploy --only hosting --project capybarabu-mae-mhor
+สถานะ: Sprint 0–5 + Sprint R เสร็จหมด (21/24 features) · ทุกอย่าง deploy + push แล้ว (origin/feat/mae-mor-bara-source)
+ธีมปัจจุบัน = CAPY POP (ส้มมะม่วง #ff6a2b, neo-brutalist toy ขอบ2px+เงาแข็ง, มาสคอตพระเอก, Anuphan+IBM Plex Mono)
+- ไฟล์หลัก: app.html (ทุก view) · auth.html (onboarding 7 จอ) · share-card.js · shop-catalog.js
+  · fortune-engine.js (window.Fortune) · มาสคอต mascots/m1–m10.webp (<100KB)
+- theme เดิม Cute Mystic backup: *-legacy-cutemystic.* + share-card-legacy.js (rollback)
+- functions (codebase default): lineLogin, claimReward, askFortune…, sendDailyFortune(sched 08:00),
+  sendDailyFortuneNow, lineWebhook, createCharge, omiseWebhook — deployed ครบ
 
-Sprint 4 เสร็จ: C6 Journal/Streak (deployed) · C7 LINE push (code เสร็จ functions/notify.js, รอ activate → C7-SETUP.md)
-ถัดไป = Sprint 5 Commerce (ทำบน app.html ธีม CAPY POP):
-- D1 Charm Shop (lean) — tab ตาม intention + digital charm <฿99 + grid (มี charm view โครงอยู่แล้ว)
-- D2 Product Detail — story + sticky buy · D3 Payment + orders/ (PromptPay/Omise provider โฮสต์)
-(หรือ activate C7: สร้าง LINE Messaging API channel + secrets + deploy 2 ฟังก์ชัน — ดู C7-SETUP.md)
+เสร็จวันนี้:
+- Sprint R: CAPY POP replace production (app/share-card/auth)
+- C6 Journal/Streak/check-in/accuracy/history · C7 LINE push + toggle opt-in + lineWebhook (OA @291wnbhf, ch 2010545788, provider 2005291693) — activated
+- D1 Shop (10 เครื่องราง ≤฿99) · D2 Detail · D3 Omise PromptPay (createCharge/omiseWebhook) — verified e2e (Test mode)
 
-ยึด static no-build + Firebase (SPEC §1-4) · capybarabu-mae-mhor แชร์ Firestore+Hosting กับ autopost
-JS cache: bump ?v=sN ที่ script src (ตอนนี้ s4) · พรีวิว serve clean-url ตัด query → เปิด /app?demo=1 (ไม่ใส่ .html)
+ถัดไป = Sprint 6 (Scale) บน app.html:
+- E1 Profile & Collection — points + badge + เครื่องรางที่ซื้อแล้ว (อ่าน users/{uid}/orders ที่ paid + users/{uid}/collection)
+- E2 KPI instrumentation — event D7/Share/CTA/Quiz/ATC/LINE (เป้า KPI ดู ROADMAP-v2)
+- L1 Landing Page — public hero CTA เดียว "เริ่มเช็กดวงเลย" + social proof
+
+ค้างฝั่ง user (ไม่บล็อกโค้ด): (a) Publish LINE Login channel 2010529290 (Developing→Published ไม่งั้นเพื่อนนอก tester ล็อกอินไม่ได้)
+(b) Omise go-live: ลงทะเบียน webhook URL + สลับ skey_test→skey_live + เปิด PromptPay live
+
+Gotchas สำคัญ:
+- ยึด static no-build + Firebase (SPEC §1-4) · capybarabu-mae-mhor แชร์ Firestore+Hosting+functions กับ autopost
+- firestore.rules canonical = ~/Documents/capybarabu-autopost/firestore.rules (deploy จากที่นั่นเท่านั้น)
+- firebase ทุกคำสั่งใส่ --project capybarabu-mae-mhor (default CLI อาจเป็น capybarabu-dec37 = แอปหารกันเอง)
+- function ที่เรียกจาก browser ใช้ run.app (-ssgkv4kwca-as.a.run.app) เลี่ยง CORS · server-to-server ใช้ cloudfunctions.net ได้
+- JS cache: bump ?v=sN ที่ script src · พรีวิว serve clean-url ตัด query → เปิด /app?demo=1 (ไม่ใส่ .html, ไม่เขียน Firestore)
+- LINE userId ผูกกับ provider ไม่ใช่ channel · pkey=public skey=secret · secret/token ห้ามวางในแชต
 ```
 
 ---
