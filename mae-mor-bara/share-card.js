@@ -79,37 +79,69 @@
     return yy;
   }
 
-  async function render(canvas, d) {
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    const mascotPath = d.mascot || 'mascots/m3.webp?v=1';
-    const [mascot] = await Promise.all([loadImg(mascotPath), ensureFonts()]);
+  // สีกราฟแท่ง 5 ด้าน (สด distinct ตาม intention)
+  const BAR_COLORS = { love:'#ff5c93', money:'#ff6a2b', work:'#5b4bff', protect:'#7c4dff', health:'#16b8a0' };
+  const BAR_FALLBACK = ['#ff5c93', '#ff6a2b', '#5b4bff', '#7c4dff', '#16b8a0'];
 
-    // --- พื้นหลัง cream ---
-    ctx.fillStyle = C.cream; ctx.fillRect(0, 0, W, H);
-    // จุดลายเบา ๆ (toy texture)
+  // วงแหวนพลัง (power ring gauge) — track + arc + เลข % ตรงกลาง
+  function powerRing(ctx, cx, cy, R, thick, pct) {
+    const start = -Math.PI / 2, end = start + (Math.PI * 2) * (Math.max(0, Math.min(100, pct)) / 100);
+    ctx.lineCap = 'round';
+    // track
+    ctx.beginPath(); ctx.lineWidth = thick; ctx.strokeStyle = 'rgba(255,255,255,.28)';
+    ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+    // progress
+    ctx.beginPath(); ctx.lineWidth = thick; ctx.strokeStyle = '#fff';
+    ctx.arc(cx, cy, R, start, end); ctx.stroke();
+    ctx.lineCap = 'butt';
+    // เลขตรงกลาง
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#fff'; ctx.font = "700 132px " + FONT;
+    ctx.fillText(String(pct), cx + 6, cy + 30);
+    ctx.font = "700 44px " + FONT;
+    ctx.fillText('%', cx + 6 + ctx.measureText(String(pct)).width / 2 + 34, cy - 28);
+  }
+
+  async function render(canvas, d) {
+    const ctx = canvas.getContext('2d');
+    const mascotPath = d.mascot || 'mascots/m3.webp?v=2';
+    const [mascot] = await Promise.all([loadImg(mascotPath), ensureFonts()]);
+    const bars = Array.isArray(d.bars) && d.bars.length ? d.bars.slice(0, 5) : null;
+
+    // ---- คำนวณ layout (ความสูง dynamic ตาม section) ----
+    const hx = 60, hw = 960, hy = 70, hh = 560;            // hero
+    const by = hy + hh + 40, bw = 960, bx = 60;             // speech bubble
+    ctx.font = "500 40px " + FONT;                          // (วัด headline ก่อนตั้งขนาด canvas)
+    const blines = Math.min(3, Math.ceil(ctx.measureText(d.headline || '').width / (bw - 130)) || 1);
+    const bh = 96 + blines * 56;
+    const gy = by + bh + 40;                                // graph card (ถ้ามี bars)
+    const gh = bars ? (76 + bars.length * 74 + 24) : 0;
+    const ty = gy + (bars ? gh + 40 : 0);                  // trio tiles
+    const th = 230;
+    const H2 = ty + th + 130;                               // footer + ขอบล่าง
+    canvas.width = W; canvas.height = H2;
+
+    // --- พื้นหลัง cream + จุดลายเบา ---
+    ctx.fillStyle = C.cream; ctx.fillRect(0, 0, W, H2);
     ctx.fillStyle = 'rgba(36,26,18,.04)';
-    for (let y = 40; y < H; y += 46) for (let x = 40; x < W; x += 46) { ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.28); ctx.fill(); }
+    for (let y = 40; y < H2; y += 46) for (let x = 40; x < W; x += 46) { ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.28); ctx.fill(); }
 
     // --- HERO mango block ---
-    const hx = 60, hy = 70, hw = 960, hh = 520;
     popBlock(ctx, hx, hy, hw, hh, 56, C.mango, 22);
-
-    // brand
     ctx.textAlign = 'left';
     ctx.fillStyle = '#fff'; ctx.font = "700 46px " + FONT;
     ctx.fillText('🔮 แม่หมอบาร่า', hx + 50, hy + 88);
     ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = "500 26px " + MONO;
     ctx.fillText('CAPYBARA ORACLE', hx + 54, hy + 128);
 
-    // kind pill (ป้ายหมวด)
+    // kind pill (ป้ายหมวด) — มุมขวาบน เหนือมาสคอต (ไม่ชนวงแหวน)
     if (d.kind) {
-      ctx.font = "600 30px " + FONT;
-      const kw = ctx.measureText(d.kind).width + 56;
+      ctx.font = "600 28px " + FONT;
+      const kw = ctx.measureText(d.kind).width + 52;
       ctx.fillStyle = C.ink;
-      roundRect(ctx, hx + 50, hy + 156, kw, 56, 28); ctx.fill();
+      roundRect(ctx, hx + hw - kw - 44, hy + 56, kw, 52, 26); ctx.fill();
       ctx.fillStyle = C.cream; ctx.textAlign = 'center';
-      ctx.fillText(d.kind, hx + 50 + kw / 2, hy + 194);
+      ctx.fillText(d.kind, hx + hw - kw / 2 - 44, hy + 90);
       ctx.textAlign = 'left';
     }
 
@@ -118,33 +150,51 @@
       const mh = 360, mw = mh * (mascot.width / mascot.height);
       ctx.save();
       ctx.shadowColor = 'rgba(0,0,0,.22)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 12;
-      ctx.drawImage(mascot, hx + hw - mw - 24, hy + hh - mh + 30, mw, mh);
+      ctx.drawImage(mascot, hx + hw - mw - 12, hy + hh - mh + 22, mw, mh);
       ctx.restore();
     }
 
-    // label + power %
-    ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.font = "600 38px " + FONT;
-    ctx.fillText(d.name ? ('พลังของ ' + d.name + ' วันนี้') : 'พลังวันนี้', hx + 54, hy + 300);
-    ctx.fillStyle = '#fff'; ctx.font = "700 232px " + FONT;
-    ctx.fillText(d.power, hx + 44, hy + 478);
-    const pw = ctx.measureText(String(d.power)).width;
-    ctx.font = "700 70px " + FONT;
-    ctx.fillText('%', hx + 60 + pw, hy + 478);
+    // --- power ring (graph) ฝั่งซ้ายของ hero + label ---
+    const cx = hx + 250, cy = hy + 336;
+    powerRing(ctx, cx, cy, 150, 34, d.power);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.font = "600 34px " + FONT;
+    ctx.fillText(d.name ? ('พลังของ ' + d.name + ' วันนี้') : 'พลังวันนี้', cx, hy + 544);
+    ctx.textAlign = 'left';
 
     // --- speech bubble (headline) ---
-    const bx = 60, by = 632, bw = 960;
-    ctx.font = "500 40px " + FONT;
-    // วัดความสูงที่ต้องใช้
-    const lines = Math.min(3, Math.ceil(ctx.measureText(d.headline).width / (bw - 130)) || 1);
-    const bh = 96 + lines * 56;
     popBlock(ctx, bx, by, bw, bh, 40, C.card, 14);
     ctx.fillStyle = C.mango2; ctx.font = "700 34px " + FONT; ctx.textAlign = 'left';
     ctx.fillText('แม่หมอบอกว่า…', bx + 54, by + 64);
     ctx.fillStyle = C.ink; ctx.font = "500 40px " + FONT;
     wrapText(ctx, d.headline, bx + 54, by + 120, bw - 110, 56, 3);
 
+    // --- graph card: กราฟแท่ง 5 ด้าน (เฉพาะตอนมี bars) ---
+    if (bars) {
+      popBlock(ctx, 60, gy, 960, gh, 40, C.card, 14);
+      ctx.textAlign = 'left'; ctx.fillStyle = C.ink; ctx.font = "700 36px " + FONT;
+      ctx.fillText('📊 ดวงวันนี้แต่ละด้าน', 60 + 50, gy + 56);
+      const trackX = 60 + 360, trackW = 960 - 360 - 110, rowH = 74, barH = 34;
+      bars.forEach((b, i) => {
+        const ry = gy + 96 + i * rowH;
+        ctx.textAlign = 'left'; ctx.font = "500 34px " + FONT; ctx.fillStyle = C.ink;
+        ctx.fillText((b.emoji ? b.emoji + ' ' : '') + b.label, 60 + 50, ry + barH - 4);
+        // track
+        ctx.fillStyle = C.cream2; roundRect(ctx, trackX, ry, trackW, barH, barH / 2); ctx.fill();
+        ctx.lineWidth = 3; ctx.strokeStyle = C.line; roundRect(ctx, trackX, ry, trackW, barH, barH / 2); ctx.stroke();
+        // fill
+        const v = Math.max(0, Math.min(100, b.value || 0));
+        const fw = Math.max(barH, trackW * v / 100);
+        ctx.fillStyle = BAR_COLORS[b.key] || BAR_FALLBACK[i % 5];
+        roundRect(ctx, trackX, ry, fw, barH, barH / 2); ctx.fill();
+        // value
+        ctx.textAlign = 'right'; ctx.font = "700 30px " + MONO; ctx.fillStyle = C.ink;
+        ctx.fillText(v + '%', 960 + 60 - 36, ry + barH - 6);
+      });
+    }
+
     // --- trio tiles (สี/เลข/เวลา) ---
-    const ty = by + bh + 40, gap = 28, tw = (960 - gap * 2) / 3, th = 230, tx0 = 60;
+    const gap = 28, tw = (960 - gap * 2) / 3, tx0 = 60;
     const tiles = [
       { label: 'สีมงคล',  value: d.colorName, fill: C.tilePink, sw: d.colorHex },
       { label: 'เลขมงคล', value: String(d.number), fill: C.tileMint },
@@ -170,7 +220,7 @@
     // --- footer ---
     ctx.textAlign = 'center';
     ctx.fillStyle = C.ink2; ctx.font = "500 30px " + MONO;
-    ctx.fillText((d.date ? d.date + '  ·  ' : '') + 'capybarabu.app', W / 2, H - 64);
+    ctx.fillText((d.date ? d.date + '  ·  ' : '') + 'capybarabu.app', W / 2, H2 - 60);
   }
 
   function toBlob(canvas) { return new Promise((res) => canvas.toBlob(res, 'image/png')); }

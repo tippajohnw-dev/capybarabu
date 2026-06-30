@@ -532,7 +532,7 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="fortune-engine.js?v=s4"></script>
-<script src="share-card.js?v=s4"></script>
+<script src="share-card.js?v=s6"></script>
 <script src="shop-catalog.js?v=s1"></script>
 <script>
 // ---- hash router (static, no build) — reuse จาก production ----
@@ -1127,13 +1127,21 @@ function renderCharm() {
 async function shareCharm() { await shareWith(Fortune.shareData(window._lastCharm, profile), mPath('quiz')); }
 
 // ---- share (canvas) ----
+// กราฟแท่ง 5 ด้านสำหรับ share-card (ดวงวันนี้แต่ละด้าน — deterministic ตาม profile/วัน)
+function fortuneBars() {
+  return Fortune.CATEGORIES.map(c => ({ key: c.key, emoji: c.emoji, label: c.label, value: Fortune.category(c.key, profile).score }));
+}
 async function shareDaily() {
   const d = Fortune.daily(profile);
-  await shareWith(Fortune.shareData(d, profile), mPath('hero'));
+  const data = Fortune.shareData(d, profile);
+  data.bars = fortuneBars();
+  await shareWith(data, mPath('hero'));
 }
 async function shareFortune() {
   const r = window._lastFortune || Fortune.category(selectedCat, profile);
-  await shareWith(Fortune.shareData(r, profile), catMascot(r.key));
+  const data = Fortune.shareData(r, profile);
+  data.bars = fortuneBars();
+  await shareWith(data, catMascot(r.key));
 }
 async function shareWith(data, mascot) {
   if (mascot) data.mascot = mascot;
