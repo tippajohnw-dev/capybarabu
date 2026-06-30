@@ -1190,8 +1190,14 @@ async function shareToLine(data) {
 
 // fallback ใน LINE: เปิด LINE share (แชร์ลิงก์ + OG preview) — เลี่ยง download ที่ LINE WebView บล็อก
 function shareLineLink(data) {
-  // ?s=N = bust cache preview ของ LINE (LINE จำ preview ต่อ URL — เปลี่ยน param ให้ crawl og:image ใหม่)
-  const shareUrl = 'https://capybarabu-mae-mhor.web.app/landing.html?s=2';
+  // แชร์ลิงก์ /s ที่ og:image = การ์ดดวง "รายคน" (เรนเดอร์ฝั่ง server) → preview ในแชต LINE เป็นการ์ดของคนนั้นจริง ๆ
+  // param ต่างกันต่อคน/วัน = URL ต่างกัน → LINE crawl ใหม่เสมอ (ไม่ติด cache เก่า)
+  const qp = new URLSearchParams({
+    p: data.power != null ? String(data.power) : '',
+    name: data.name || '', color: data.colorName || '', hex: data.colorHex || '',
+    number: data.number != null ? String(data.number) : '', time: data.time || '', kind: data.kind || 'ดวงวันนี้',
+  });
+  const shareUrl = 'https://capybarabu-mae-mhor.web.app/s?' + qp.toString();
   const url = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(shareUrl);
   try { if (typeof liff !== 'undefined' && liff.openWindow) { liff.openWindow({ url: url, external: true }); return; } } catch (e) {}
   window.open(url, '_blank');

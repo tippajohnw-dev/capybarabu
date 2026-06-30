@@ -25,6 +25,10 @@ exports.lineWebhook = require('./webhook').lineWebhook;
 exports.createCharge = require('./payment').createCharge;
 exports.omiseWebhook = require('./payment').omiseWebhook;
 
+// Sprint 6.5: personalized share card (OG image) — เรนเดอร์การ์ดดวงรายคนเป็น PNG ให้ crawler LINE/social
+exports.cardImage = require('./card').cardImage;
+exports.cardShare = require('./card').cardShare;
+
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
 // =============================================================
