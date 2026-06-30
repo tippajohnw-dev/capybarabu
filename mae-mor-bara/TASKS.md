@@ -13,16 +13,17 @@
 | Auth journey (Unblocker A) | 8 | 8 | 0 | 0 |
 | Core features (Phase 1) | 7 | 7 | 0 | 0 |
 | Commerce | 3 | 3 | 0 | 0 |
-| Retention/KPI | 2 | 0 | 0 | 2 |
-| Landing (P1.9) | 1 | 0 | 0 | 1 |
-| **รวม (feature)** | **24** | **21** | **0** | **3** |
+| Retention/KPI | 2 | 2 | 0 | 0 |
+| Landing (P1.9) | 1 | 1 | 0 | 0 |
+| **รวม (feature)** | **24** | **24** | **0** | **0** |
 | Sprint R (redesign) | 6 | 6 (R0–R6) | 0 | 0 |
 
 > ✅ **Sprint 0+1+2+3 เสร็จ** (Auth e2e + Core loop + Viral) · commit/push: `083daf1`
 > ✅ **Sprint R (R0–R6) เสร็จ** — CAPY POP replace production + deploy แล้ว (theme เดิม backup `*-legacy-cutemystic.*`)
 > ✅ **Sprint 4 เสร็จ** — C6 Journal/Streak + C7 LINE push/webhook **activated** (OA `@291wnbhf`)
 > ✅ **Sprint 5 — D1 ร้าน + D2 detail + D3 checkout UI deployed** · **D3 payment backend code เสร็จ** (`functions/payment.js` Omise) เหลือ activate (ดู `D3-SETUP.md`)
-> **ถัดไป = Sprint 6 (Scale)** E1 Profile/Collection · E2 KPI · L1 Landing — หรือ activate D3 (Omise key + deploy + rules)
+> ✅ **Sprint 6 (Scale) เสร็จ + deployed** — E1 Profile/Collection · E2 KPI instrumentation (`events` rule deployed) · L1 `landing.html` · + แก้ asset มาสคอต m1/m2/m7/m9/m10 (ตัด checkerboard ที่ baked ค้างจาก Sprint R, bump `?v=2`)
+> **🎉 ครบ 24/24 feature.** ถัดไป = go-live ฝั่ง user (publish LINE channel · Omise live · ชี้ root→landing) → วัด KPI → Phase 2
 
 ---
 
@@ -51,9 +52,9 @@
 | **D1** | **Charm Shop (lean)** — `shop-catalog.js` (10 เครื่องรางดิจิทัล ≤฿99) + intention tabs + grid CAPY POP | app: shop | F3 | ✅ `app.html` + deployed | 5 |
 | **D2** | **Product Detail** — มาสคอต + story + bonus + sticky buybar (view `#product`) | app: detail | D1 | ✅ deployed | 5 |
 | **D3** | **Payment + orders/** — Omise PromptPay deployed + **verified e2e** (Test: createCharge→QR→webhook→paid→ขอบคุณ ✅) · CHARGE_URL set · rules แก้แล้ว · go-live: สลับ skey_live + ลงทะเบียน webhook โหมด live | — | D1,A7 | ✅ verified (Test mode) | 5 |
-| **E1** | **Profile & Collection** — points + badge/collection ชุดเริ่มต้น | app: profile | F3,A7 | ⬜ | 6 |
-| **E2** | **KPI instrumentation** — event D7/Share/CTA/Quiz/ATC/LINE | — | ทุก feature | ⬜ | 6 |
-| **L1** | **Landing Page (P1.9)** — public hero CTA เดียว "เริ่มเช็กดวงเลย" + social proof (ตอนนี้ root `/` ยังเป็นแอปเดิม · welcome อยู่ใน A1) | app: landing | F3 | ⬜ | 6 |
+| **E1** | **Profile & Collection** — แต้มสะสม(capyPoints)+streak+#เครื่องราง · grid 10 ช่อง (paid orders+collection = unlock) · 5 ตราสะสม (badges) · มาสคอต m10 | app: profile | F3,A7 | ✅ deployed | 6 |
+| **E2** | **KPI instrumentation** — `logEvent()`→`users/{uid}/events` (Firestore log) · open(D7)/share/cta_fortune/quiz_start+complete/shop_view+atc/purchase · login@auth.html · rule events เพิ่มแล้ว | — | ทุก feature | ✅ deployed | 6 |
+| **L1** | **Landing Page (P1.9)** — `landing.html` public hero CTA เดียว "เริ่มเช็กดวงเลย"→auth.html + trust chips + 4.9★ + 4 benefits + social proof (รีวิว = **placeholder** แทนด้วยจริงก่อน go-live) · root `/` ยังเป็นแอปเดิม (go-live: ชี้ root→landing) | app: landing | F3 | ✅ deployed | 6 |
 
 ---
 

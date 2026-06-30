@@ -1,5 +1,16 @@
 # แม่หมอบาร่า V2 — Handoff สำหรับ session ถัดไป
-### อัปเดต 2026-06-28 · หลังจบ Sprint 0+1+2+3 + ออกแบบ Sprint R (CAPY POP) · commit/push `083daf1`
+### อัปเดต 2026-06-30 · **Sprint 6 (Scale) เสร็จ + deployed → ครบ 24/24 feature** 🎉
+> **เสร็จวันนี้ (Sprint 6):**
+> - **E1 Profile & Collection** (`app.html` view `#profile`): chips จริง = แต้มสะสม(`capyPoints`)/streak/#เครื่องราง · grid คอลเลกชัน 10 ช่อง (unlock จาก paid `orders`+`collection`) · 5 ตราสะสม(badges) · ปลดล็อกทันทีหลังจ่ายใน `pollOrder`
+> - **E2 KPI instrumentation**: `logEvent(name,params)`→`users/{uid}/events` (Firestore log, fire-and-forget) · events: `open`(D7,วันละครั้ง)/`share`/`cta_fortune`/`shop_view`/`atc`/`quiz_start`/`quiz_complete`/`purchase` + `login{provider}`@`auth.html` · เพิ่ม rule `users/{uid}/events` (owner append-only) + deployed
+> - **L1 `landing.html`**: public hero CTA เดียว "เริ่มเช็กดวงเลย"→`auth.html` · trust chips · 4.9★ · 4 benefits · social proof (รีวิว = **placeholder** ให้ PO แทนด้วยจริง) · CAPY POP · มาสคอต m3
+> - **Asset fix**: มาสคอต m1/m2/m7/m9/m10 มี checkerboard baked ค้างจาก Sprint R (ตัด bg ไม่หมด) → flood-fill ตัดออกจาก PNG ต้นฉบับ re-export webp + bump `?v=2` ทุกที่ (app/auth/landing)
+> - verify local (preview 3457) ผ่านครบ · deploy rules(autopost)+hosting(mae-mor) แล้ว · live ✓
+>
+> **ค้าง = งาน go-live ฝั่ง user เท่านั้น (ไม่บล็อกโค้ด):** (a) publish LINE channel `2010529290` (b) Omise live (skey_live+webhook) (c) ชี้ Hosting root `/` → `landing.html` ตอนเปิดจริง (ตอนนี้ root ยังเป็นแอปเดิม `index.html`) (d) แทนรีวิว placeholder ใน landing
+>
+> ---
+> #### อัปเดตก่อนหน้า · 2026-06-28 · หลังจบ Sprint 0+1+2+3 + ออกแบบ Sprint R (CAPY POP) · commit/push `083daf1`
 
 ---
 
@@ -12,7 +23,7 @@
 | 3 Viral | C4 Pick a Card · C5 Charm Quiz | ✅ |
 | **4 Retention** | C6 Journal/Streak ✅ · C7 LINE push + webhook ✅ deployed+activated (OA `@291wnbhf`, ch `2010545788`) | ✅ |
 | **5 Commerce** | D1 Shop ✅ · D2 Detail ✅ · D3 checkout UI ✅ deployed · D3 payment backend (code ✅ Omise, activate ⬜) | 🟡 |
-| **6 Scale** | E1 Profile/Collection · E2 KPI · L1 Landing | ⬜ |
+| **6 Scale** | E1 Profile/Collection ✅ · E2 KPI instrumentation ✅ · L1 Landing (`landing.html`) ✅ — **deployed** | ✅ |
 | **R Redesign** ⭐ | R0–R6 CAPY POP **replace production แล้ว** (app/share-card/auth = CAPY POP, theme เดิม backup) | ✅ (R0–R6) |
 | Phase 2 | Premium · Collection เต็ม · LINE automation … (strategy, หลัง KPI) | 🔭 |
 

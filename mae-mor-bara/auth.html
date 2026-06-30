@@ -163,7 +163,7 @@ body { font-family: var(--disp); min-height: 100vh; color: var(--ink); font-weig
   <section class="screen active" data-screen="welcome">
     <div class="topbar"><div class="mini-brand"><span class="ic">🦫</span><span>แม่หมอบาร่า</span></div>
       <button class="chip-btn ghost" onclick="finish()">ข้าม</button></div>
-    <div class="capy-hero"><img src="mascots/m1.webp?v=1" alt="" onerror="this.outerHTML='<div class=fallback>🔮</div>'"></div>
+    <div class="capy-hero"><img src="mascots/m1.webp?v=2" alt="" onerror="this.outerHTML='<div class=fallback>🔮</div>'"></div>
     <h1 class="title">วันนี้แม่หมอบาร่า<br/>อยากบอกอะไรคุณ?</h1>
     <p class="subtitle">เช็กพลังประจำวัน สีมงคล เลขนำโชค และเครื่องรางที่เหมาะกับคุณใน 30 วินาที</p>
     <div class="spacer"></div>
@@ -203,7 +203,7 @@ body { font-family: var(--disp); min-height: 100vh; color: var(--ink); font-weig
       <div class="mini-brand"><span class="ic">🔮</span><span>ดวงวันนี้</span></div>
       <button class="chip-btn ghost" onclick="openLogin()">บันทึก</button></div>
     <div class="fortune-card">
-      <div class="energy-row"><div><div style="font-size:12px;font-weight:600;opacity:.95">พลังวันนี้</div><div class="energy-score" id="r-score">78%</div></div><img src="mascots/m5.webp?v=1" alt="" style="width:96px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.2))" onerror="this.outerHTML='<div style=font-size:60px>🦫</div>'"></div>
+      <div class="energy-row"><div><div style="font-size:12px;font-weight:600;opacity:.95">พลังวันนี้</div><div class="energy-score" id="r-score">78%</div></div><img src="mascots/m5.webp?v=2" alt="" style="width:96px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.2))" onerror="this.outerHTML='<div style=font-size:60px>🦫</div>'"></div>
       <p class="fortune-text" id="r-text">วันนี้พลังเงินค่อย ๆ เปิดทาง เหมาะกับการวางแผนมากกว่าการเสี่ยงแบบใจร้อน ถ้าจัดระเบียบเงินวันนี้ จะเห็นโอกาสที่ซ่อนอยู่ชัดขึ้น</p>
       <div class="fchips"><span class="fchip">สีมงคล <strong>มิ้นต์</strong></span><span class="fchip">เลขนำโชค <strong>89</strong></span><span class="fchip">สิ่งที่ควรทำ <strong>จัดกระเป๋าเงิน</strong></span></div>
     </div>
@@ -253,7 +253,7 @@ body { font-family: var(--disp); min-height: 100vh; color: var(--ink); font-weig
   <!-- ===== Success ===== -->
   <section class="screen" data-screen="success">
     <div class="topbar"><span></span><div class="mini-brand"><span class="ic">✨</span><span>สำเร็จ</span></div><span></span></div>
-    <div class="success-badge"><img src="mascots/m10.webp?v=1" alt="" onerror="this.outerHTML='🦫'"></div>
+    <div class="success-badge"><img src="mascots/m10.webp?v=2" alt="" onerror="this.outerHTML='🦫'"></div>
     <h1 class="title">ยินดีต้อนรับนะ <span id="s-name"></span></h1>
     <p class="subtitle">แม่หมอบาร่าบันทึกดวงวันนี้ให้แล้ว และเตรียมพลังโชคดีให้คุณเรียบร้อย</p>
     <div class="reward-card"><div class="reward"><b>+1</b><span>การ์ดดวงรายวัน</span></div><div class="reward"><b>+20</b><span>Capy Points</span></div></div>
@@ -386,14 +386,27 @@ async function completeLineLogin() {
   sessionStorage.removeItem('line_login_pending');
   sessionStorage.removeItem('onboard_state');
   dbg('LINE signed in', data.uid);
+  logLogin('line');   // E2: LINE login rate
   afterLogin();
 }
 
 // หลัง login สำเร็จ → flush ข้อมูล guest ที่เก็บไว้ (การนำทางให้ onAuthStateChanged จัดการ)
 function afterLogin() { closeLogin(); flushGuestData(); }
 
+// E2 — KPI: log provider ตอน login จริง (ไม่นับ guest/anon) → คำนวณ LINE login rate
+function logLogin(provider) {
+  try {
+    const u = auth.currentUser; if (!u || u.isAnonymous) return;
+    db.collection('users').doc(u.uid).collection('events').add({
+      name: 'login', params: { provider }, day: new Date().toISOString().slice(0, 10),
+      ts: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (e) { /* analytics ห้ามทำ flow พัง */ }
+}
+
 // resume หลัง redirect (Google/Apple) — เก็บ guest data; นำทางโดย onAuthStateChanged
-auth.getRedirectResult().then(r => { if (r && r.user) { dbg('redirect login', r.user.uid); flushGuestData(); } })
+auth.getRedirectResult().then(r => { if (r && r.user) { dbg('redirect login', r.user.uid);
+    logLogin((r.user.providerData[0] && r.user.providerData[0].providerId) || 'oauth'); flushGuestData(); } })
   .catch(e => dbg('redirect ERROR', e.code));
 
 // ===== Onboarding resume =====

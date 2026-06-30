@@ -295,6 +295,27 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 .date-row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; margin: 12px 0; }
 .date-row select { width: 100%; padding: 13px 10px; border-radius: 14px; background: var(--cream); border: var(--pop-border);
   color: var(--ink); font-size: 14px; font-weight: 600; font-family: var(--disp); -webkit-appearance: none; appearance: none; }
+
+/* ---- E1: Collection grid + badges (Profile) ---- */
+.col-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 4px; }
+.col-item { border-radius: 16px; padding: 10px 6px; text-align: center; cursor: pointer;
+  background: var(--cream-2); border: 2px dashed var(--line); box-shadow: none; min-height: 78px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: transform .12s; }
+.col-item.owned { background: var(--cream-2); border: var(--pop-border); box-shadow: var(--pop-shadow-sm); }
+.col-item.owned:active { transform: var(--pop-press); box-shadow: 0 1px 0 -1px var(--ink); }
+.col-item .ci-emoji { font-size: 26px; line-height: 1; }
+.col-item:not(.owned) .ci-emoji { opacity: .5; }
+.col-item span { font-size: 9.5px; font-weight: 600; line-height: 1.15; color: var(--ink-2); }
+.col-item:not(.owned) span { color: var(--muted); }
+
+.badge-row { display: flex; gap: 10px; overflow-x: auto; padding: 2px 0 4px; margin: 0 -2px; scrollbar-width: none; }
+.badge-row::-webkit-scrollbar { display: none; }
+.badge { flex: 0 0 auto; width: 84px; border-radius: 18px; padding: 12px 6px; text-align: center;
+  background: var(--cream-2); border: var(--pop-border); box-shadow: var(--pop-shadow-sm); }
+.badge.locked { opacity: .42; box-shadow: none; border-style: dashed; }
+.badge .be { font-size: 28px; line-height: 1; }
+.badge .bn { display: block; font-size: 9.5px; font-weight: 700; line-height: 1.2; margin-top: 6px; color: var(--ink); }
+.badge.locked .bn { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -304,7 +325,7 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
   <section class="view active" id="home">
     <div class="app-header">
       <div class="user-block">
-        <div class="avatar" id="h-avatar"><img src="mascots/m1.webp?v=1" alt="" onerror="this.parentNode.textContent='🦫'" /></div>
+        <div class="avatar" id="h-avatar"><img src="mascots/m1.webp?v=2" alt="" onerror="this.parentNode.textContent='🦫'" /></div>
         <div><div class="tiny" id="greet-time">สวัสดี</div><div class="hello" id="greet-name">สวัสดี เพื่อน ✨</div></div>
       </div>
       <button class="icon-btn" id="streak-pill">🔥 7</button>
@@ -317,7 +338,7 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
           <div class="pwr"><span id="hero-power">–</span><small>%</small></div>
           <div class="hsub" id="hero-sub">กำลังอ่านพลังของคุณ…</div>
         </div>
-        <img class="capy" id="hero-mascot" src="mascots/m3.webp?v=1" alt="แม่หมอบาร่า" onerror="this.style.display='none'" />
+        <img class="capy" id="hero-mascot" src="mascots/m3.webp?v=2" alt="แม่หมอบาร่า" onerror="this.style.display='none'" />
       </div>
       <div class="bubble" id="hero-bubble">แม่หมอบาร่ากำลังเปิดไพ่ให้คุณอยู่นะ ✨</div>
     </section>
@@ -384,7 +405,7 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
     <div class="shop-tabs" id="shop-tabs"></div>
     <div class="shop-grid" id="shop-grid"></div>
     <div class="card mascot-block" style="margin-top:16px">
-      <img src="mascots/m7.webp?v=1" alt="" onerror="this.style.display='none'" />
+      <img src="mascots/m7.webp?v=2" alt="" onerror="this.style.display='none'" />
       <div class="hello" style="font-size:16px;margin-top:6px">ยังไม่รู้ว่าอันไหนใช่?</div>
       <p style="color:var(--ink-2);font-size:12.5px;margin:6px 0 12px;font-weight:500">ให้แม่หมอช่วยเลือกเครื่องรางที่เข้ากับคุณวันนี้</p>
       <button class="btn mango" onclick="nav('quiz')">🔮 ทำควิซหาเครื่องราง</button>
@@ -430,7 +451,7 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
     </div>
 
     <div class="card mascot-block">
-      <img src="mascots/m9.webp?v=1" alt="" onerror="this.style.display='none'" />
+      <img src="mascots/m9.webp?v=2" alt="" onerror="this.style.display='none'" />
       <p style="color:var(--ink-2);font-size:12.5px;margin:8px 0 0;font-weight:500">บันทึกทุกวัน แม่หมอจะอ่านใจคุณได้แม่นขึ้นเรื่อย ๆ นะ ✨</p>
     </div>
   </section>
@@ -439,14 +460,27 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
   <section class="view" id="profile">
     <div class="title-row"><div class="screen-title">โปรไฟล์ 🦫</div></div>
     <div class="card mascot-block">
-      <img src="mascots/m10.webp?v=1" alt="" onerror="this.style.display='none'" />
+      <img src="mascots/m10.webp?v=2" alt="" onerror="this.style.display='none'" />
       <div class="hello" style="font-size:18px;margin-top:6px" id="profile-name">โปรไฟล์ของฉัน</div>
       <p style="color:var(--ink-2);font-size:12.5px;margin:4px 0 0;font-weight:500" id="profile-sub">สาย Money Flow · สีมงคล มิ้นต์</p>
       <div class="chips" style="margin-bottom:0">
-        <div class="chip"><span>การ์ดที่เก็บ</span><b>12</b></div>
-        <div class="chip"><span>เครื่องราง</span><b>3</b></div>
-        <div class="chip"><span>Streak</span><b>7</b></div>
+        <div class="chip"><span>แต้มสะสม</span><b id="stat-points">0</b></div>
+        <div class="chip"><span>เครื่องราง</span><b id="stat-charms">0</b></div>
+        <div class="chip"><span>Streak</span><b id="stat-streak">0</b></div>
       </div>
+    </div>
+
+    <!-- E1: คอลเลกชันเครื่องราง -->
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>🧿 คอลเลกชันของฉัน</h3><span id="collection-count" style="font-family:var(--mono);font-size:12px;color:var(--mango-2);font-weight:700">0/10</span></div>
+      <div class="col-grid" id="collection-grid"></div>
+      <p class="tiny" id="collection-hint" style="margin-top:12px;text-align:center;color:var(--muted);font-family:var(--disp);font-size:11.5px;text-transform:none;letter-spacing:0">สะสมเครื่องรางให้ครบ ปลดล็อกพลังมงคลทุกด้าน ✨</p>
+    </div>
+
+    <!-- E1: ตราสะสม (badges) -->
+    <div class="card">
+      <div class="section-title" style="margin-top:0"><h3>🏅 ตราสะสม</h3></div>
+      <div class="badge-row" id="badge-row"></div>
     </div>
 
     <!-- การแจ้งเตือน (C7 opt-in toggle) -->
@@ -507,7 +541,7 @@ const SUBVIEWS = { pick: 'fortune', quiz: 'charm', product: 'charm' };
 
 // มาสคอตประจำฟีเจอร์ (R4 — สลับท่าตามฟีเจอร์)
 const MASCOT = { hero:'m3', pick:'m4', money:'m5', quiz:'m6', shop:'m7', protect:'m8', journal:'m9', profile:'m10', avatar:'m1' };
-const mPath = (k) => 'mascots/' + (MASCOT[k] || 'm3') + '.webp?v=1';
+const mPath = (k) => 'mascots/' + (MASCOT[k] || 'm3') + '.webp?v=2';
 
 function show(id) {
   if (!ROUTES.includes(id) && !SUBVIEWS[id]) id = 'home';
@@ -519,7 +553,8 @@ function show(id) {
   if (id === 'pick') enterPick(false);
   if (id === 'quiz') startQuiz();
   if (id === 'journal') loadJournal();
-  if (id === 'charm') renderShop();
+  if (id === 'charm') { renderShop(); logEvent('shop_view', { filter: _shopFilter }); }   // E2: ATC denominator
+  if (id === 'profile') renderProfile();   // E1: refresh stats/collection on view
 }
 function nav(id) { location.hash = '#/' + id; }
 function route() { show((location.hash.replace('#/', '') || 'home')); }
@@ -557,9 +592,31 @@ let selectedCat = 'love';
 
 const DEMO = new URLSearchParams(location.search).get('demo') === '1';
 
+// =============================================================
+// E2 — KPI instrumentation (Firestore event log → users/{uid}/events)
+// เลือก Firestore (ไม่ใช่ GA4) ตาม ROADMAP §4 · fire-and-forget ไม่บล็อก UX
+// KPI: D7(open) · Share(share) · CTA(cta_fortune) · Quiz(quiz_start/complete) · ATC(shop_view/atc) · LINE(login@auth.html)
+// =============================================================
+function logEvent(name, params) {
+  if (DEMO || !profile.uid) return;
+  try {
+    db.collection('users').doc(profile.uid).collection('events')
+      .add({ name, params: params || {}, day: dayKey(), ts: serverTime() });
+  } catch (e) { /* analytics ห้ามทำ UX พัง */ }
+}
+// D7 — log 'open' วันละครั้งต่อ uid (guard ผ่าน localStorage)
+function logDailyOpen() {
+  if (DEMO || !profile.uid) return;
+  const k = 'opened_' + profile.uid + '_' + dayKey();
+  if (localStorage.getItem(k)) return;
+  localStorage.setItem(k, '1');
+  logEvent('open', { hour: new Date().getHours() });
+}
+
 if (DEMO) {
   profile = { uid: 'demo', displayName: 'ตอง', birthDate: { d: 7, m: 8, beYear: 2540 }, tone: 'ขำ ๆ' };
-  renderHome(); buildFortuneCats(); renderProfile();
+  // initial render ถูกเลื่อนไปท้ายไฟล์ (เลี่ยง TDZ ของ let _journal ฯลฯ ที่ประกาศหลังบล็อกนี้
+  // — โหมด auth ไม่เจอเพราะ onAuthStateChanged ยิง async หลังสคริปต์ parse ครบ)
 } else
 auth.onAuthStateChanged(async (user) => {
   if (!user) { location.href = CONFIG.AUTH_URL; return; }
@@ -605,14 +662,65 @@ function renderHome() {
 
   document.getElementById('birth-btn').style.display = d.hasBirth ? 'none' : 'inline-flex';
   recordCheckIn(d.power);          // C6: นับ streak จากการเปิดเช็กดวงรายวัน
+  logDailyOpen();                  // E2: D7 retention
 }
 
-function renderProfile() {
+async function renderProfile() {
   const nm = profile.displayName || 'เพื่อน';
   const d = Fortune.daily(profile);
   document.getElementById('profile-name').textContent = nm;
   document.getElementById('profile-sub').textContent = 'สีมงคล ' + d.color.name + ' · เลข ' + d.number;
+  document.getElementById('stat-points').textContent = profile.capyPoints || 0;
   renderNotif();
+  // โหลด collection + journal (เพื่อ streak ที่ถูกต้อง) ก่อนคำนวณสถิติ
+  await Promise.all([loadCollection(), (_journalLoaded ? Promise.resolve() : loadJournal())]);
+  document.getElementById('stat-streak').textContent = streakCount();
+  document.getElementById('stat-charms').textContent = _ownedCharms.size;
+  renderCollection();
+  renderBadges();
+}
+
+// ---- E1: Collection (เครื่องรางที่เป็นเจ้าของ = paid orders + collection subcollection) ----
+let _ownedCharms = new Set();
+let _collectionLoaded = false;
+async function loadCollection() {
+  if (DEMO) { _ownedCharms = new Set(['money-coin', 'love-heart']); return; }
+  if (_collectionLoaded || !profile.uid) return;
+  try {
+    const ord = await db.collection('users').doc(profile.uid).collection('orders').where('status', '==', 'paid').get();
+    ord.forEach(doc => { const p = doc.data().productId; if (p) _ownedCharms.add(p); });
+    const col = await db.collection('users').doc(profile.uid).collection('collection').get();
+    col.forEach(doc => _ownedCharms.add(doc.id));
+    _collectionLoaded = true;
+  } catch (e) { console.warn('load collection', e.message); }
+}
+function renderCollection() {
+  document.getElementById('collection-count').textContent = _ownedCharms.size + '/' + Shop.PRODUCTS.length;
+  document.getElementById('collection-grid').innerHTML = Shop.PRODUCTS.map(p => {
+    const owned = _ownedCharms.has(p.id);
+    const onclick = owned ? `openProduct('${p.id}')` : `nav('charm')`;
+    return `<div class="col-item${owned ? ' owned' : ''}" style="${owned ? 'background:' + Shop.tile(p.intention) : ''}" onclick="${onclick}">
+      <div class="ci-emoji">${owned ? p.emoji : '🔒'}</div>
+      <span>${owned ? esc(p.name) : 'ยังไม่ปลดล็อก'}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('collection-hint').textContent = _ownedCharms.size
+    ? 'แตะเครื่องรางที่ปลดล็อกแล้วเพื่อดูรายละเอียด · เก็บให้ครบทุกด้าน ✨'
+    : 'ยังไม่มีเครื่องรางเลย — แตะช่องล็อกเพื่อไปเลือกในร้านน้า 🛍️';
+}
+
+// ---- E1: Badges (ตราสะสม ชุดเริ่มต้น) ----
+function renderBadges() {
+  const streak = streakCount(), charms = _ownedCharms.size, points = profile.capyPoints || 0;
+  const BADGES = [
+    { e: '🌱', n: 'เริ่มเดินทาง', on: true },
+    { e: '🔥', n: 'ขาประจำ 7 วัน', on: streak >= 7 },
+    { e: '🧿', n: 'นักสะสมเครื่องราง', on: charms >= 1 },
+    { e: '💎', n: 'สะสม 100 แต้ม', on: points >= 100 },
+    { e: '👑', n: 'คอลเลกชันครบ', on: charms >= Shop.PRODUCTS.length },
+  ];
+  document.getElementById('badge-row').innerHTML = BADGES.map(b =>
+    `<div class="badge${b.on ? '' : ' locked'}"><div class="be">${b.on ? b.e : '🔒'}</div><span class="bn">${esc(b.n)}</span></div>`).join('');
 }
 
 // ---- C7 opt-in toggle (รับดวงรายวันผ่าน LINE) — เปิด/ปิดเองได้ทุกเมื่อ ----
@@ -783,7 +891,7 @@ function renderProduct() {
   const p = Shop.get(window._product); if (!p) { nav('charm'); return; }
   document.getElementById('productBody').innerHTML = `
     <div class="pd-hero" style="background:${Shop.tile(p.intention)}">
-      <img src="mascots/${p.mascot}.webp?v=1" alt="" onerror="this.outerHTML='<div class=pdh-emoji>'+${JSON.stringify(p.emoji)}+'</div>'" />
+      <img src="mascots/${p.mascot}.webp?v=2" alt="" onerror="this.outerHTML='<div class=pdh-emoji>'+${JSON.stringify(p.emoji)}+'</div>'" />
       <div><h2>${p.emoji} ${esc(p.name)}</h2><p>${esc(p.tagline)}</p></div>
     </div>
     <div class="card" style="margin-top:14px"><div class="pd-story">${esc(p.story)}</div>
@@ -800,6 +908,7 @@ function renderProduct() {
 function openCheckout(id) {
   const p = Shop.get(id); if (!p) return;
   window._coProduct = id;
+  logEvent('atc', { productId: p.id, price: p.price });   // E2: Add-to-Cart
   document.getElementById('checkoutBody').innerHTML = `
     <div class="hello" style="font-size:18px">สรุปคำสั่งซื้อ 🛍️</div>
     <div class="co-line"><span>${p.emoji} ${esc(p.name)}</span><span class="mono">฿${p.price}</span></div>
@@ -853,9 +962,12 @@ function pollOrder(orderId) {
   const unsub = ref.onSnapshot(snap => {
     if (snap.exists && snap.data().status === 'paid') {
       unsub();
+      const pid = snap.data().productId; if (pid) _ownedCharms.add(pid);   // E1: ปลดล็อกในคอลเลกชันทันที
+      _collectionLoaded = false;                                            // ให้โหลดใหม่รอบหน้า (กันพลาด)
+      logEvent('purchase', { productId: pid });                             // E2: conversion ปลายทาง
       document.getElementById('checkoutBody').innerHTML = `
         <div class="mascot-block" style="text-align:center">
-          <img src="mascots/m1.webp?v=1" style="width:120px" onerror="this.outerHTML='<div style=font-size:54px>🎉</div>'" />
+          <img src="mascots/m1.webp?v=2" style="width:120px" onerror="this.outerHTML='<div style=font-size:54px>🎉</div>'" />
           <div class="hello" style="font-size:19px;margin-top:6px">ขอบคุณน้า! 🎉</div>
           <p style="color:var(--ink-2);font-size:13px;margin:8px 0 0;font-weight:500">เครื่องรางเป็นของคุณแล้ว แม่หมอส่งให้ทาง LINE เรียบร้อย ✨</p>
           <button class="btn mango" style="margin-top:16px" onclick="closeCheckout()">เย่!</button>
@@ -883,6 +995,7 @@ function catMascot(key) { return key === 'money' ? mPath('money') : key === 'pro
 function runFortune() {
   const r = Fortune.category(selectedCat, profile);
   window._lastFortune = r;
+  logEvent('cta_fortune', { cat: selectedCat });   // E2: CTA เริ่มเช็กดวง
   document.getElementById('fortuneResult').innerHTML = `
     <div class="fresult">
       <div class="top"><div class="row">
@@ -974,7 +1087,7 @@ const QUIZ = [
   ] },
 ];
 let _quizStep = 0, _quizAns = {};
-function startQuiz() { _quizStep = 0; _quizAns = {}; renderQuiz(); }
+function startQuiz() { _quizStep = 0; _quizAns = {}; logEvent('quiz_start'); renderQuiz(); }
 function renderQuiz() {
   const body = document.getElementById('quizBody');
   if (_quizStep >= QUIZ.length) { renderCharm(); return; }
@@ -989,6 +1102,7 @@ function answerQuiz(val) { _quizAns[QUIZ[_quizStep].key] = val; _quizStep++; ren
 function renderCharm() {
   const r = Fortune.recommendCharm(_quizAns, profile);
   window._lastCharm = r;
+  logEvent('quiz_complete', { mood: _quizAns.mood, intention: _quizAns.intention });   // E2: Quiz completion
   document.getElementById('quizBody').innerHTML = `
     <div class="charm-badge">${r.emoji}</div>
     <div class="fresult">
@@ -1023,6 +1137,7 @@ async function shareFortune() {
 }
 async function shareWith(data, mascot) {
   if (mascot) data.mascot = mascot;
+  logEvent('share', { kind: data.kind || 'daily' });   // E2: Share rate
   const canvas = document.getElementById('shareCanvas');
   try {
     await ShareCard.render(canvas, data);
@@ -1060,7 +1175,8 @@ async function saveBirth() {
 }
 document.getElementById('birthSheet').addEventListener('click', (e) => { if (e.target.id === 'birthSheet') closeBirth(); });
 
-// เริ่ม routing หลังนิยามทุกอย่างครบ (เลี่ยง TDZ ของ let profile)
+// เริ่ม routing หลังนิยามทุกอย่างครบ (เลี่ยง TDZ ของ let profile/_journal)
+if (DEMO) { renderHome(); buildFortuneCats(); renderProfile(); }
 route();
 </script>
 </body>
