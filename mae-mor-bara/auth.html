@@ -334,7 +334,13 @@ function go(id) {
   document.querySelector('.app').scrollTo(0, 0);
 }
 function finish() { gotoApp(); }                      // guest ข้าม onboarding → เข้าแอปเลย
-function gotoApp() { location.href = CONFIG.APP_URL; }
+// ใน LINE → เปิดแอปผ่าน LIFF app ของหน้าแอป (endpoint /app.html) เพื่อให้ isInClient ติด → shareTargetPicker ใช้ได้
+// นอก LINE → ไป app.html ตรง ๆ (web share ทำงานเอง)
+const APP_LIFF_ID = '2010529290-73eQb0qo';
+function gotoApp() {
+  try { if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) { location.href = 'https://liff.line.me/' + APP_LIFF_ID; return; } } catch (e) {}
+  location.href = CONFIG.APP_URL;
+}
 
 // ---- login sheet ----
 function openLogin() { document.getElementById('loginSheet').classList.add('open'); }

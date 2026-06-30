@@ -589,12 +589,13 @@ const db = firebase.firestore();
 const serverTime = () => firebase.firestore.FieldValue.serverTimestamp();
 
 // LIFF — เปิดทาง shareTargetPicker (แชร์การ์ดเข้าแชต LINE จริง). best-effort, ไม่บล็อกแอป
+// LIFF app ของหน้าแอป (endpoint = /app.html) แยกจากตัว onboarding (/auth.html) → isInClient ติด → picker ใช้ได้
 // เก็บ promise ไว้ await ก่อนแชร์ (กัน race: กดแชร์ก่อน init resolve → isApiAvailable throw)
-const LIFF_ID = '2010529290-KVVcb2tN';
+const LIFF_ID = '2010529290-73eQb0qo';
 let _liffReady = Promise.resolve(false);
 (function initLiff() {
   if (typeof liff === 'undefined') return;
-  _liffReady = liff.init({ liffId: LIFF_ID }).then(() => true).catch((e) => { console.warn('liff init', e.message); return false; });
+  _liffReady = liff.init({ liffId: LIFF_ID }).then(() => true).catch((e) => { console.warn('liff init', (e && e.message) || e); return false; });
 })();
 // อยู่ใน LINE in-app browser ไหม (download ถูกบล็อก → ห้ามตกไป download)
 function inLineApp() {
