@@ -316,6 +316,12 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 .badge .be { font-size: 28px; line-height: 1; }
 .badge .bn { display: block; font-size: 9.5px; font-weight: 700; line-height: 1.2; margin-top: 6px; color: var(--ink); }
 .badge.locked .bn { color: var(--muted); }
+
+/* ---- toast (รางวัล/แจ้งเตือนสั้น ๆ) ---- */
+.toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: var(--cream); font-weight: 700; font-size: 14px; padding: 13px 20px; border-radius: var(--r-pill);
+  box-shadow: 0 6px 0 -1px #000; z-index: 90; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; max-width: 92%; text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -370,6 +376,7 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
     </div>
 
     <button class="share-cta" onclick="shareDaily()">📤 แคปไปอวดเพื่อนเลยจ้า ดวงดีต้องโชว์ ✨</button>
+    <p class="tiny" style="text-align:center;margin-top:8px;color:var(--mango-2);font-family:var(--disp);font-size:12px;text-transform:none;letter-spacing:0;font-weight:600">🎁 แชร์วันนี้รับ +5 แต้มเลย (วันละครั้ง)</p>
   </section>
 
   <!-- ===== Fortune Engine (C3) ===== -->
@@ -517,6 +524,9 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 
   <!-- hidden canvas สำหรับ share-card -->
   <canvas id="shareCanvas" style="display:none"></canvas>
+
+  <!-- toast (รางวัลแชร์ ฯลฯ) -->
+  <div class="toast" id="toast"></div>
 
   <!-- ===== Bottom nav ===== -->
   <nav class="bottom-nav">
@@ -732,6 +742,7 @@ function renderBadges() {
     { e: '🌱', n: 'เริ่มเดินทาง', on: true },
     { e: '🔥', n: 'ขาประจำ 7 วัน', on: streak >= 7 },
     { e: '🧿', n: 'นักสะสมเครื่องราง', on: charms >= 1 },
+    { e: '📤', n: 'สายแชร์', on: (profile.shareCount || 0) >= 1 },
     { e: '💎', n: 'สะสม 100 แต้ม', on: points >= 100 },
     { e: '👑', n: 'คอลเลกชันครบ', on: charms >= Shop.PRODUCTS.length },
   ];
@@ -1159,9 +1170,34 @@ async function shareFortune() {
   data.bars = fortuneBars();
   await shareWith(data, catMascot(r.key));
 }
+// toast สั้น ๆ (แทน alert)
+let _toastT;
+function toast(msg, ms) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_toastT); _toastT = setTimeout(() => el.classList.remove('show'), ms || 2600);
+}
+
+// #3: รางวัลเมื่อแชร์ (วันละครั้ง) — กระตุ้นให้แชร์ทุกวัน
+const SHARE_REWARD_URL = 'https://claimsharereward-ssgkv4kwca-as.a.run.app';
+async function rewardShare() {
+  if (DEMO || !profile.uid || !auth.currentUser) return;
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const res = await fetch(SHARE_REWARD_URL, { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
+    const d = await res.json();
+    if (!res.ok) return;
+    profile.capyPoints = d.capyPoints;
+    profile.shareCount = d.shareCount;
+    if (d.granted) toast('ขอบคุณที่แชร์! 💛 +' + d.reward + ' แต้ม');
+    const sp = document.getElementById('stat-points'); if (sp) sp.textContent = d.capyPoints;
+  } catch (e) { console.warn('share reward', e.message); }
+}
+
 async function shareWith(data, mascot) {
   if (mascot) data.mascot = mascot;
   logEvent('share', { kind: data.kind || 'daily' });   // E2: Share rate
+  rewardShare();                                        // #3: ให้แต้มเมื่อแชร์ (fire-and-forget, idempotent/วัน)
   // 1) LINE picker ก่อน — ยังไม่ await render หนัก ๆ (กัน popup ถูกบล็อกเพราะหลุด user gesture)
   try { if (await shareToLine(data)) return; } catch (e) { console.warn('share line', e.message); }
   if (inLineApp()) { shareLineLink(data); return; }

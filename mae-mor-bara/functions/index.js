@@ -13,6 +13,7 @@ const db = admin.firestore();
 // Auth: LINE Login → Firebase custom token + signup reward grant (Unblocker A)
 exports.lineLogin = require('./auth').lineLogin;
 exports.claimReward = require('./auth').claimReward;
+exports.claimShareReward = require('./auth').claimShareReward;   // Sprint 6.6 #3: รางวัลเมื่อแชร์ (วันละครั้ง)
 
 // C7 (Sprint 4): LINE push ดวงรายวัน — scheduled 08:00 ICT + manual trigger
 exports.sendDailyFortune = require('./notify').sendDailyFortune;

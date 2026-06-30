@@ -145,3 +145,48 @@ exports.claimReward = onRequest(
     }
   },
 );
+
+// =============================================================
+// POST /claimShareReward — มอบแต้มเมื่อแชร์ (วันละ 1 ครั้ง · กระตุ้นการแชร์รายวัน)
+// idempotent ต่อวัน (lastShareRewardDay) · เก็บ shareCount รวม (ไว้ทำ badge "สายแชร์")
+// header: Authorization: Bearer <Firebase ID token>
+// =============================================================
+const SHARE_REWARD = 5;
+function bkkDay() {
+  const d = new Date(Date.now() + 7 * 3600 * 1000);   // server UTC +7 → Bangkok wall-clock
+  const z = (n) => String(n).padStart(2, '0');
+  return d.getUTCFullYear() + '-' + z(d.getUTCMonth() + 1) + '-' + z(d.getUTCDate());
+}
+
+exports.claimShareReward = onRequest(
+  { ...SHARED_OPTIONS, timeoutSeconds: 20 },
+  async (req, res) => {
+    if (req.method !== 'POST') { res.status(405).json({ error: 'Method not allowed' }); return; }
+    const m = (req.headers.authorization || '').match(/^Bearer (.+)$/);
+    if (!m) { res.status(401).json({ error: 'Missing token' }); return; }
+    try {
+      const decoded = await admin.auth().verifyIdToken(m[1]);
+      const ref = admin.firestore().collection('users').doc(decoded.uid);
+      const today = bkkDay();
+      const result = await admin.firestore().runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const data = snap.exists ? snap.data() : {};
+        const shareCount = (data.shareCount || 0) + 1;
+        if (data.lastShareRewardDay === today) {            // วันนี้รับไปแล้ว → นับยอดแชร์ แต่ไม่ให้แต้มซ้ำ
+          tx.set(ref, { shareCount, updatedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+          return { granted: false, already: true, capyPoints: data.capyPoints || 0, shareCount };
+        }
+        const capyPoints = (data.capyPoints || 0) + SHARE_REWARD;
+        tx.set(ref, {
+          capyPoints, shareCount, lastShareRewardDay: today,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+        return { granted: true, reward: SHARE_REWARD, capyPoints, shareCount };
+      });
+      res.status(200).json(result);
+    } catch (err) {
+      console.error('claimShareReward error:', err.message);
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  },
+);
