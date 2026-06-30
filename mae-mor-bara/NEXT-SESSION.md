@@ -7,6 +7,11 @@
 > - **Asset fix**: มาสคอต m1/m2/m7/m9/m10 มี checkerboard baked ค้างจาก Sprint R (ตัด bg ไม่หมด) → flood-fill ตัดออกจาก PNG ต้นฉบับ re-export webp + bump `?v=2` ทุกที่ (app/auth/landing)
 > - verify local (preview 3457) ผ่านครบ · deploy rules(autopost)+hosting(mae-mor) แล้ว · live ✓
 >
+> **+ Sprint 6.5 (LINE share = การ์ดสวย) เสร็จ + deployed:**
+> - **Daily LINE push → personalized Flex card** (`functions/notify.js`): คำนวณดวงรายคน (Fortune engine, `functions/fortune-engine.js` = COPY ของ root) → Flex bubble CAPY POP (hero มะม่วง+power%+มาสคอต `mascots/line-hero.png`+คำทักแม่หมอ+สี/เลข/เวลา+ปุ่มเปิดแอป) · push ทีละคน batch 5 (เลิก multicast text) · seed=uid ดวงไม่ซ้ำ · เวลาไทย `bangkokNow()`
+> - **Share-card → infographic** (`share-card.js`): power ring (gauge) รอบ % + กราฟแท่ง 5 ด้าน (รัก/เงิน/งาน/กันลบ/สุขภาพ) · canvas สูง dynamic · `app.html` แนบ `data.bars` (bump `?v=s6`)
+> - **ทดสอบ Flex**: วาง `scratchpad/flex-daily-sample.json` ใน LINE Flex Simulator · หรือ POST `senddailyfortunenow-ssgkv4kwca-as.a.run.app` header `x-admin-key` (= NOTIFY_ADMIN_KEY) — ถึงเฉพาะคน opt-in+เพิ่มเพื่อน OA+มี lineUserId
+>
 > **ค้าง = งาน go-live ฝั่ง user เท่านั้น (ไม่บล็อกโค้ด):** (a) publish LINE channel `2010529290` (b) Omise live (skey_live+webhook) (c) ชี้ Hosting root `/` → `landing.html` ตอนเปิดจริง (ตอนนี้ root ยังเป็นแอปเดิม `index.html`) (d) แทนรีวิว placeholder ใน landing
 >
 > ---
