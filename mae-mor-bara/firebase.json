@@ -11,6 +11,7 @@
     ],
     "rewrites": [
       { "source": "/cardimg", "run": { "serviceId": "cardimage", "region": "asia-southeast1" } },
+      { "source": "/wp", "run": { "serviceId": "wallpaperimage", "region": "asia-southeast1" } },
       { "source": "/s", "run": { "serviceId": "cardshare", "region": "asia-southeast1" } }
     ],
     "headers": [

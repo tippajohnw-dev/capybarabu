@@ -322,6 +322,11 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
   background: var(--ink); color: var(--cream); font-weight: 700; font-size: 14px; padding: 13px 20px; border-radius: var(--r-pill);
   box-shadow: 0 6px 0 -1px #000; z-index: 90; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; max-width: 92%; text-align: center; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---- wallpaper sheet (#4) ---- */
+.wp-preview { width: 200px; max-width: 56%; aspect-ratio: 9/16; border-radius: 20px; border: var(--pop-border);
+  box-shadow: var(--pop-shadow); margin: 4px auto 0; display: block; background: var(--cream-2); object-fit: cover; }
+.wp-hint { text-align: center; font-family: var(--disp); font-size: 12.5px; color: var(--ink-2); font-weight: 600; margin: 12px 0 0; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -519,6 +524,14 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
     <div class="sheet">
       <div class="grabber"></div>
       <div id="checkoutBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== Wallpaper sheet (#4) ===== -->
+  <div class="sheet-host" id="wpSheet">
+    <div class="sheet">
+      <div class="grabber"></div>
+      <div id="wpBody"></div>
     </div>
   </div>
 
@@ -923,8 +936,9 @@ function renderProduct() {
     </div>
     <div class="card" style="margin-top:14px"><div class="pd-story">${esc(p.story)}</div>
       <div class="pd-bonus"><span>🎁 รับเพิ่มเมื่อซื้อ</span><b>${esc(p.bonus)}</b></div>
+      <button class="btn secondary" style="margin-top:12px" onclick="openWallpaper('${p.id}', false)">🖼️ ดูวอลเปเปอร์ที่จะได้ (ใส่เลข-สีมงคลของคุณ)</button>
     </div>
-    <p class="tiny" style="text-align:center;color:var(--muted);font-family:var(--disp);font-size:11.5px;margin:14px 0 0;text-transform:none;letter-spacing:0">เครื่องรางดิจิทัล · ส่งเข้าแอป/LINE ทันทีหลังชำระเงิน</p>
+    <p class="tiny" style="text-align:center;color:var(--muted);font-family:var(--disp);font-size:11.5px;margin:14px 0 0;text-transform:none;letter-spacing:0">เครื่องรางดิจิทัล = วอลเปเปอร์มือถือ · ส่งเข้าแอป/LINE ทันทีหลังชำระเงิน</p>
     <div class="buybar">
       <div class="bb-price"><b>฿${p.price}</b><span>ราคาเดียว</span></div>
       <button class="btn mango" onclick="openCheckout('${p.id}')">🛍️ ซื้อเลย</button>
@@ -948,6 +962,39 @@ function openCheckout(id) {
 }
 function closeCheckout() { document.getElementById('checkoutSheet').classList.remove('open'); }
 document.getElementById('checkoutSheet').addEventListener('click', (e) => { if (e.target.id === 'checkoutSheet') closeCheckout(); });
+
+// ---- #4: Wallpaper เครื่องรางดิจิทัล (ดูตัวอย่าง / บันทึกหลังซื้อ) ----
+function wallpaperUrl(p) {
+  const d = Fortune.daily(profile);
+  const qp = new URLSearchParams({
+    name: p.name, intention: p.intention, mascot: (p.mascot || 'm3').replace('m', ''),
+    color: d.color.name || '', hex: d.color.hex || '', number: String(d.number || ''),
+    uname: profile.displayName || '',
+  });
+  return 'https://capybarabu-mae-mhor.web.app/wp?' + qp.toString();
+}
+function openWallpaper(id, owned) {
+  const p = Shop.get(id); if (!p) return;
+  const url = wallpaperUrl(p);
+  document.getElementById('wpBody').innerHTML = `
+    <div class="hello" style="font-size:18px;text-align:center">${owned ? '🎉 เครื่องรางของคุณพร้อมแล้ว!' : '🖼️ วอลเปเปอร์ที่จะได้'}</div>
+    <img class="wp-preview" src="${url}" alt="wallpaper" onerror="this.style.opacity=.4" />
+    <p class="wp-hint">${owned
+      ? 'กดค้างที่รูปเพื่อ <b>บันทึกลงเครื่อง</b> แล้วตั้งเป็นวอลเปเปอร์ได้เลย 📲<br>มีสี &amp; เลขมงคลของคุณอยู่บนเครื่องรางด้วยน้า'
+      : 'ซื้อแล้วจะได้วอลเปเปอร์ใบนี้ (ใส่สี &amp; เลขมงคลของคุณ) ไว้พกพลังติดตัว ✨'}</p>
+    <button class="btn mango" style="margin-top:14px" onclick="saveWallpaper('${p.id}')">📥 เปิดรูปเต็มเพื่อบันทึก</button>
+    <button class="btn secondary" style="margin-top:8px" onclick="closeWallpaper()">ปิด</button>`;
+  document.getElementById('wpSheet').classList.add('open');
+}
+function saveWallpaper(id) {
+  const p = Shop.get(id); if (!p) return;
+  const url = wallpaperUrl(p);
+  // เปิดรูปเต็ม (นอก LINE ถ้าอยู่ใน LINE) → กดค้างบันทึกได้ทุกเครื่อง (เลี่ยง download ที่ LINE บล็อก)
+  try { if (typeof liff !== 'undefined' && liff.openWindow) { liff.openWindow({ url, external: true }); return; } } catch (e) {}
+  window.open(url, '_blank');
+}
+function closeWallpaper() { document.getElementById('wpSheet').classList.remove('open'); }
+document.getElementById('wpSheet').addEventListener('click', (e) => { if (e.target.id === 'wpSheet') closeWallpaper(); });
 
 async function payNow() {
   const p = Shop.get(window._coProduct); if (!p) return;
@@ -996,8 +1043,9 @@ function pollOrder(orderId) {
         <div class="mascot-block" style="text-align:center">
           <img src="mascots/m1.webp?v=2" style="width:120px" onerror="this.outerHTML='<div style=font-size:54px>🎉</div>'" />
           <div class="hello" style="font-size:19px;margin-top:6px">ขอบคุณน้า! 🎉</div>
-          <p style="color:var(--ink-2);font-size:13px;margin:8px 0 0;font-weight:500">เครื่องรางเป็นของคุณแล้ว แม่หมอส่งให้ทาง LINE เรียบร้อย ✨</p>
-          <button class="btn mango" style="margin-top:16px" onclick="closeCheckout()">เย่!</button>
+          <p style="color:var(--ink-2);font-size:13px;margin:8px 0 0;font-weight:500">เครื่องรางเป็นของคุณแล้ว มาบันทึกเป็นวอลเปเปอร์กันเลย ✨</p>
+          <button class="btn mango" style="margin-top:16px" onclick="closeCheckout(); openWallpaper('${pid}', true)">🖼️ รับวอลเปเปอร์เครื่องราง</button>
+          <button class="btn secondary" style="margin-top:8px" onclick="closeCheckout()">ไว้ทีหลัง</button>
         </div>`;
     }
   });

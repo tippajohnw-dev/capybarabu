@@ -107,6 +107,108 @@ function renderPng(p) {
   return resvg.render().asPng();
 }
 
+// =============================================================
+// #4: Wallpaper เครื่องรางดิจิทัล (1080×1920) — โหลดเป็นภาพพักหน้าจอ
+// ดาร์กสายมูตามธาตุ + มาสคอตเรืองแสง + แท็กมงคลของผู้ซื้อ (สี/เลข)
+// =============================================================
+const _mascotCache = {};
+function mascotURI(n) {
+  const k = String(n || 3);
+  if (k in _mascotCache) return _mascotCache[k];
+  try {
+    const buf = fs.readFileSync(path.join(__dirname, 'mascots', 'm' + k + '.png'));
+    _mascotCache[k] = 'data:image/png;base64,' + buf.toString('base64');
+  } catch (e) { _mascotCache[k] = MASCOT_URI; }
+  return _mascotCache[k];
+}
+// ธาตุ → palette ดาร์ก (top, bottom, accent)
+const WP_PAL = {
+  money:   ['#2a1e06', '#0f0b03', '#f7c96f'],
+  love:    ['#2e0a1a', '#120410', '#ff5c93'],
+  work:    ['#14123a', '#070615', '#8b7bff'],
+  protect: ['#1d0e3a', '#0b0518', '#b79bff'],
+  health:  ['#08241a', '#03110b', '#16b8a0'],
+  luck:    ['#2a1606', '#100802', '#ffc23d'],
+};
+function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+function buildWallpaperSVG(p) {
+  const W = 1080, H = 1920;
+  const name = (p.name || 'เครื่องรางนำโชค').slice(0, 26);
+  const intention = WP_PAL[p.intention] ? p.intention : 'luck';
+  const [bgTop, bgBot, accent] = WP_PAL[intention];
+  const hex = /^#[0-9a-fA-F]{6}$/.test(p.hex || '') ? p.hex : accent;
+  const colorName = (p.color || '').slice(0, 16);
+  const number = (p.number || '').slice(0, 8);
+  const uname = (p.uname || '').slice(0, 18);
+  const mURI = mascotURI(p.mascot);
+
+  // sparkles (deterministic)
+  const rnd = mulberry32(1234 + intention.length * 97);
+  let stars = '';
+  for (let i = 0; i < 46; i++) {
+    const x = Math.round(rnd() * W), y = Math.round(rnd() * H);
+    const r = (rnd() * 2.4 + 0.8).toFixed(1), o = (rnd() * 0.6 + 0.25).toFixed(2);
+    stars += `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity="${o}"/>`;
+  }
+  // ✦ ดาวสี่แฉกเล็ก ๆ รอบมาสคอต
+  function spark(cx, cy, s, op) {
+    return `<path d="M${cx} ${cy - s} L${cx + s * 0.28} ${cy - s * 0.28} L${cx + s} ${cy} L${cx + s * 0.28} ${cy + s * 0.28} L${cx} ${cy + s} L${cx - s * 0.28} ${cy + s * 0.28} L${cx - s} ${cy} L${cx - s * 0.28} ${cy - s * 0.28} Z" fill="${accent}" opacity="${op}"/>`;
+  }
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${bgTop}"/><stop offset="1" stop-color="${bgBot}"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="${accent}" stop-opacity="0.55"/>
+      <stop offset="0.55" stop-color="${accent}" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="${accent}" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#bg)"/>
+  ${stars}
+  <ellipse cx="540" cy="880" rx="520" ry="520" fill="url(#glow)"/>
+  ${spark(250, 640, 26, 0.9)}${spark(840, 560, 20, 0.8)}${spark(880, 980, 30, 0.85)}${spark(180, 1020, 22, 0.8)}
+  <image x="230" y="560" width="620" height="620" href="${mURI}" preserveAspectRatio="xMidYMid meet"/>
+  <text x="540" y="1360" text-anchor="middle" font-family="Sarabun" font-weight="800" font-size="68" fill="#fff">${xml(name)}</text>
+  <text x="540" y="1420" text-anchor="middle" font-family="Sarabun" font-weight="700" font-size="32" fill="${accent}">พกพลังมงคลติดตัวทุกวัน</text>
+  <!-- amulet tag (personalized) -->
+  <rect x="180" y="1520" width="720" height="210" rx="34" fill="#ffffff" fill-opacity="0.08" stroke="${accent}" stroke-opacity="0.5" stroke-width="2"/>
+  ${uname ? `<text x="540" y="1576" text-anchor="middle" font-family="Sarabun" font-weight="700" font-size="28" fill="#ffffff" opacity="0.85">เครื่องรางของ ${xml(uname)}</text>` : ''}
+  <circle cx="345" cy="1650" r="22" fill="${hex}" stroke="#fff" stroke-opacity="0.6" stroke-width="2"/>
+  <text x="385" y="1645" font-family="Sarabun" font-weight="700" font-size="26" fill="#fff" opacity="0.9">สีมงคล</text>
+  <text x="385" y="1680" font-family="Sarabun" font-weight="800" font-size="30" fill="#fff">${xml(colorName)}</text>
+  <text x="700" y="1645" font-family="Sarabun" font-weight="700" font-size="26" fill="#fff" opacity="0.9">เลขมงคล</text>
+  <text x="700" y="1683" font-family="Sarabun" font-weight="800" font-size="34" fill="${accent}">${xml(number)}</text>
+  <text x="540" y="1840" text-anchor="middle" font-family="Sarabun" font-weight="700" font-size="26" fill="#fff" opacity="0.55">แม่หมอบาร่า · เครื่องรางดิจิทัล</text>
+</svg>`;
+}
+
+function renderWallpaper(p) {
+  const resvg = new Resvg(buildWallpaperSVG(p), {
+    fitTo: { mode: 'width', value: 1080 },
+    font: { fontFiles: FONT_FILES, loadSystemFonts: false, defaultFontFamily: 'Sarabun' },
+  });
+  return resvg.render().asPng();
+}
+
+exports.wallpaperImage = onRequest(
+  { region: REGION, cors: true, invoker: 'public', memory: '512MiB', concurrency: 40 },
+  (req, res) => {
+    try {
+      const png = renderWallpaper({
+        name: req.query.name, intention: req.query.intention, mascot: req.query.mascot,
+        color: req.query.color, hex: req.query.hex, number: req.query.number, uname: req.query.uname,
+      });
+      res.set('Content-Type', 'image/png');
+      res.set('Cache-Control', 'public, max-age=86400');
+      res.status(200).send(png);
+    } catch (e) { console.error('wallpaperImage', e.message); res.status(500).send('render error'); }
+  },
+);
+
 const q = (req) => ({
   power: req.query.p, name: req.query.name, color: req.query.color,
   hex: req.query.hex, number: req.query.number, time: req.query.time, kind: req.query.kind,
@@ -161,4 +263,7 @@ if (require.main === module) {
   const png = renderPng({ power: '71', name: 'ต้อง', color: 'แดงชมพู', hex: '#ff6f91', number: '5 0', time: '18:18', kind: 'ดวงวันนี้' });
   fs.writeFileSync('/tmp/card-test.png', png);
   console.log('wrote /tmp/card-test.png', png.length, 'bytes');
+  const wp = renderWallpaper({ name: 'โล่จันทรามณี', intention: 'protect', mascot: '8', color: 'ม่วงมณี', hex: '#b79bff', number: '3 9', uname: 'ต้อง' });
+  fs.writeFileSync('/tmp/wp-test.png', wp);
+  console.log('wrote /tmp/wp-test.png', wp.length, 'bytes');
 }

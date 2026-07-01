@@ -29,6 +29,7 @@ exports.omiseWebhook = require('./payment').omiseWebhook;
 // Sprint 6.5: personalized share card (OG image) — เรนเดอร์การ์ดดวงรายคนเป็น PNG ให้ crawler LINE/social
 exports.cardImage = require('./card').cardImage;
 exports.cardShare = require('./card').cardShare;
+exports.wallpaperImage = require('./card').wallpaperImage;   // #4: wallpaper เครื่องรางดิจิทัล
 
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 
