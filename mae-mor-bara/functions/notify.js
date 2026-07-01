@@ -27,7 +27,9 @@ const lineMessagingToken = defineSecret('LINE_MESSAGING_TOKEN');
 const notifyAdminKey = defineSecret('NOTIFY_ADMIN_KEY');
 
 const REGION = 'asia-southeast1';
-const APP_LINK = 'https://capybarabu-mae-mhor.web.app/app.html';
+// เปิดแอปเป็น LIFF (in-client) — สำคัญต่อการแชร์: in-client เท่านั้น shareTargetPicker ส่งการ์ด Flex ได้
+// (web URL จะเปิดใน browser ภายนอก → isInClient=false → แชร์ตกไปเป็นลิงก์ธรรมดา)
+const APP_LINK = 'https://liff.line.me/2010529290-73eQb0qo';
 const HERO_IMG = 'https://capybarabu-mae-mhor.web.app/mascots/line-hero.png';   // มาสคอต m3 บนพื้นมะม่วง (PNG, LINE ไม่รองรับ webp)
 
 // "วันนี้" ตามเวลาไทย (server = UTC → +7 ชม. แล้วอ่าน parts เป็น Bangkok wall-clock)

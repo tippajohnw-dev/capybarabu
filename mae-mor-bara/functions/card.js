@@ -13,7 +13,8 @@ const fs = require('fs');
 const path = require('path');
 
 const REGION = 'asia-southeast1';
-const APP_LINK = 'https://capybarabu-mae-mhor.web.app/app.html';
+// เปิดแอปเป็น LIFF (in-client) → คนกดจากการ์ดแชร์เข้าแอปแบบ in-client → แชร์ต่อได้เป็นการ์ด Flex
+const APP_LINK = 'https://liff.line.me/2010529290-73eQb0qo';
 const IMG_URL = 'https://capybarabu-mae-mhor.web.app/cardimg';   // hosting rewrite → cardImage
 
 const FONT_FILES = ['Sarabun-Regular.ttf', 'Sarabun-Bold.ttf', 'Sarabun-ExtraBold.ttf']
