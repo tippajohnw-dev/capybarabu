@@ -327,6 +327,30 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 .wp-preview { width: 200px; max-width: 56%; aspect-ratio: 9/16; border-radius: 20px; border: var(--pop-border);
   box-shadow: var(--pop-shadow); margin: 4px auto 0; display: block; background: var(--cream-2); object-fit: cover; }
 .wp-hint { text-align: center; font-family: var(--disp); font-size: 12.5px; color: var(--ink-2); font-weight: 600; margin: 12px 0 0; line-height: 1.5; }
+
+/* ---- Phase 2: ดวงเชิงลึก (soulmate + life graph) ---- */
+.seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.seg2-btn { padding: 12px 8px; border-radius: 16px; border: var(--pop-border); background: var(--cream-2);
+  font-family: var(--disp); font-weight: 700; font-size: 13.5px; color: var(--ink-2); cursor: pointer; transition: .15s; }
+.seg2-btn.on { background: var(--mango); color: #fff; box-shadow: var(--pop-shadow); }
+.sm-field { margin-top: 12px; }
+.sm-field span { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-2); font-weight: 500; margin-bottom: 3px; text-transform: uppercase; }
+.sm-field p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink); font-weight: 500; }
+.sm-gauge { margin-top: 14px; }
+.sm-gauge-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.sm-gauge-top b { font-family: var(--disp); font-size: 13px; color: var(--ink); font-weight: 700; }
+.sm-gauge-top i { font-family: var(--disp); font-style: normal; font-weight: 700; font-size: 15px; color: var(--mango-2); }
+.sm-track { height: 14px; border-radius: 20px; background: var(--cream-2); border: 2px solid var(--ink); overflow: hidden; }
+.sm-fill { height: 100%; border-radius: 20px 0 0 20px; background: var(--tile-pink); transition: width .7s cubic-bezier(.2,.8,.2,1); }
+.sm-fill.wealth { background: var(--tile-mint); }
+.lg-svg { width: 100%; height: auto; display: block; margin: 4px 0 10px; }
+.lg-svg .lg-x { font-family: var(--mono); font-size: 8px; fill: var(--ink-2); }
+.lg-svg .lg-x.now { fill: var(--mango); font-weight: 700; }
+.lg-svg .lg-cap { font-family: var(--mono); font-size: 8px; fill: var(--ink-2); text-transform: uppercase; }
+.lg-summary { margin-top: 4px; }
+.lg-summary .lg-row { font-size: 13px; line-height: 1.7; font-weight: 600; }
+.lg-summary .lg-row.peak { color: #1f9d57; }
+.lg-summary .lg-row.low { color: #d63a3f; }
 </style>
 </head>
 <body>
@@ -400,6 +424,29 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
       <button class="btn mango" style="margin-top:14px" onclick="runFortune()">ให้แม่หมอทักเลย ✨</button>
     </div>
     <div id="fortuneResult"></div>
+
+    <!-- Phase 2: ดวงเชิงลึก (Deep Readings) — ฟรี, ต่อยอดรอบ 1 -->
+    <div class="section-title"><h3>ดูดวงเชิงลึก 🔮✨</h3></div>
+    <div class="action-grid">
+      <div class="action-card t-pink" onclick="nav('soulmate')"><div class="emoji">💘</div><div><b>เนื้อคู่ประตูถัดไป</b><span>รักครั้งหน้าเป็นใคร</span></div></div>
+      <div class="action-card t-grape" onclick="nav('lifegraph')"><div class="emoji">📈</div><div><b>กราฟชีวิต</b><span>ปีรุ่ง · ปีต้องระวัง</span></div></div>
+    </div>
+    <p class="tiny" style="text-align:center;margin-top:8px;color:var(--mango-2);text-transform:none;letter-spacing:0;font-family:var(--disp);font-size:12px;font-weight:600">✨ แม่หมออ่านให้ลึกกว่าเดิม · ฟรีจ้า</p>
+  </section>
+
+  <!-- ===== ดวงเชิงลึก · เนื้อคู่ประตูถัดไป (Phase 2) ===== -->
+  <section class="view" id="soulmate">
+    <div class="title-row"><button class="back" onclick="nav('fortune')">‹</button><div class="screen-title">เนื้อคู่ประตูถัดไป 💘</div></div>
+    <span class="pill">💘 รักครั้งถัดไป · แม่หมอส่องให้</span>
+    <div id="smAsk"></div>
+    <div id="soulmateResult"></div>
+  </section>
+
+  <!-- ===== ดวงเชิงลึก · กราฟชีวิต (Phase 2) ===== -->
+  <section class="view" id="lifegraph">
+    <div class="title-row"><button class="back" onclick="nav('fortune')">‹</button><div class="screen-title">กราฟชีวิต 📈</div></div>
+    <span class="pill">📈 อดีต 5 ปี → อนาคต 5 ปี</span>
+    <div id="lifegraphBody"></div>
   </section>
 
   <!-- ===== Pick a Card (C4) ===== -->
@@ -561,13 +608,13 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script src="fortune-engine.js?v=s5"></script>
+<script src="fortune-engine.js?v=s6"></script>
 <script src="share-card.js?v=s7"></script>
 <script src="shop-catalog.js?v=s1"></script>
 <script>
 // ---- hash router (static, no build) — reuse จาก production ----
 const ROUTES = ['home', 'fortune', 'charm', 'journal', 'profile'];
-const SUBVIEWS = { pick: 'fortune', quiz: 'charm', product: 'charm' };
+const SUBVIEWS = { pick: 'fortune', quiz: 'charm', product: 'charm', soulmate: 'fortune', lifegraph: 'fortune' };
 
 // มาสคอตประจำฟีเจอร์ (R4 — สลับท่าตามฟีเจอร์)
 const MASCOT = { hero:'m3', pick:'m4', money:'m5', quiz:'m6', shop:'m7', protect:'m8', journal:'m9', profile:'m10', avatar:'m1' };
@@ -585,6 +632,8 @@ function show(id) {
   if (id === 'journal') loadJournal();
   if (id === 'charm') { renderShop(); logEvent('shop_view', { filter: _shopFilter }); }   // E2: ATC denominator
   if (id === 'profile') renderProfile();   // E1: refresh stats/collection on view
+  if (id === 'soulmate') enterSoulmate();  // Phase 2: ดวงเชิงลึก — เนื้อคู่
+  if (id === 'lifegraph') enterLifegraph(); // Phase 2: ดวงเชิงลึก — กราฟชีวิต
 }
 function nav(id) { location.hash = '#/' + id; }
 function route() { show((location.hash.replace('#/', '') || 'home')); }
@@ -1239,6 +1288,203 @@ function renderCharm() {
     </div>`;
 }
 async function shareCharm() { await shareWith(Fortune.shareData(window._lastCharm, profile), mPath('quiz')); }
+
+// =============================================================
+// Phase 2 · ดวงเชิงลึก (Deep Readings) — reuse AI functions รอบ 1
+// browser → run.app (เลี่ยง CORS) · public function (guest/demo เรียกได้)
+// =============================================================
+const SOULMATE_URL  = 'https://asksoulmate-ssgkv4kwca-as.a.run.app';
+const LIFEGRAPH_URL = 'https://asklifegraph-ssgkv4kwca-as.a.run.app';
+
+function deepNoBirth() {
+  return `<div class="card mascot-block" style="margin-top:14px">
+    <img src="${mPath('hero')}" alt="" onerror="this.style.display='none'" />
+    <div class="hello" style="font-size:16px;margin-top:4px">ใส่วันเกิดก่อนน้า 🎂</div>
+    <p style="color:var(--ink-2);font-size:12.5px;margin:6px 0 12px;font-weight:500">ดวงเชิงลึกต้องใช้ราศี · ปีนักษัตร · เลขชะตาจากวันเกิดของคุณ</p>
+    <button class="btn mango" onclick="openBirth()">🎂 ใส่วันเกิด</button>
+  </div>`;
+}
+
+// ---- เนื้อคู่ประตูถัดไป (askSoulmate) ----
+let _smStatus = 'single', _lastSoulmate = null;
+function enterSoulmate() {
+  _lastSoulmate = null;
+  document.getElementById('soulmateResult').innerHTML = '';
+  const ask = document.getElementById('smAsk');
+  const base = Fortune.profileBase(profile);
+  if (!base.hasBirth) { ask.innerHTML = deepNoBirth(); return; }
+  ask.innerHTML = `
+    <div class="card mascot-block" style="margin-top:14px">
+      <img src="${mPath('quiz')}" alt="" onerror="this.style.display='none'" />
+      <div class="hello" style="font-size:16px;margin-top:4px">อยากรู้ว่ารักครั้งหน้าเป็นใคร?</div>
+      <p style="color:var(--ink-2);font-size:12.5px;margin:6px 0 4px;font-weight:500">บอกสถานะหัวใจตอนนี้ แล้วแม่หมอจะส่องเนื้อคู่ประตูถัดไปให้</p>
+      <div class="seg2" id="smSeg">
+        <button class="seg2-btn ${_smStatus==='single'?'on':''}" data-v="single">💗 โสดอยู่</button>
+        <button class="seg2-btn ${_smStatus==='coupled'?'on':''}" data-v="coupled">💞 มีคนคุย/มีแฟน</button>
+      </div>
+      <button class="btn mango" style="margin-top:14px" id="smBtn" onclick="runSoulmate()">🔮 ส่องเนื้อคู่ให้เลย</button>
+      <p class="tiny" style="margin-top:8px;text-transform:none;letter-spacing:0">* เพื่อความบันเทิง · อิงราศี/นักษัตร/เลขชะตาของคุณ</p>
+    </div>`;
+  ask.querySelectorAll('#smSeg .seg2-btn').forEach(b => b.addEventListener('click', () => {
+    _smStatus = b.dataset.v;
+    ask.querySelectorAll('#smSeg .seg2-btn').forEach(x => x.classList.toggle('on', x === b));
+  }));
+}
+
+async function runSoulmate(force) {
+  const base = Fortune.profileBase(profile);
+  if (!base.hasBirth) { openBirth(); return; }
+  const res = document.getElementById('soulmateResult');
+  const ck = 'sm_' + (profile.uid || 'guest') + '_' + _smStatus;
+  logEvent('deep_soulmate', { status: _smStatus, force: !!force });
+  if (force) { try { localStorage.removeItem(ck); } catch (e) {} }
+  else {
+    let cached = null;
+    try { const c = localStorage.getItem(ck); if (c) cached = JSON.parse(c); } catch (e) {}
+    if (cached) { renderSoulmate(cached); return; }
+  }
+  const btn = document.getElementById('smBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'แม่หมอกำลังส่อง… 🔮'; }
+  res.innerHTML = `<div class="card" style="text-align:center;margin-top:14px"><div class="hello" style="font-size:15px">🔮 แม่หมอกำลังส่องเนื้อคู่ให้…</div></div>`;
+  try {
+    const z = base.zodiac;
+    const payload = {
+      birthDate: base.iso, status: _smStatus,
+      zodiac: 'ราศี' + z.name + ' (' + z.en + ')',
+      zodiacTraits: 'ธาตุ' + z.element + ' · ' + z.traits,
+      chineseZodiac: base.chinese, birthDayName: base.birthDayName, lifePath: base.lifePath,
+    };
+    const r = await fetch(SOULMATE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (!data.soulmate) throw new Error('empty');
+    try { localStorage.setItem(ck, JSON.stringify(data.soulmate)); } catch (e) {}
+    renderSoulmate(data.soulmate);
+  } catch (e) {
+    console.warn('soulmate', e.message);
+    res.innerHTML = `<div class="card" style="text-align:center;margin-top:14px"><p style="color:var(--ink-2);font-weight:500">ลูกแก้วแม่หมอขัดข้องแป๊บนึง ลองใหม่นะจ๊ะ~</p><button class="btn secondary" onclick="runSoulmate(true)">ลองอีกครั้ง</button></div>`;
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔮 ส่องเนื้อคู่ให้เลย'; }
+  }
+}
+
+function renderSoulmate(s) {
+  _lastSoulmate = s;
+  const clamp = n => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
+  const h = clamp(s.handsomeLevel), w = clamp(s.wealthLevel);
+  document.getElementById('soulmateResult').innerHTML = `
+    <div class="fresult">
+      <div class="top"><div class="row"><h3>💘 เนื้อคู่ประตูถัดไป</h3></div>
+      <img class="mascot-sm" src="${mPath('quiz')}" alt="" onerror="this.style.display='none'" /></div>
+      <div class="body">
+        <div class="sm-field"><span>รูปร่างหน้าตา</span><p>${esc(s.appearance || '')}</p></div>
+        <div class="sm-field"><span>อาชีพที่เหมาะ</span><p>${esc(s.career || '')}</p></div>
+        <div class="sm-gauge"><div class="sm-gauge-top"><b>😎 ความหล่อ/สวย</b><i>${h}%</i></div><div class="sm-track"><div class="sm-fill" style="width:0"></div></div></div>
+        <div class="sm-gauge"><div class="sm-gauge-top"><b>💰 การเงิน</b><i>${w}%</i></div><div class="sm-track"><div class="sm-fill wealth" style="width:0"></div></div></div>
+        <div class="sm-field"><span>ช่วงที่จะได้เจอ</span><p>${esc(s.meetWhen || '')}</p></div>
+        <div class="foldline">🔮 ${esc(s.summary || '')}</div>
+        <div class="actions">
+          <button class="btn mango" onclick="shareSoulmate()">📤 แชร์เนื้อคู่</button>
+          <button class="btn secondary" onclick="runSoulmate(true)">🔄 ส่องใหม่</button>
+        </div>
+      </div>
+    </div>`;
+  requestAnimationFrame(() => {
+    const fills = document.querySelectorAll('#soulmateResult .sm-fill');
+    if (fills[0]) fills[0].style.width = h + '%';
+    if (fills[1]) fills[1].style.width = w + '%';
+    document.getElementById('soulmateResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+}
+
+function shareSoulmate() {
+  if (!_lastSoulmate) return;
+  const s = _lastSoulmate, base = Fortune.profileBase(profile), d = Fortune.daily(profile);
+  shareWith({
+    power: Math.max(0, Math.min(100, Math.round(Number(s.handsomeLevel) || 80))),
+    colorName: d.color.name, colorHex: d.color.hex, number: d.number, time: d.time,
+    headline: s.summary || 'เนื้อคู่ประตูถัดไปของฉัน 💘', kind: 'เนื้อคู่ประตูถัดไป',
+    name: base.name, date: d.date,
+  }, mPath('quiz'));
+}
+
+// ---- กราฟชีวิต (Fortune.lifeGraph + askLifeGraph narrative) ----
+let _lastLifegraph = null;
+function enterLifegraph() {
+  const body = document.getElementById('lifegraphBody');
+  const g = Fortune.lifeGraph(profile);
+  if (!g.hasBirth) { body.innerHTML = deepNoBirth(); return; }
+  _lastLifegraph = g;
+  logEvent('deep_lifegraph');
+  body.innerHTML = `
+    <div class="card mascot-block" style="margin-top:14px">
+      <img src="${mPath('journal')}" alt="" onerror="this.style.display='none'" />
+      <div class="hello" style="font-size:16px;margin-top:4px">จังหวะชีวิตของคุณ 11 ปี</div>
+      <p style="color:var(--ink-2);font-size:12px;margin:6px 0 0;font-weight:500">อดีต 5 ปี → ปีนี้ → อนาคต 5 ปี · ศาสตร์ไทย (ปีนักษัตร/ชง/โฉลก)</p>
+    </div>
+    <div class="card" style="margin-top:12px">
+      ${lifeSVG(g)}
+      <div class="lg-summary">
+        <div class="lg-row peak">⭐ ปีรุ่ง: พ.ศ.${g.peak.be} (อายุ ${g.peak.age}) — ${esc(g.peak.tag || 'ดวงขึ้น')} · ${g.peak.score}/100</div>
+        <div class="lg-row low">⚠️ ปีต้องระวัง: พ.ศ.${g.low.be} (อายุ ${g.low.age}) — ${esc(g.low.tag || 'ดวงตก')} · ${g.low.score}/100</div>
+      </div>
+      <div class="foldline" id="lg-narrative">🔮 แม่หมอกำลังอ่านกราฟชีวิตให้…</div>
+      <button class="btn mango" style="margin-top:14px" onclick="shareLifegraph()">📤 แชร์กราฟชีวิต</button>
+    </div>`;
+  fetchLifeNarrative(g);
+}
+
+function lifeSVG(g) {
+  const W = 320, H = 172, padX = 16, padTop = 18, padBot = 34;
+  const pts = g.points, n = pts.length;
+  const xs = i => padX + i * ((W - 2 * padX) / (n - 1));
+  const ys = s => padTop + (1 - (s - 15) / (95 - 15)) * (H - padTop - padBot);
+  const line = pts.map((p, i) => xs(i).toFixed(1) + ',' + ys(p.score).toFixed(1)).join(' ');
+  const area = xs(0).toFixed(1) + ',' + (H - padBot) + ' ' + line + ' ' + xs(n - 1).toFixed(1) + ',' + (H - padBot);
+  const dots = pts.map((p, i) => {
+    const c = p.isNow ? '#ff6a2b' : (p.score >= 75 ? '#1f9d57' : (p.score <= 45 ? '#d63a3f' : '#7b61ff'));
+    return `<circle cx="${xs(i).toFixed(1)}" cy="${ys(p.score).toFixed(1)}" r="${p.isNow ? 5 : 3.4}" fill="${c}" stroke="#fff" stroke-width="1.5"/>`;
+  }).join('');
+  const labels = pts.map((p, i) =>
+    `<text x="${xs(i).toFixed(1)}" y="${H - 13}" class="lg-x${p.isNow ? ' now' : ''}" text-anchor="middle">${String(p.be).slice(-2)}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="lg-svg" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="${area}" fill="rgba(255,106,43,0.10)"/>
+    <polyline points="${line}" fill="none" stroke="#ff6a2b" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${labels}
+    <text x="${padX}" y="11" class="lg-cap" text-anchor="start">อดีต</text>
+    <text x="${W - padX}" y="11" class="lg-cap" text-anchor="end">อนาคต</text>
+  </svg>`;
+}
+
+async function fetchLifeNarrative(g) {
+  const el = document.getElementById('lg-narrative');
+  try {
+    const z = g.zodiac;
+    const payload = {
+      birthDate: g.iso, year: g.currentYear,
+      zodiac: 'ราศี' + z.name + ' (' + z.en + ')', chineseZodiac: g.chinese,
+      birthDayName: g.birthDayName, age: g.age,
+      peakBE: g.peak.be, peakAge: g.peak.age, peakTag: g.peak.tag || 'ดวงขึ้น', peakScore: g.peak.score,
+      lowBE: g.low.be, lowAge: g.low.age, lowTag: g.low.tag || 'ดวงตก', lowScore: g.low.score,
+    };
+    const r = await fetch(LIFEGRAPH_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (el && data.narrative) el.textContent = '🔮 ' + data.narrative;
+    else if (el) el.style.display = 'none';
+  } catch (e) { console.warn('lifegraph', e.message); if (el) el.style.display = 'none'; }
+}
+
+function shareLifegraph() {
+  if (!_lastLifegraph) return;
+  const g = _lastLifegraph, base = Fortune.profileBase(profile), d = Fortune.daily(profile);
+  const nowPt = g.points.find(p => p.isNow) || g.peak;
+  shareWith({
+    power: nowPt.score, colorName: d.color.name, colorHex: d.color.hex, number: d.number, time: d.time,
+    headline: 'ปีรุ่งของฉัน พ.ศ.' + g.peak.be + ' · ดวง ' + g.peak.score + '/100', kind: 'กราฟชีวิต',
+    name: base.name, date: d.date,
+  }, mPath('journal'));
+}
 
 // ---- share (canvas) ----
 // กราฟแท่ง 5 ด้านสำหรับ share-card (ดวงวันนี้แต่ละด้าน — deterministic ตาม profile/วัน)

@@ -345,6 +345,43 @@
     };
   }
 
+  // ---------- Phase 2 · ดวงเชิงลึก: กราฟชีวิต (Life Graph) ----------
+  // deterministic ศาสตร์ไทย (ปีนักษัตร/ชง/โฉลก/จังหวะอายุ) — past 5 → future 5 ปี
+  // port จาก index.html รอบ 1 (computeLifeGraph). ตัวเลขคำนวณที่นี่, AI (askLifeGraph) แค่เล่า
+  function lifeGraph(profile, year) {
+    const base = profileBase(profile);
+    if (!base.iso) return { hasBirth: false, points: [], peak: null, low: null };
+    const by = new Date(base.iso).getFullYear();
+    const birthAnimal = ((by - 4) % 12 + 12) % 12;
+    const now = year || new Date().getFullYear();
+    const lp = base.lifePath || 5;
+    const pts = [];
+    for (let y = now - 5; y <= now + 5; y++) {
+      const animal = ((y - 4) % 12 + 12) % 12;
+      const age = y - by;
+      const diff = ((animal - birthAnimal) % 12 + 12) % 12;
+      let score = 60, tag = '';
+      if (diff === 6)                     { score -= 28; tag = 'ปีชง'; }
+      else if (diff === 3 || diff === 9)  { score -= 14; tag = 'ปีคัด/เล็ง'; }
+      else if (diff === 0)                { score += 8;  tag = 'ปีนักษัตรตัวเอง'; }
+      else if (diff === 4 || diff === 8)  { score += 20; tag = 'ปีถูกโฉลก'; }
+      else if (diff === 1 || diff === 11) { score += 6; }
+      if (age === 25 || age === 49)       { score -= 10; tag = tag || 'เบญจเพส/เลขกระทบ'; }
+      if (age > 0 && age % 12 === 0)      { score += 6; }
+      score += ((lp + Math.abs(y)) % 5) - 2;   // กันกราฟแบน
+      score = Math.max(20, Math.min(95, score));
+      pts.push({ year: y, be: y + 543, age, score, tag, isNow: y === now });
+    }
+    const peak = pts.reduce((a, b) => b.score > a.score ? b : a);
+    const low  = pts.reduce((a, b) => b.score < a.score ? b : a);
+    return {
+      hasBirth: true, points: pts, peak, low, currentYear: now,
+      zodiac: base.zodiac, chinese: base.chinese, birthDayName: base.birthDayName,
+      lifePath: base.lifePath, iso: base.iso,
+      age: pts.find(p => p.isNow) ? pts.find(p => p.isNow).age : (now - by),
+    };
+  }
+
   // ---------- payload สำหรับ share-card.js ----------
   function shareData(result, profile) {
     const base = profileBase(profile);
@@ -363,7 +400,7 @@
 
   global.Fortune = {
     beToISO, profileBase, daily, category, shareData,
-    cards, pickResult, recommendCharm,
+    cards, pickResult, recommendCharm, lifeGraph,
     CATEGORIES, CARDS, CHARMS, THAI_DAYS, THAI_MONTHS, SHIRT_COLORS,
     getZodiac, getChineseZodiac, getLifePath, thaiDateLabel,
   };
