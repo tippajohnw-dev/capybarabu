@@ -30,6 +30,7 @@ exports.omiseWebhook = require('./payment').omiseWebhook;
 exports.cardImage = require('./card').cardImage;
 exports.cardShare = require('./card').cardShare;
 exports.wallpaperImage = require('./card').wallpaperImage;   // #4: wallpaper เครื่องรางดิจิทัล
+exports.deepDaily = require('./deep').deepDaily;             // #1: ดวงรายวันเชิงลึก (AI GPT-4o-mini, cache/วัน)
 
 const openaiApiKey = defineSecret('OPENAI_API_KEY');
 

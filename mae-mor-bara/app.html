@@ -367,6 +367,12 @@ body { font-family: var(--disp); color: var(--ink); min-height: 100vh; font-weig
         <div class="fx" id="fold-text">—</div></div>
     </div>
 
+    <!-- #1: ดวงเชิงลึกจาก AI (อ้างราศี/นักษัตร/เลขชะตาจริง · progressive โผล่เมื่ออ่านเสร็จ) -->
+    <div class="card" id="deep-card" style="display:none">
+      <div class="section-title" style="margin-top:0"><h3>🔮 แม่หมออ่านเชิงลึกให้</h3></div>
+      <div class="fx" id="deep-text" style="font-size:13.5px;line-height:1.65;color:var(--ink-2);white-space:pre-line">—</div>
+    </div>
+
     <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:12px">
       <button class="btn mango" onclick="shareDaily()">📤 แชร์การ์ดวันนี้</button>
       <button class="btn secondary" id="birth-btn" style="width:auto;padding:16px;display:none" onclick="openBirth()">🎂</button>
@@ -702,6 +708,39 @@ function renderHome() {
   document.getElementById('birth-btn').style.display = d.hasBirth ? 'none' : 'inline-flex';
   recordCheckIn(d.power);          // C6: นับ streak จากการเปิดเช็กดวงรายวัน
   logDailyOpen();                  // E2: D7 retention
+  enhanceDaily(d);                 // #1: อ่านดวงเชิงลึกด้วย AI (progressive, มีวันเกิดเท่านั้น)
+}
+
+// #1: ดวงเชิงลึกจาก AI — เรนเดอร์ deterministic ก่อน แล้วค่อยอัปเกรดเมื่อ AI ตอบ (cache localStorage + server/วัน)
+const DEEP_URL = 'https://deepdaily-ssgkv4kwca-as.a.run.app';
+async function enhanceDaily(d) {
+  if (DEMO || !profile.uid || !d.hasBirth || !auth.currentUser) return;
+  const ck = 'deep_' + profile.uid + '_' + dayKey();
+  let cached = null;
+  try { const c = localStorage.getItem(ck); if (c) cached = JSON.parse(c); } catch (e) {}
+  if (cached && cached.deep) { applyDeep(cached); return; }
+  try {
+    const iso = Fortune.beToISO(profile.birthDate);
+    const payload = {
+      zodiac: d.zodiac && d.zodiac.name, element: d.zodiac && d.zodiac.element,
+      zodiacTraits: d.zodiac && d.zodiac.traits, chinese: d.chinese, lifePath: d.lifePath,
+      birthDayName: iso ? Fortune.THAI_DAYS[new Date(iso).getDay()] : '',
+      luckyColor: d.color.name, luckyColorMeaning: d.color.meaning,
+      todayDayName: Fortune.THAI_DAYS[new Date().getDay()], today: d.date,
+      name: profile.displayName || '',
+    };
+    const token = await auth.currentUser.getIdToken();
+    const res = await fetch(DEEP_URL, { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!res.ok) return;
+    const out = await res.json();
+    if (out && out.deep) { try { localStorage.setItem(ck, JSON.stringify(out)); } catch (e) {} applyDeep(out); }
+  } catch (e) { console.warn('deepDaily', e.message); }   // ล่ม = คงข้อความ deterministic ไว้ (fallback)
+}
+function applyDeep(o) {
+  if (o.headline) document.getElementById('hero-sub').textContent = o.headline;
+  if (o.bubble) document.getElementById('hero-bubble').textContent = o.bubble;
+  document.getElementById('deep-text').textContent = o.deep;
+  document.getElementById('deep-card').style.display = '';
 }
 
 async function renderProfile() {
