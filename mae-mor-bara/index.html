@@ -1,1506 +1,186 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>แม่หมอบาร่า</title>
-  <meta name="description" content="ดูดวงลึกลับกับแม่หมอแคปบาร่า ตอบตลกแต่แม่นยำ">
-  <meta name="theme-color" content="#0a0015">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <!-- Chart.js (CDN, no build step) — for กราฟชีวิต -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>แม่หมอบาร่า · เช็กดวงรายวันกับคาปิบาราหมอดู 🔮</title>
+<meta name="description" content="เช็กดวงรายวันกับแม่หมอบาร่า คาปิบาราหมอดูสายมู — พลังวันนี้ สีมงคล เลขเด็ด การ์ดแชร์สวย ฟรี ไม่ต้องสมัครก็ลองได้" />
+<meta property="og:title" content="แม่หมอบาร่า · เช็กดวงรายวัน 🔮" />
+<meta property="og:description" content="พลังวันนี้ · สีมงคล · เลขเด็ด · การ์ดแชร์สวย — ฟรี ลองเลยไม่ต้องสมัคร" />
+<meta property="og:image" content="https://capybarabu-mae-mhor.web.app/og-card.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="แม่หมอบาร่า · เช็กดวงรายวัน" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-tokens-v2.css" />
+<style>
+/* =============================================================
+   L1 — Landing Page (P1.9) · CAPY POP · public · static no-build
+   เป้า KPI: CTA (เริ่มเช็กดวง) ≥ 15% → Hero CTA เดียว + social proof
+   ============================================================= */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; }
+html, body { background: var(--cream); }
+body { font-family: var(--disp); color: var(--ink); font-weight: 500; line-height: 1.5;
+  min-height: 100vh; overflow-x: hidden; }
+::selection { background: var(--mango); color: #fff; }
 
-  <style>
-    :root {
-      --bg: #0a0015;
-      --purple: #4c1d95;
-      --purple-mid: #6d28d9;
-      --purple-light: #7c3aed;
-      --gold: #c9a227;
-      --gold-light: #f0d060;
-      --cream: #e8d5b7;
-      --muted: #8a7a95;
-      --card-bg: rgba(255,255,255,0.04);
-      --card-border: rgba(201,162,39,0.25);
-    }
+.wrap { width: min(480px, 100%); margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 40px); }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ---- brand bar ---- */
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; letter-spacing: -.02em; }
+.brand .dot { width: 30px; height: 30px; border-radius: 10px; background: var(--mango); display: grid; place-items: center;
+  border: var(--pop-border); box-shadow: var(--pop-shadow-sm); font-size: 16px; }
 
-    body {
-      background: var(--bg);
-      color: var(--cream);
-      font-family: 'Sarabun', -apple-system, sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+/* ---- hero ---- */
+.hero { background: var(--mango); border-radius: var(--r-hero); border: var(--pop-border);
+  box-shadow: 0 14px 0 -4px var(--mango-2); padding: 26px 22px 24px; color: #fff; margin-top: 18px; text-align: center; }
+.hero .capy { width: 188px; max-width: 64%; filter: drop-shadow(0 8px 12px rgba(0,0,0,.22));
+  animation: bob 3.6s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-8px) rotate(-1.5deg); } }
+.hero .kicker { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.22);
+  border-radius: var(--r-pill); padding: 6px 13px; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+.hero h1 { font-size: 30px; font-weight: 700; letter-spacing: -.03em; line-height: 1.12; margin: 4px 0 0; }
+.hero p.sub { font-size: 14px; font-weight: 500; opacity: .96; margin: 10px 0 0; max-width: 22em; margin-inline: auto; }
 
-    /* Nebula background */
-    body::before {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background:
-        radial-gradient(ellipse 65% 45% at 15% 15%, rgba(76,29,149,0.4) 0%, transparent 70%),
-        radial-gradient(ellipse 55% 55% at 85% 85%, rgba(124,58,237,0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 55% 5%,  rgba(201,162,39,0.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
+/* ---- big CTA ---- */
+.cta { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+  background: var(--ink); color: var(--cream); border: 0; border-radius: 22px; padding: 18px;
+  font-family: var(--disp); font-weight: 700; font-size: 18px; cursor: pointer; text-decoration: none;
+  box-shadow: 0 6px 0 -1px #000; margin-top: 20px; }
+.cta:active { transform: var(--pop-press); box-shadow: 0 2px 0 -1px #000; }
+.cta.on-mango { background: #fff; color: var(--ink); box-shadow: 0 6px 0 -1px var(--mango-2); }
+.cta.on-mango:active { box-shadow: 0 2px 0 -1px var(--mango-2); }
+.cta-note { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--ink-2);
+  letter-spacing: .02em; margin-top: 10px; }
+.hero .cta-note { color: rgba(255,255,255,.92); }
 
-    /* ===== STARS ===== */
-    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-    .star {
-      position: absolute; background: white; border-radius: 50%;
-      animation: twinkle var(--dur, 3s) var(--delay, 0s) infinite;
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.12; transform: scale(1); }
-      50% { opacity: 0.95; transform: scale(1.5); }
-    }
+/* ---- trust chips ---- */
+.trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+.trust .t { display: inline-flex; align-items: center; gap: 5px; background: var(--cream-2); border: var(--pop-border);
+  box-shadow: var(--pop-shadow-sm); border-radius: var(--r-pill); padding: 8px 13px; font-size: 12.5px; font-weight: 700; }
 
-    /* ===== LAYOUT ===== */
-    .app {
-      position: relative; z-index: 1;
-      max-width: 480px; margin: 0 auto;
-      padding: 24px 16px 80px;
-    }
+/* ---- section ---- */
+.sec-title { font-size: 21px; font-weight: 700; letter-spacing: -.02em; margin: 34px 2px 14px; }
 
-    /* ===== HEADER ===== */
-    .header { text-align: center; padding: 16px 0 8px; }
-    .header-eyebrow {
-      font-size: 10px; letter-spacing: 4px; color: var(--muted);
-      text-transform: uppercase; margin-bottom: 8px;
-    }
-    .header-title {
-      font-size: 32px; font-weight: 700; color: var(--gold);
-      text-shadow: 0 0 30px rgba(201,162,39,0.65), 0 0 60px rgba(201,162,39,0.2);
-      letter-spacing: 4px; line-height: 1.1;
-    }
-    .header-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+/* ---- social proof ---- */
+.rating { display: flex; align-items: center; gap: 12px; background: var(--card); border: var(--pop-border);
+  box-shadow: var(--pop-shadow-sm); border-radius: var(--r-card); padding: 16px 18px; }
+.rating .score { font-size: 34px; font-weight: 700; letter-spacing: -.03em; line-height: 1; }
+.rating .stars { font-size: 15px; letter-spacing: 2px; }
+.rating .meta { font-size: 11.5px; color: var(--ink-2); font-weight: 600; margin-top: 3px; }
+.quotes { display: flex; gap: 12px; overflow-x: auto; padding: 14px 0 6px; margin: 0 -2px; scrollbar-width: none; }
+.quotes::-webkit-scrollbar { display: none; }
+.quote { flex: 0 0 78%; background: var(--cream-2); border: var(--pop-border); box-shadow: var(--pop-shadow-sm);
+  border-radius: 20px; padding: 16px; }
+.quote .q { font-size: 14px; font-weight: 600; line-height: 1.5; }
+.quote .who { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.quote .who .av { width: 30px; height: 30px; border-radius: 10px; background: var(--mango); display: grid; place-items: center;
+  border: var(--pop-border); font-size: 15px; }
 
-    /* ===== MASCOT ===== */
-    .mascot-wrap {
-      display: flex; justify-content: center;
-      margin: 12px 0 18px;
-      position: relative;
-    }
-    .mascot-img {
-      width: 200px; height: auto;
-      filter: drop-shadow(0 0 32px rgba(124,58,237,0.8));
-      animation: float 4s ease-in-out infinite;
-      position: relative; z-index: 1;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(-1deg); }
-      50%       { transform: translateY(-12px) rotate(1deg); }
-    }
-    /* Sparkles around mascot */
-    .sparkle {
-      position: absolute; font-size: 16px; pointer-events: none;
-      animation: sparkleFly var(--sdur,3s) var(--sdel,0s) ease-in-out infinite;
-      z-index: 2;
-    }
-    @keyframes sparkleFly {
-      0%,100% { transform: translate(0,0) scale(0.7) rotate(0deg); opacity: 0.5; }
-      25%      { transform: translate(var(--sx,8px), var(--sy,-12px)) scale(1.2) rotate(20deg); opacity: 1; }
-      75%      { transform: translate(var(--sx2,-6px), var(--sy2,8px)) scale(0.9) rotate(-15deg); opacity: 0.7; }
-    }
-    /* Mascot thinking state */
-    .mascot-img.thinking {
-      animation: mascotThink 0.6s ease-in-out infinite !important;
-      filter: drop-shadow(0 0 48px rgba(201,162,39,0.9)) !important;
-    }
-    @keyframes mascotThink {
-      0%,100% { transform: translateY(0) rotate(-3deg) scale(1); }
-      50%      { transform: translateY(-8px) rotate(3deg) scale(1.05); }
-    }
-    .mascot-img.reveal {
-      animation: mascotReveal .5s cubic-bezier(.34,1.56,.64,1) both !important;
-    }
-    @keyframes mascotReveal {
-      0%   { transform: scale(0.85) rotate(-4deg); }
-      60%  { transform: scale(1.08) rotate(2deg); }
-      100% { transform: scale(1) rotate(-1deg); }
-    }
-    /* Mascot orb pulse */
-    .mascot-orb {
-      position: absolute; width: 180px; height: 180px;
-      border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
-      animation: orbPulse 3s ease-in-out infinite; z-index: 0;
-    }
-    @keyframes orbPulse {
-      0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.6; }
-      50%      { transform: translate(-50%,-50%) scale(1.25); opacity: 1; }
-    }
+/* ---- benefits ---- */
+.benefits { display: grid; gap: 12px; }
+.ben { display: flex; gap: 14px; align-items: flex-start; background: var(--card); border: var(--pop-border);
+  box-shadow: var(--pop-shadow-sm); border-radius: var(--r-card); padding: 16px; }
+.ben .be { font-size: 30px; line-height: 1; flex: 0 0 auto; }
+.ben b { display: block; font-size: 15.5px; font-weight: 700; letter-spacing: -.01em; }
+.ben span { display: block; font-size: 12.5px; color: var(--ink-2); font-weight: 500; line-height: 1.45; margin-top: 3px; }
 
-    /* ===== DIVIDER ===== */
-    .divider {
-      display: flex; align-items: center; gap: 10px; margin: 0 0 14px;
-    }
-    .divider-line { flex: 1; height: 1px; background: var(--card-border); }
-    .divider-icon { font-size: 13px; color: var(--gold); opacity: 0.6; }
+/* ---- final CTA card ---- */
+.final { background: var(--tile-grape); border: var(--pop-border); box-shadow: var(--pop-shadow);
+  border-radius: var(--r-hero); padding: 24px 20px; text-align: center; margin-top: 34px; }
+.final h2 { font-size: 23px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+.final p { font-size: 13.5px; color: var(--ink-2); font-weight: 500; margin: 8px 0 0; }
 
-    /* ===== CARDS ===== */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px; padding: 16px; margin-bottom: 12px;
-      backdrop-filter: blur(12px);
-    }
-    .card-label {
-      font-size: 10px; font-weight: 700; letter-spacing: 2px;
-      color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
-    }
-
-    /* ===== BIRTH DATE ===== */
-    .birth-row { display: flex; align-items: center; gap: 10px; }
-    .birth-selects { flex: 1; display: flex; gap: 6px; }
-
-    /* Wrapper: styled div that the user sees */
-    .select-wrap {
-      flex: 1; position: relative;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(201,162,39,0.35); border-radius: 10px;
-      padding: 10px 24px 10px 8px;
-      display: flex; align-items: center; min-height: 42px;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .select-wrap:focus-within {
-      border-color: var(--gold);
-      box-shadow: 0 0 12px rgba(201,162,39,0.25);
-    }
-    .select-display {
-      flex: 1; color: var(--cream); font-size: 13px;
-      pointer-events: none; line-height: 1; white-space: nowrap; overflow: hidden;
-    }
-    .select-display.placeholder { color: var(--muted); }
-    .select-arrow {
-      position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
-      color: var(--gold); font-size: 10px; pointer-events: none;
-    }
-    /* Transparent native select — sits on top, handles all touch */
-    .birth-select {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      opacity: 0; cursor: pointer;
-      font-size: 16px; /* prevent iOS zoom */
-      -webkit-tap-highlight-color: transparent;
-    }
-    .birth-select option { background: #1a0533; color: var(--cream); }
-
-    .zodiac-badge {
-      display: none; flex-direction: column;
-      align-items: center; min-width: 65px; gap: 1px;
-    }
-    .zodiac-badge.show { display: flex; }
-    .zodiac-emoji { font-size: 27px; line-height: 1; }
-    .zodiac-name  { font-size: 10px; color: var(--gold); font-weight: 700; }
-    .zodiac-year  { font-size: 9px; color: var(--muted); text-align: center; }
-
-    /* ===== TYPE TOGGLE ===== */
-    .type-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
-    .type-btn {
-      flex: 1; padding: 9px; border-radius: 10px;
-      border: 1px solid rgba(201,162,39,0.22);
-      background: transparent; color: var(--muted);
-      font-size: 13px; font-family: inherit; cursor: pointer;
-      transition: all .2s;
-    }
-    .type-btn.active {
-      background: rgba(201,162,39,0.15);
-      border-color: var(--gold); color: var(--gold);
-    }
-
-    /* ===== PRESETS ===== */
-    .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .preset-chip {
-      padding: 5px 12px; border-radius: 20px;
-      border: 1px solid rgba(109,40,217,0.45);
-      background: rgba(109,40,217,0.1); color: #c4b5fd;
-      font-size: 12px; font-family: inherit; cursor: pointer;
-      transition: all .15s;
-    }
-    .preset-chip:hover, .preset-chip:active {
-      background: rgba(109,40,217,0.28);
-      border-color: #a78bfa; color: #ede9fe;
-    }
-
-    /* ===== QUESTION INPUT ===== */
-    .question-input {
-      width: 100%; background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(201,162,39,0.35); border-radius: 10px;
-      padding: 11px 14px; color: var(--cream);
-      font-size: 14px; font-family: inherit; outline: none;
-      resize: none; min-height: 74px; line-height: 1.65;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .question-input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 12px rgba(201,162,39,0.25);
-    }
-    .question-input::placeholder { color: var(--muted); }
-
-    /* ===== ASK BUTTON ===== */
-    .ask-btn {
-      width: 100%; padding: 16px; border-radius: 14px; border: none;
-      background: linear-gradient(135deg, #4c1d95 0%, #7b2d8b 55%, #c9a227 100%);
-      color: white; font-size: 17px; font-weight: 700;
-      font-family: inherit; cursor: pointer; letter-spacing: 1px;
-      box-shadow: 0 4px 24px rgba(124,58,237,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
-      transition: all .25s; margin-bottom: 12px;
-    }
-    .ask-btn:active { transform: scale(0.97); box-shadow: 0 2px 10px rgba(124,58,237,0.3); }
-    .ask-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* ===== LOADING ===== */
-    .loading-wrap { display: none; text-align: center; padding: 24px; }
-    .loading-wrap.show { display: block; }
-    .crystal-loading {
-      font-size: 54px; display: inline-block;
-      animation: crystalPulse 2s ease-in-out infinite;
-    }
-    @keyframes crystalPulse {
-      0%, 100% { transform: rotate(-8deg) scale(1);    filter: brightness(1); }
-      50%       { transform: rotate(8deg)  scale(1.12); filter: brightness(1.35); }
-    }
-    .loading-text { color: var(--muted); font-size: 13px; margin-top: 10px; min-height: 20px; }
-
-    /* ===== RESULT CARD ===== */
-    .result-card { display: none; position: relative; margin-bottom: 12px; }
-    .result-card.show {
-      display: block;
-      animation: slideUp .45s cubic-bezier(.34,1.56,.64,1) both;
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(28px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0)    scale(1); }
-    }
-    .result-glow {
-      position: absolute; inset: -2px; border-radius: 18px;
-      background: linear-gradient(135deg, var(--gold), var(--purple-light), var(--gold));
-      background-size: 200% 200%;
-      animation: gradShift 4s ease-in-out infinite; z-index: 0;
-    }
-    @keyframes gradShift {
-      0%, 100% { background-position: 0% 50%; opacity: 0.65; }
-      50%       { background-position: 100% 50%; opacity: 1; }
-    }
-    .result-inner {
-      position: relative; z-index: 1;
-      background: #0d001f; border-radius: 16px; padding: 18px;
-    }
-    .result-header {
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; margin-bottom: 12px;
-    }
-    .result-title {
-      font-size: 10px; letter-spacing: 2.5px; color: var(--gold);
-      text-transform: uppercase; font-weight: 700;
-    }
-    .result-text {
-      font-size: 15px; line-height: 1.9; color: var(--cream);
-      white-space: pre-wrap; min-height: 40px;
-    }
-    .result-actions { display: flex; gap: 8px; margin-top: 14px; }
-    .result-btn {
-      flex: 1; padding: 9px; border-radius: 8px; border: none;
-      font-size: 12px; font-family: inherit; cursor: pointer; transition: all .2s;
-    }
-    .result-btn-copy {
-      background: rgba(201,162,39,0.12); color: var(--gold);
-      border: 1px solid rgba(201,162,39,0.3);
-    }
-    .result-btn-copy:active { background: rgba(201,162,39,0.28); }
-    .result-btn-again {
-      background: rgba(109,40,217,0.12); color: #c4b5fd;
-      border: 1px solid rgba(109,40,217,0.3);
-    }
-    .result-btn-again:active { background: rgba(109,40,217,0.28); }
-    .result-btn-share {
-      background: linear-gradient(135deg, rgba(201,162,39,0.18), rgba(124,58,237,0.18));
-      color: var(--gold-light);
-      border: 1px solid rgba(201,162,39,0.45);
-      font-weight: 700;
-    }
-    .result-btn-share:active { opacity: 0.75; }
-
-    /* ===== CASE COUNTER ===== */
-    .counter-badge {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      margin: 0 0 14px;
-      padding: 8px 18px; border-radius: 20px;
-      background: rgba(201,162,39,0.08);
-      border: 1px solid rgba(201,162,39,0.2);
-      font-size: 13px; color: var(--muted);
-    }
-    .counter-num {
-      color: var(--gold); font-weight: 700; font-size: 15px;
-      transition: all .3s;
-    }
-
-    /* ===== FORTUNE MINI CARDS ===== */
-    .fortune-row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-      margin-bottom: 14px;
-    }
-    .fortune-mini {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px; padding: 14px 10px 12px;
-      backdrop-filter: blur(12px); text-align: center;
-    }
-    .fortune-mini-label {
-      font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
-      color: var(--gold); text-transform: uppercase; margin-bottom: 10px;
-    }
-    /* shirt color */
-    .color-swatch {
-      width: 54px; height: 54px; border-radius: 50%;
-      margin: 0 auto 8px; position: relative;
-      transition: box-shadow .4s;
-    }
-    .color-swatch::after {
-      content: '✨'; position: absolute;
-      top: -5px; right: -5px; font-size: 13px;
-    }
-    .color-name {
-      font-size: 16px; font-weight: 700; color: var(--cream);
-      margin-bottom: 2px; line-height: 1.2;
-    }
-    .color-day  { font-size: 11px; color: var(--muted); }
-    .color-meaning { font-size: 10px; color: #c4b5fd; margin-top: 5px; line-height: 1.55; }
-    /* lucky digits */
-    .lucky-digits-row {
-      display: flex; justify-content: center; gap: 5px; margin: 4px 0 6px;
-    }
-    .lucky-digit {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: linear-gradient(135deg, rgba(201,162,39,0.18), rgba(124,58,237,0.18));
-      border: 1px solid rgba(201,162,39,0.5);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 700; color: var(--gold-light);
-      animation: digitGlow 2s ease-in-out infinite;
-    }
-    .lucky-digit:nth-child(2) { animation-delay: .4s; }
-    .lucky-digit:nth-child(3) { animation-delay: .8s; }
-    @keyframes digitGlow {
-      0%,100% { box-shadow: 0 0 6px rgba(201,162,39,0.3); }
-      50%      { box-shadow: 0 0 20px rgba(201,162,39,0.75); }
-    }
-    .lucky-digit.dim {
-      animation: none; color: var(--muted); opacity: 0.45;
-      border-color: rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
-    }
-    .life-path-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
-    .lucky-meaning { font-size: 10px; color: #c4b5fd; line-height: 1.55; }
-
-    /* ===== MOBILE ===== */
-    @media (max-width: 360px) {
-      .header-title { font-size: 26px; }
-      .mascot-img { width: 170px; }
-      .birth-select { font-size: 12px; padding: 9px 2px 9px 6px; }
-      .ask-btn { font-size: 15px; padding: 14px; }
-      .result-text { font-size: 14px; }
-      .result-btn { font-size: 11px; padding: 8px 4px; }
-    }
-
-    /* ===== DISCLAIMER ===== */
-    .disclaimer {
-      text-align: center; font-size: 11px; color: #493560;
-      margin-top: 8px; padding: 0 16px; line-height: 1.65;
-    }
-
-    /* ===== TOAST ===== */
-    .toast {
-      position: fixed; bottom: 24px; left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #1a0533; border: 1px solid var(--gold);
-      color: var(--cream); padding: 10px 20px; border-radius: 20px;
-      font-size: 13px; white-space: nowrap;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      transition: transform .3s cubic-bezier(.34,1.56,.64,1); z-index: 100;
-    }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* ===== TAB NAV ===== */
-    .tab-nav {
-      display: flex; gap: 6px; margin-bottom: 14px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--card-border);
-      border-radius: 14px; padding: 5px;
-    }
-    .tab-btn {
-      flex: 1; padding: 10px 6px; border-radius: 10px; border: none;
-      background: transparent; color: var(--muted);
-      font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
-      transition: all .2s; white-space: nowrap;
-    }
-    .tab-btn.active {
-      background: linear-gradient(135deg, rgba(124,58,237,0.35), rgba(201,162,39,0.25));
-      color: var(--gold-light);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; animation: slideUp .35s ease both; }
-
-    /* ===== ลักขณาราศี PANEL ===== */
-    .lakkhana-card { display: none; }
-    .lakkhana-card.show { display: block; animation: slideUp .4s cubic-bezier(.34,1.56,.64,1) both; }
-    .lakkhana-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .lakkhana-emoji {
-      font-size: 40px; line-height: 1;
-      filter: drop-shadow(0 0 14px rgba(201,162,39,0.5));
-    }
-    .lakkhana-title { flex: 1; }
-    .lakkhana-name { font-size: 19px; font-weight: 700; color: var(--gold); line-height: 1.2; }
-    .lakkhana-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .lakkhana-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    }
-    .lakkhana-item {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(201,162,39,0.18);
-      border-radius: 10px; padding: 9px 11px;
-    }
-    .lakkhana-item-label { font-size: 9px; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; margin-bottom: 3px; }
-    .lakkhana-item-value { font-size: 13px; color: var(--cream); line-height: 1.45; }
-    .lakkhana-item.full { grid-column: 1 / -1; }
-
-    /* ===== STATUS TOGGLE (โสด/มีคู่) ===== */
-    .status-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
-    .status-btn {
-      flex: 1; padding: 12px; border-radius: 12px;
-      border: 1px solid rgba(201,162,39,0.22);
-      background: transparent; color: var(--muted);
-      font-size: 14px; font-family: inherit; cursor: pointer; transition: all .2s;
-    }
-    .status-btn.active {
-      background: rgba(236,72,153,0.14); border-color: #ec4899; color: #f9a8d4;
-    }
-
-    /* ===== SOULMATE RESULT ===== */
-    .soulmate-content { margin-bottom: 14px; }
-    .soulmate-field { margin-bottom: 12px; }
-    .soulmate-field-label {
-      font-size: 10px; letter-spacing: 1.5px; color: var(--gold);
-      text-transform: uppercase; margin-bottom: 4px; font-weight: 700;
-    }
-    .soulmate-field-value { font-size: 14px; line-height: 1.65; color: var(--cream); }
-    .stat-bar-wrap { margin-bottom: 12px; }
-    .stat-bar-top {
-      display: flex; justify-content: space-between; align-items: baseline;
-      margin-bottom: 5px;
-    }
-    .stat-bar-label { font-size: 13px; color: var(--cream); font-weight: 600; }
-    .stat-bar-val   { font-size: 13px; color: var(--gold-light); font-weight: 700; }
-    .stat-bar-track {
-      height: 12px; border-radius: 8px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(201,162,39,0.18); overflow: hidden;
-    }
-    .stat-bar-fill {
-      height: 100%; width: 0%; border-radius: 8px;
-      transition: width 1s cubic-bezier(.34,1.3,.64,1);
-    }
-    .stat-bar-fill.handsome { background: linear-gradient(90deg, #ec4899, #c9a227); }
-    .stat-bar-fill.wealth   { background: linear-gradient(90deg, #22c55e, #c9a227); }
-
-    /* ===== LIFE GRAPH ===== */
-    .lifegraph-intro { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
-    .lifegraph-canvas-wrap {
-      position: relative; height: 240px; margin-bottom: 12px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--card-border); border-radius: 12px; padding: 8px;
-    }
-    .lifegraph-summary { font-size: 13px; line-height: 1.7; color: var(--cream); }
-    .lifegraph-summary .lg-row { margin-bottom: 6px; }
-    .lifegraph-summary .lg-peak { color: #4ade80; }
-    .lifegraph-summary .lg-low  { color: #f87171; }
-  </style>
+footer { text-align: center; margin-top: 30px; }
+footer .f-mono { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .04em; line-height: 1.7; }
+footer a { color: var(--mango-2); text-decoration: none; font-weight: 700; }
+</style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="stars" id="stars"></div>
+  <!-- brand -->
+  <div class="brand"><span class="dot">🔮</span><span>แม่หมอบาร่า</span></div>
 
-<div class="app">
+  <!-- HERO -->
+  <section class="hero">
+    <span class="kicker">🦫 คาปิบาราหมอดูสายมู</span>
+    <img class="capy" src="mascots/m3.webp?v=2" alt="แม่หมอบาร่า" onerror="this.style.display='none'" />
+    <h1>เช็กดวงวันนี้<br>กับแม่หมอบาร่า</h1>
+    <p class="sub">รู้พลังวันนี้ · สีมงคล · เลขเด็ด · เวลาดี แล้วได้การ์ดดวงสวย ๆ ไว้แชร์ให้เพื่อนอิจฉาเล่น 😏</p>
+    <a class="cta on-mango" href="auth.html" onclick="goStart(event)">เริ่มเช็กดวงเลย ✨</a>
+    <div class="cta-note">ฟรี 100% · ไม่ต้องสมัครก็ลองได้</div>
+  </section>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="header-eyebrow">The Mysterious Oracle</div>
-    <div class="header-title">แม่หมอบาร่า</div>
-    <div class="header-sub">หมอดูแคปบาร่าผู้ลึกลับแห่งจักรวาล</div>
+  <!-- trust chips -->
+  <div class="trust">
+    <span class="t">🆓 เล่นฟรี</span>
+    <span class="t">⚡ ลองได้ทันที</span>
+    <span class="t">💬 ผ่าน LINE</span>
+    <span class="t">🔒 ปลอดภัย</span>
   </div>
 
-  <!-- Mascot -->
-  <div class="mascot-wrap">
-    <div class="mascot-orb"></div>
-    <span class="sparkle" style="top:8%;left:12%;--sdur:2.8s;--sdel:0s;--sx:10px;--sy:-14px;--sx2:-8px;--sy2:10px">✨</span>
-    <span class="sparkle" style="top:15%;right:10%;--sdur:3.5s;--sdel:.6s;--sx:-12px;--sy:-10px;--sx2:8px;--sy2:12px">⭐</span>
-    <span class="sparkle" style="top:55%;left:6%;--sdur:4s;--sdel:1.2s;--sx:14px;--sy:8px;--sx2:-6px;--sy2:-10px;font-size:12px">💫</span>
-    <span class="sparkle" style="top:60%;right:8%;--sdur:3.2s;--sdel:1.8s;--sx:-10px;--sy:-8px;--sx2:12px;--sy2:6px;font-size:12px">✨</span>
-    <span class="sparkle" style="top:82%;left:22%;--sdur:2.6s;--sdel:.4s;--sx:6px;--sy:-12px;--sx2:-10px;--sy2:8px;font-size:10px">⭐</span>
-    <img class="mascot-img" src="mascot.png" alt="แม่หมอบาร่า">
-  </div>
-
-  <!-- Case counter -->
-  <div class="counter-badge">
-    🔮 แม่หมอดูดวงไปแล้ว <span class="counter-num" id="caseCount">...</span> เคส
-  </div>
-
-  <!-- Fortune mini cards -->
-  <div class="fortune-row">
-    <!-- Shirt color -->
-    <div class="fortune-mini">
-      <div class="fortune-mini-label">สีเสื้อมงคลวันนี้</div>
-      <div class="color-swatch" id="shirtSwatch"></div>
-      <div class="color-name" id="shirtColorName">—</div>
-      <div class="color-day"  id="shirtDayName">—</div>
-      <div class="color-meaning" id="shirtMeaning"></div>
+  <!-- SOCIAL PROOF -->
+  <div class="sec-title">คนชอบแม่หมอบาร่า 💛</div>
+  <div class="rating">
+    <div>
+      <div class="score">4.9</div>
+      <div class="stars">⭐⭐⭐⭐⭐</div>
     </div>
-    <!-- Lucky number -->
-    <div class="fortune-mini">
-      <div class="fortune-mini-label">เบอร์มงคลประจำตัว</div>
-      <div class="lucky-digits-row">
-        <div class="lucky-digit dim" id="ld0">?</div>
-        <div class="lucky-digit dim" id="ld1">?</div>
-        <div class="lucky-digit dim" id="ld2">?</div>
-      </div>
-      <div class="life-path-label" id="lifePathLabel">เลือกวันเกิดก่อนนะ~</div>
-      <div class="lucky-meaning"   id="luckyMeaning"></div>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:14px">"ดวงแม่น เสียงแม่หมอกวนดี 555"</div>
+      <div class="meta">จากคนที่เช็กดวงทุกเช้ากับแม่หมอ</div>
     </div>
   </div>
-
-  <div class="divider">
-    <div class="divider-line"></div>
-    <div class="divider-icon">✦</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- Birth date card -->
-  <div class="card">
-    <div class="card-label">วันเกิดของคุณ · กรอกหรือไม่ก็ได้</div>
-    <div class="birth-row">
-      <div class="birth-selects">
-        <div class="select-wrap">
-          <span class="select-display placeholder" id="birthDayDisplay">วัน</span>
-          <span class="select-arrow">▾</span>
-          <select class="birth-select" id="birthDay">
-            <option value="">วัน</option>
-          </select>
-        </div>
-        <div class="select-wrap">
-          <span class="select-display placeholder" id="birthMonthDisplay">เดือน</span>
-          <span class="select-arrow">▾</span>
-          <select class="birth-select" id="birthMonth">
-            <option value="">เดือน</option>
-            <option value="1">ม.ค.</option>
-            <option value="2">ก.พ.</option>
-            <option value="3">มี.ค.</option>
-            <option value="4">เม.ย.</option>
-            <option value="5">พ.ค.</option>
-            <option value="6">มิ.ย.</option>
-            <option value="7">ก.ค.</option>
-            <option value="8">ส.ค.</option>
-            <option value="9">ก.ย.</option>
-            <option value="10">ต.ค.</option>
-            <option value="11">พ.ย.</option>
-            <option value="12">ธ.ค.</option>
-          </select>
-        </div>
-        <div class="select-wrap">
-          <span class="select-display placeholder" id="birthYearDisplay">ปี พ.ศ.</span>
-          <span class="select-arrow">▾</span>
-          <select class="birth-select" id="birthYear">
-            <option value="">ปี พ.ศ.</option>
-          </select>
-        </div>
-      </div>
-      <div class="zodiac-badge" id="zodiacBadge">
-        <div class="zodiac-emoji" id="zodiacEmoji"></div>
-        <div class="zodiac-name"  id="zodiacName"></div>
-        <div class="zodiac-year"  id="zodiacYear"></div>
-      </div>
+  <!-- NOTE: รีวิวด้านล่างเป็น placeholder — product owner แทนด้วยรีวิวจริงก่อน go-live -->
+  <div class="quotes">
+    <div class="quote">
+      <div class="q">"ตื่นมาเช็กดวงทุกเช้าเลย การ์ดน่ารักมาก แชร์ลงสตอรี่รัว ๆ"</div>
+      <div class="who"><span class="av">🐰</span> ไม่ม่อน · กรุงเทพ</div>
+    </div>
+    <div class="quote">
+      <div class="q">"เลขมงคลที่แม่หมอให้ เอาไปเสี่ยงโชคแล้วฟินมาก 😆"</div>
+      <div class="who"><span class="av">🐱</span> มะปราง · เชียงใหม่</div>
+    </div>
+    <div class="quote">
+      <div class="q">"ชอบที่ไม่ขู่ให้กลัว อ่านแล้วใจฟู มีกำลังใจทำงานต่อ"</div>
+      <div class="who"><span class="av">🐼</span> โอ๊ต · ขอนแก่น</div>
     </div>
   </div>
 
-  <!-- ลักขณาราศี (แสดงเมื่อเลือกวันเกิด) -->
-  <div class="card lakkhana-card" id="lakkhanaCard">
-    <div class="card-label">ลักขณาราศีของคุณ</div>
-    <div class="lakkhana-head">
-      <div class="lakkhana-emoji" id="lkEmoji">♈</div>
-      <div class="lakkhana-title">
-        <div class="lakkhana-name" id="lkName">—</div>
-        <div class="lakkhana-sub"  id="lkSub">—</div>
-      </div>
-    </div>
-    <div class="lakkhana-grid">
-      <div class="lakkhana-item">
-        <div class="lakkhana-item-label">ธาตุประจำราศี</div>
-        <div class="lakkhana-item-value" id="lkElement">—</div>
-      </div>
-      <div class="lakkhana-item">
-        <div class="lakkhana-item-label">ดาวเจ้าเรือน</div>
-        <div class="lakkhana-item-value" id="lkRuler">—</div>
-      </div>
-      <div class="lakkhana-item full">
-        <div class="lakkhana-item-label">ลักขณานิสัย</div>
-        <div class="lakkhana-item-value" id="lkTraits">—</div>
-      </div>
-    </div>
+  <!-- BENEFITS -->
+  <div class="sec-title">ทำไมต้องแม่หมอบาร่า?</div>
+  <div class="benefits">
+    <div class="ben"><span class="be">⚡</span><div><b>ดวงรายวันเฉพาะคุณ</b><span>คำนวณจากวันเกิด ราศี เลขชะตา — พลังวันนี้ สีมงคล เลขเด็ด เวลาดี ครบในที่เดียว</span></div></div>
+    <div class="ben"><span class="be">🃏</span><div><b>เปิดไพ่ & ควิซเครื่องราง</b><span>เปิดไพ่เสี่ยงทาย หรือทำควิซสั้น ๆ หาเครื่องรางที่ใช่กับตัวคุณ สนุกได้ทุกวัน</span></div></div>
+    <div class="ben"><span class="be">📤</span><div><b>การ์ดดวงสวยไว้แชร์</b><span>ทุกผลลัพธ์กดแชร์เป็นรูปสวย ๆ ลง TikTok / IG / LINE ได้ทันที</span></div></div>
+    <div class="ben"><span class="be">🔥</span><div><b>เช็กอินสะสม streak</b><span>เข้ามาทุกวันสะสมแต้มและ streak ปลดล็อกเครื่องรางดิจิทัลและตราสะสม</span></div></div>
   </div>
 
-  <!-- TAB NAV -->
-  <div class="tab-nav">
-    <button class="tab-btn active" id="tabBtnFortune"   onclick="setTab('fortune')">🔮 ดูดวง</button>
-    <button class="tab-btn"        id="tabBtnSoulmate"  onclick="setTab('soulmate')">💘 เนื้อคู่</button>
-    <button class="tab-btn"        id="tabBtnLifegraph" onclick="setTab('lifegraph')">📈 กราฟชีวิต</button>
-  </div>
+  <!-- FINAL CTA -->
+  <section class="final">
+    <h2>แม่หมอรออยู่น้า 🔮</h2>
+    <p>ใช้เวลาไม่ถึงนาที รู้ดวงวันนี้ทันที</p>
+    <a class="cta" href="auth.html" onclick="goStart(event)" style="margin-top:16px">เริ่มเช็กดวงเลย ✨</a>
+    <div class="cta-note">ฟรี · ไม่ต้องสมัครก็ลองได้</div>
+  </section>
 
-  <!-- ===== TAB: ดูดวง ===== -->
-  <div class="tab-panel active" id="tabFortune">
-    <!-- Question card -->
-    <div class="card">
-      <div class="card-label">ถามแม่หมอ</div>
-
-      <div class="type-toggle">
-        <button class="type-btn active" id="typeDaily"   onclick="setType('daily')">  ☀️ รายวัน</button>
-        <button class="type-btn"        id="typeMonthly" onclick="setType('monthly')">🌕 รายเดือน</button>
-      </div>
-
-      <div class="presets">
-        <button class="preset-chip" onclick="setPreset('ความรัก')">💕 ความรัก</button>
-        <button class="preset-chip" onclick="setPreset('การเงิน')">💰 การเงิน</button>
-        <button class="preset-chip" onclick="setPreset('การงาน')">💼 การงาน</button>
-        <button class="preset-chip" onclick="setPreset('สุขภาพ')">🌿 สุขภาพ</button>
-        <button class="preset-chip" onclick="setPreset('โชคลาภ')">🍀 โชคลาภ</button>
-        <button class="preset-chip" onclick="setPreset('ภาพรวมทุกด้าน')">🌟 ภาพรวม</button>
-      </div>
-
-      <textarea class="question-input" id="questionInput"
-        placeholder="ถามอะไรก็ได้... หรือเลือกหัวข้อด้านบน (Ctrl+Enter เพื่อส่ง)"
-        rows="3" maxlength="300"></textarea>
-    </div>
-
-    <button class="ask-btn" id="askBtn" onclick="askFortune()">
-      🔮 ให้แม่หมอดูดวง ✨
-    </button>
-
-    <div class="loading-wrap" id="loadingWrap">
-      <div class="crystal-loading">🔮</div>
-      <div class="loading-text" id="loadingText">แม่หมอกำลังถามลูกแก้ว...</div>
-    </div>
-
-    <div class="result-card" id="resultCard">
-      <div class="result-glow"></div>
-      <div class="result-inner">
-        <div class="result-header">
-          <span style="font-size:18px">🔮</span>
-          <div class="result-title">คำทำนายจากแม่หมอบาร่า</div>
-          <span style="font-size:18px">🔮</span>
-        </div>
-        <div class="result-text" id="resultText"></div>
-        <div class="result-actions">
-          <button class="result-btn result-btn-share" onclick="shareFortune()">📤 แชร์ดวง</button>
-          <button class="result-btn result-btn-copy"  onclick="copyFortune()">📋 คัดลอก</button>
-          <button class="result-btn result-btn-again" onclick="resetForNew()">🔄 ใหม่</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== TAB: เนื้อคู่ประตูถัดไป ===== -->
-  <div class="tab-panel" id="tabSoulmate">
-    <div class="card">
-      <div class="card-label">เนื้อคู่ประตูถัดไป 💘</div>
-      <p style="font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:14px">
-        แม่หมอจะส่องเนื้อคู่ในอนาคตให้~ เลือกสถานะก่อนนะจ้า (ต้องเลือกวันเกิดด้านบนด้วย)
-      </p>
-      <div class="status-toggle">
-        <button class="status-btn active" id="statusSingle"  onclick="setStatus('single')">💔 โสดอยู่</button>
-        <button class="status-btn"         id="statusCoupled" onclick="setStatus('coupled')">💑 มีคู่แล้ว</button>
-      </div>
-    </div>
-
-    <button class="ask-btn" id="soulmateBtn" onclick="askSoulmate()">
-      💘 ส่องเนื้อคู่ประตูถัดไป ✨
-    </button>
-
-    <div class="loading-wrap" id="soulmateLoading">
-      <div class="crystal-loading">💘</div>
-      <div class="loading-text" id="soulmateLoadingText">แม่หมอกำลังส่องเนื้อคู่...</div>
-    </div>
-
-    <div class="result-card" id="soulmateResult">
-      <div class="result-glow"></div>
-      <div class="result-inner">
-        <div class="result-header">
-          <span style="font-size:18px">💘</span>
-          <div class="result-title">เนื้อคู่ประตูถัดไป</div>
-          <span style="font-size:18px">💘</span>
-        </div>
-        <div class="soulmate-content" id="soulmateContent"></div>
-        <div class="result-actions">
-          <button class="result-btn result-btn-share" onclick="shareSoulmate()">📤 แชร์</button>
-          <button class="result-btn result-btn-again" onclick="askSoulmate()">🔄 ส่องใหม่</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== TAB: กราฟชีวิต ===== -->
-  <div class="tab-panel" id="tabLifegraph">
-    <div class="card">
-      <div class="card-label">กราฟชีวิต 📈</div>
-      <p class="lifegraph-intro">
-        ดูจังหวะชีวิตแบบศาสตร์ไทย — ย้อนหลัง 5 ปี และล่วงหน้า 5 ปี
-        อิงปีนักษัตร · ปีชง/ปีถูกโฉลก · จังหวะอายุ (ต้องเลือกวันเกิดด้านบนก่อนนะจ้า)
-      </p>
-      <button class="ask-btn" id="lifegraphBtn" onclick="drawLifeGraph()" style="margin-bottom:0">
-        📈 ดูกราฟชีวิต ✨
-      </button>
-    </div>
-
-    <div class="result-card" id="lifegraphResult">
-      <div class="result-glow"></div>
-      <div class="result-inner">
-        <div class="result-header">
-          <span style="font-size:18px">📈</span>
-          <div class="result-title">กราฟชีวิต ±5 ปี (ศาสตร์ไทย)</div>
-          <span style="font-size:18px">📈</span>
-        </div>
-        <div class="lifegraph-canvas-wrap"><canvas id="lifeChart"></canvas></div>
-        <div class="lifegraph-summary" id="lifegraphSummary"></div>
-        <div class="result-text" id="lifegraphNarrative" style="margin-top:12px;min-height:24px"></div>
-      </div>
-    </div>
-  </div>
-
-  <p class="disclaimer">
-    เพื่อความบันเทิงเท่านั้น แม่หมอไม่รับผิดชอบหากดวงไม่ตรง<br>
-    แต่ถ้าตรงก็ฝากรีวิว 5 ดาวด้วยนะ 🌟
-  </p>
+  <footer>
+    <div class="f-mono">© 2026 capybarabu · แม่หมอบาร่า<br>เพื่อความบันเทิง · โปรดใช้วิจารณญาณ</div>
+  </footer>
 
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// =============================================================
-// CONFIG — set this after deploying Firebase Functions
-// =============================================================
-const FUNCTION_URL   = 'https://askfortune-ssgkv4kwca-as.a.run.app';
-const COUNT_URL      = 'https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/getCount';
-
-// =============================================================
-// STATE
-// =============================================================
-const state = { type: 'daily', currentFortune: '' };
-
-// =============================================================
-// STARS
-// =============================================================
-function initStars() {
-  const c = document.getElementById('stars');
-  for (let i = 0; i < 90; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    const sz = Math.random() * 2.5 + 0.4;
-    s.style.cssText = `
-      width:${sz}px;height:${sz}px;
-      left:${Math.random()*100}%;top:${Math.random()*100}%;
-      --dur:${(Math.random()*4+2).toFixed(1)}s;
-      --delay:${(Math.random()*4).toFixed(1)}s;
-    `;
-    c.appendChild(s);
-  }
-}
-
-// =============================================================
-// ZODIAC DATA
-// =============================================================
-const ZODIACS = [
-  { name:'มกร',   emoji:'♑', en:'Capricorn',   element:'ดิน', ruler:'เสาร์',   traits:'มีวินัย อดทน มุ่งมั่น รักความมั่นคง',           start:[12,22], end:[1,19]  },
-  { name:'กุมภ์', emoji:'♒', en:'Aquarius',    element:'ลม',  ruler:'เสาร์',   traits:'คิดนอกกรอบ รักอิสระ มีอุดมการณ์',               start:[1,20],  end:[2,18]  },
-  { name:'มีน',   emoji:'♓', en:'Pisces',      element:'น้ำ', ruler:'พฤหัสบดี', traits:'อ่อนไหว มีจินตนาการ เมตตา ฝันมาก',             start:[2,19],  end:[3,20]  },
-  { name:'เมษ',   emoji:'♈', en:'Aries',       element:'ไฟ',  ruler:'อังคาร',  traits:'กล้าหาญ กระตือรือร้น หุนหันพลันแล่น',           start:[3,21],  end:[4,19]  },
-  { name:'พฤษภ',  emoji:'♉', en:'Taurus',      element:'ดิน', ruler:'ศุกร์',   traits:'อดทน รักความงาม ดื้อแต่ซื่อสัตย์',              start:[4,20],  end:[5,20]  },
-  { name:'เมถุน', emoji:'♊', en:'Gemini',      element:'ลม',  ruler:'พุธ',     traits:'ฉลาด พูดเก่ง ปรับตัวดี ใจหลายแฉก',             start:[5,21],  end:[6,20]  },
-  { name:'กรกฎ',  emoji:'♋', en:'Cancer',      element:'น้ำ', ruler:'จันทร์',  traits:'อ่อนโยน รักครอบครัว อารมณ์ขึ้นๆ ลงๆ',         start:[6,21],  end:[7,22]  },
-  { name:'สิงห์', emoji:'♌', en:'Leo',         element:'ไฟ',  ruler:'อาทิตย์', traits:'มั่นใจ เอื้อเฟื้อ ชอบเป็นผู้นำ ต้องการคำชม',   start:[7,23],  end:[8,22]  },
-  { name:'กันย์', emoji:'♍', en:'Virgo',       element:'ดิน', ruler:'พุธ',     traits:'ละเอียด ชอบวิเคราะห์ ขยันทำงาน',               start:[8,23],  end:[9,22]  },
-  { name:'ตุลย์', emoji:'♎', en:'Libra',       element:'ลม',  ruler:'ศุกร์',   traits:'รักความยุติธรรม สุนทรีย์ ชอบความสมดุล',        start:[9,23],  end:[10,22] },
-  { name:'พิจิก', emoji:'♏', en:'Scorpio',     element:'น้ำ', ruler:'อังคาร',  traits:'ลึกซึ้ง เข้มแข็ง ภักดีมาก',                    start:[10,23], end:[11,21] },
-  { name:'ธนู',   emoji:'♐', en:'Sagittarius', element:'ไฟ',  ruler:'พฤหัสบดี', traits:'รักอิสระ ชอบผจญภัย ตรงไปตรงมา',               start:[11,22], end:[12,21] },
-];
-
-const CHINESE = [
-  'ชวด (หนู)','ฉลู (วัว)','ขาล (เสือ)','เถาะ (กระต่าย)',
-  'มะโรง (มังกร)','มะเส็ง (งู)','มะเมีย (ม้า)','มะแม (แพะ)',
-  'วอก (ลิง)','ระกา (ไก่)','จอ (หมา)','กุน (หมู)',
-];
-
-function getZodiac(dateStr) {
-  const d = new Date(dateStr);
-  const m = d.getMonth() + 1, day = d.getDate();
-  for (const z of ZODIACS) {
-    const [sm, sd] = z.start, [em, ed] = z.end;
-    if ((m === sm && day >= sd) || (m === em && day <= ed)) return z;
-  }
-  return ZODIACS[0]; // Capricorn wrap-around
-}
-
-function getChineseZodiac(dateStr) {
-  const year = new Date(dateStr).getFullYear();
-  return CHINESE[((year - 4) % 12 + 12) % 12];
-}
-
-// =============================================================
-// UI HELPERS
-// =============================================================
-function updateZodiacBadge(dateStr) {
-  if (!dateStr) return;
-  const z  = getZodiac(dateStr);
-  const cz = getChineseZodiac(dateStr);
-  document.getElementById('zodiacEmoji').textContent = z.emoji;
-  document.getElementById('zodiacName').textContent  = 'ราศี' + z.name;
-  document.getElementById('zodiacYear').textContent  = cz;
-  document.getElementById('zodiacBadge').classList.add('show');
-}
-
-function setType(t) {
-  state.type = t;
-  document.getElementById('typeDaily').classList.toggle('active', t === 'daily');
-  document.getElementById('typeMonthly').classList.toggle('active', t === 'monthly');
-}
-
-function setPreset(topic) {
-  const label = state.type === 'daily' ? 'รายวัน' : 'รายเดือน';
-  document.getElementById('questionInput').value = `ดวง${topic}${label}ของฉันเป็นยังไงบ้าง`;
-  document.getElementById('questionInput').focus();
-}
-
-// =============================================================
-// LOADING
-// =============================================================
-const LOADING_MSGS = [
-  'แม่หมอกำลังถามลูกแก้ว...',
-  'ลูกแก้วกำลังขุ่น รอแป๊บนึงนะ...',
-  'แม่หมอปรึกษาดาวนพเคราะห์...',
-  'ดาวกำลังโคจร รอให้ครบก่อน...',
-  'แม่หมอพลิกไพ่ยิปซี...',
-  'โอ้โห ดวงซับซ้อนมาก ขอเวลาหน่อย...',
-];
-let _loadingTimer;
-
-function showLoading() {
-  let idx = 0;
-  document.getElementById('loadingText').textContent = LOADING_MSGS[0];
-  document.getElementById('loadingWrap').classList.add('show');
-  document.getElementById('resultCard').classList.remove('show');
-  document.getElementById('askBtn').disabled = true;
-  document.querySelector('.mascot-img').classList.add('thinking');
-  _loadingTimer = setInterval(() => {
-    idx = (idx + 1) % LOADING_MSGS.length;
-    document.getElementById('loadingText').textContent = LOADING_MSGS[idx];
-  }, 2200);
-}
-
-function hideLoading() {
-  clearInterval(_loadingTimer);
-  document.getElementById('loadingWrap').classList.remove('show');
-  document.getElementById('askBtn').disabled = false;
-  const m = document.querySelector('.mascot-img');
-  m.classList.remove('thinking');
-  m.classList.add('reveal');
-  setTimeout(() => m.classList.remove('reveal'), 600);
-}
-
-// =============================================================
-// TYPEWRITER
-// =============================================================
-function typewrite(el, text, speed = 20) {
-  el.textContent = '';
-  let i = 0;
-  const tick = () => { if (i < text.length) { el.textContent += text[i++]; setTimeout(tick, speed); } };
-  tick();
-}
-
-// =============================================================
-// TOAST
-// =============================================================
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// =============================================================
-// COPY + RESET
-// =============================================================
-function shareFortune() {
-  if (!state.currentFortune) return;
-  const shareText = `🔮 แม่หมอบาร่าทำนายให้แล้ว~\n\n${state.currentFortune}\n\n✨ ลองดูดวงกับแม่หมอบาร่าได้ที่ https://capybarabu-mae-mhor.web.app`;
-  if (navigator.share) {
-    navigator.share({ text: shareText }).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(shareText)
-      .then(() => showToast('คัดลอกข้อความสำหรับแชร์แล้ว~'))
-      .catch(() => showToast('ลองคัดลอกด้วยตัวเองนะ'));
-  }
-}
-
-function copyFortune() {
-  if (!state.currentFortune) return;
-  navigator.clipboard.writeText(state.currentFortune)
-    .then(() => showToast('คัดลอกคำทำนายแล้ว'))
-    .catch(() => showToast('คัดลอกไม่ได้ ลองเอง'));
-}
-
-function resetForNew() {
-  document.getElementById('resultCard').classList.remove('show');
-  document.getElementById('questionInput').value = '';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  setTimeout(() => document.getElementById('questionInput').focus(), 400);
-}
-
-// =============================================================
-// SHIRT COLOR (by day of week)
-// =============================================================
-const SHIRT_COLORS = [
-  { name:'แดง',       hex:'#ef4444', glow:'rgba(239,68,68,0.55)',    meaning:'เสริมพลังอำนาจ มีเสน่ห์ดึงดูด' },
-  { name:'เหลือง',   hex:'#eab308', glow:'rgba(234,179,8,0.55)',     meaning:'โชคลาภ ความร่ำรวย เงินทองไหลมา' },
-  { name:'ชมพู',     hex:'#ec4899', glow:'rgba(236,72,153,0.55)',    meaning:'ความรัก เสน่ห์ มิตรภาพดี' },
-  { name:'เขียว',    hex:'#22c55e', glow:'rgba(34,197,94,0.55)',     meaning:'สุขภาพแข็งแรง ก้าวหน้าในงาน' },
-  { name:'ส้ม',      hex:'#f97316', glow:'rgba(249,115,22,0.55)',    meaning:'วาสนาดี ฐานะมั่นคง บุญหนุนนำ' },
-  { name:'ฟ้าอ่อน', hex:'#38bdf8', glow:'rgba(56,189,248,0.55)',    meaning:'ความสุขสงบ โชคดี ราบรื่น' },
-  { name:'ม่วง',     hex:'#a855f7', glow:'rgba(168,85,247,0.55)',    meaning:'ปัดเป่าเคราะห์ เสริมบารมี' },
-];
-const THAI_DAYS = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-
-function initShirtColor() {
-  const day = new Date().getDay();
-  const c   = SHIRT_COLORS[day];
-  const sw  = document.getElementById('shirtSwatch');
-  sw.style.background = c.hex;
-  sw.style.boxShadow  = `0 0 24px ${c.glow}`;
-  document.getElementById('shirtColorName').textContent = c.name;
-  document.getElementById('shirtDayName').textContent   = `วัน${THAI_DAYS[day]}นี้`;
-  document.getElementById('shirtMeaning').textContent   = c.meaning;
-}
-
-// =============================================================
-// LUCKY NUMBERS (numerology from birth date)
-// =============================================================
-const LUCKY_NUM_DATA = {
-  1: { digits:[1,9,5], meaning:'ผู้นำ โชคลาภ มุ่งสู่ความสำเร็จ' },
-  2: { digits:[2,6,8], meaning:'ความรัก ความสุข ความสมดุลในชีวิต' },
-  3: { digits:[3,7,1], meaning:'มงคล ก้าวหน้า ฉลาดปราดเปรื่อง' },
-  4: { digits:[4,8,2], meaning:'มั่นคง ฐานะแน่นหนา ทรัพย์มั่งมี' },
-  5: { digits:[5,0,9], meaning:'โอกาสดีมา การเปลี่ยนแปลงในทางดี' },
-  6: { digits:[6,4,8], meaning:'ความรัก ความงาม ศิลปะเจิดจรัส' },
-  7: { digits:[7,3,1], meaning:'ปัญญาเลิศ โชคลาภ ดลใจสูงส่ง' },
-  8: { digits:[8,6,4], meaning:'อำนาจ มั่งคั่ง วาสนาล้นเหลือ' },
-  9: { digits:[9,3,7], meaning:'สำเร็จสูงสุด บุญบารมี เลิศทุกด้าน' },
-};
-
-function getLifePathNumber(dateStr) {
-  const [y, m, d] = dateStr.split('-');
-  let sum = (d + m + y).split('').reduce((a, c) => a + parseInt(c), 0);
-  while (sum > 9) sum = String(sum).split('').reduce((a, c) => a + parseInt(c), 0);
-  return sum || 9;
-}
-
-function updateLuckyNumbers(dateStr) {
-  if (!dateStr) return;
-  const lp   = getLifePathNumber(dateStr);
-  const data = LUCKY_NUM_DATA[lp];
-  data.digits.forEach((digit, i) => {
-    const el = document.getElementById(`ld${i}`);
-    el.textContent = digit;
-    el.classList.remove('dim');
-  });
-  document.getElementById('lifePathLabel').textContent = `เลขชะตา ${lp} · เหมาะกับเบอร์ที่มี`;
-  document.getElementById('luckyMeaning').textContent  = data.meaning;
-}
-
-// =============================================================
-// MAIN: ASK FORTUNE
-// =============================================================
-async function askFortune() {
-  const birthDate = getBirthDate();
-  const question  = document.getElementById('questionInput').value.trim();
-
-  if (!birthDate) {
-    showToast('กรุณาเลือกวันเกิดก่อนนะคะ~');
-    document.getElementById('birthDay').focus();
-    return;
-  }
-  if (!question) {
-    showToast('ถามแม่หมอหน่อยนะ จะได้ดูให้ถูก~');
-    document.getElementById('questionInput').focus();
-    return;
-  }
-
-  const zodiac     = getZodiac(birthDate);
-  const chineseSgn = getChineseZodiac(birthDate);
-  const today      = new Date().toLocaleDateString('th-TH', {
-    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
-  });
-
-  // Pre-computed context for the AI (LLMs are unreliable at date→weekday
-  // and digit-sum math, so we compute these client-side and feed them in).
-  const todayIdx             = new Date().getDay();
-  const birthDayIdx          = new Date(birthDate).getDay();
-  const birthDayName         = THAI_DAYS[birthDayIdx];                    // วันเกิดในสัปดาห์
-  const birthDayColor        = SHIRT_COLORS[birthDayIdx].name;            // สีมงคลประจำวันเกิด
-  const birthDayColorMeaning = SHIRT_COLORS[birthDayIdx].meaning;         // ความหมายสีวันเกิด
-  const lifePath             = getLifePathNumber(birthDate);              // เลขชะตา
-  const todayColor           = SHIRT_COLORS[todayIdx].name;               // สีเสื้อมงคลวันนี้
-  const todayColorMeaning    = SHIRT_COLORS[todayIdx].meaning;            // ความหมายสีวันนี้
-
-  showLoading();
-
-  try {
-    const res = await fetch(FUNCTION_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        birthDate,
-        question,
-        type:          state.type,
-        zodiac:        `ราศี${zodiac.name} (${zodiac.en})`,
-        zodiacTraits:  zodiac.traits,
-        chineseZodiac: chineseSgn,
-        today,
-        birthDayName,
-        birthDayColor,
-        birthDayColorMeaning,
-        lifePath,
-        todayColor,
-        todayColorMeaning,
-      }),
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!data.fortune) throw new Error('empty response');
-
-    state.currentFortune = data.fortune;
-    bumpCount();
-    hideLoading();
-
-    const card = document.getElementById('resultCard');
-    card.classList.add('show');
-    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
-    typewrite(document.getElementById('resultText'), data.fortune);
-
-  } catch (err) {
-    hideLoading();
-    console.error(err);
-    showToast('ลูกแก้วแม่หมอขัดข้อง ลองใหม่อีกทีนะ~');
-  }
-}
-
-// =============================================================
-// CASE COUNTER
-// =============================================================
-function formatCount(n) {
-  if (n >= 1000) return n.toLocaleString('th-TH');
-  return String(n);
-}
-
-async function fetchCount() {
-  try {
-    const res = await fetch(COUNT_URL);
-    const { count } = await res.json();
-    document.getElementById('caseCount').textContent = formatCount(count);
-  } catch (_) {
-    document.getElementById('caseCount').textContent = '...';
-  }
-}
-
-function bumpCount() {
-  const el = document.getElementById('caseCount');
-  const current = parseInt(el.textContent.replace(/,/g, '')) || 0;
-  el.textContent = formatCount(current + 1);
-}
-
-// =============================================================
-// BIRTH DATE HELPERS
-// =============================================================
-function getBirthDate() {
-  const d = document.getElementById('birthDay').value;
-  const m = document.getElementById('birthMonth').value;
-  const yBE = document.getElementById('birthYear').value;
-  if (!d || !m || !yBE) return '';
-  const yCE = parseInt(yBE) - 543;
-  return `${yCE}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-}
-
-function updateSelectDisplays() {
-  const dayEl   = document.getElementById('birthDay');
-  const monthEl = document.getElementById('birthMonth');
-  const yearEl  = document.getElementById('birthYear');
-
-  const dayDisp   = document.getElementById('birthDayDisplay');
-  const monthDisp = document.getElementById('birthMonthDisplay');
-  const yearDisp  = document.getElementById('birthYearDisplay');
-
-  if (dayEl.value) {
-    dayDisp.textContent = dayEl.value;
-    dayDisp.classList.remove('placeholder');
-  } else {
-    dayDisp.textContent = 'วัน';
-    dayDisp.classList.add('placeholder');
-  }
-  if (monthEl.value) {
-    monthDisp.textContent = monthEl.options[monthEl.selectedIndex].text;
-    monthDisp.classList.remove('placeholder');
-  } else {
-    monthDisp.textContent = 'เดือน';
-    monthDisp.classList.add('placeholder');
-  }
-  if (yearEl.value) {
-    yearDisp.textContent = yearEl.value;
-    yearDisp.classList.remove('placeholder');
-  } else {
-    yearDisp.textContent = 'ปี พ.ศ.';
-    yearDisp.classList.add('placeholder');
-  }
-}
-
-function onBirthChange() {
-  updateSelectDisplays();
-  resetGeneratedResults(); // วันเกิดเปลี่ยน → ล้างผลเนื้อคู่/กราฟชีวิตที่ค้างอยู่ (stale)
-  const dateStr = getBirthDate();
-  if (dateStr) {
-    localStorage.setItem('maemorBirthDate', dateStr);
-    updateZodiacBadge(dateStr);
-    updateLuckyNumbers(dateStr);
-    updateLakkhana(dateStr);
-  } else {
-    document.getElementById('lakkhanaCard').classList.remove('show');
-  }
-}
-
-// =============================================================
-// INIT
-// =============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  initStars();
-  fetchCount();
-  initShirtColor();
-
-  // Populate day options 1-31
-  const dayEl = document.getElementById('birthDay');
-  for (let d = 1; d <= 31; d++) {
-    const o = document.createElement('option');
-    o.value = d; o.textContent = d;
-    dayEl.appendChild(o);
-  }
-
-  // Populate year options BE 2483-2553 (CE 1940-2010)
-  const yearEl = document.getElementById('birthYear');
-  for (let be = 2553; be >= 2483; be--) {
-    const o = document.createElement('option');
-    o.value = be; o.textContent = be;
-    yearEl.appendChild(o);
-  }
-
-  // Load saved birth date
-  const saved = localStorage.getItem('maemorBirthDate');
-  if (saved) {
-    const [yCE, m, d] = saved.split('-');
-    document.getElementById('birthDay').value   = parseInt(d);
-    document.getElementById('birthMonth').value = parseInt(m);
-    document.getElementById('birthYear').value  = parseInt(yCE) + 543;
-    updateSelectDisplays();
-    updateZodiacBadge(saved);
-    updateLuckyNumbers(saved);
-    updateLakkhana(saved);
-  }
-
-  // Listen to all 3 selects
-  ['birthDay','birthMonth','birthYear'].forEach(id => {
-    document.getElementById(id).addEventListener('change', onBirthChange);
-  });
-
-  document.getElementById('questionInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.ctrlKey) askFortune();
-  });
-});
-
-// =============================================================
-// TABS
-// =============================================================
-function setTab(name) {
-  ['Fortune','Soulmate','Lifegraph'].forEach(t => {
-    const key = t.toLowerCase();
-    document.getElementById('tab' + t).classList.toggle('active', key === name);
-    document.getElementById('tabBtn' + t).classList.toggle('active', key === name);
-  });
-}
-
-// =============================================================
-// ลักขณาราศี — แสดงลักษณะราศีเมื่อเลือกวันเกิด (req 1)
-// =============================================================
-function updateLakkhana(dateStr) {
-  const card = document.getElementById('lakkhanaCard');
-  if (!dateStr) { card.classList.remove('show'); return; }
-  const z   = getZodiac(dateStr);
-  const cz  = getChineseZodiac(dateStr);
-  const idx = new Date(dateStr).getDay();
-  document.getElementById('lkEmoji').textContent   = z.emoji;
-  document.getElementById('lkName').textContent    = 'ราศี' + z.name + ' · ' + z.en;
-  document.getElementById('lkSub').textContent     = 'เกิดวัน' + THAI_DAYS[idx] + ' · ปี' + cz;
-  document.getElementById('lkElement').textContent = 'ธาตุ' + z.element;
-  document.getElementById('lkRuler').textContent   = z.ruler;
-  document.getElementById('lkTraits').textContent  = z.traits;
-  card.classList.add('show');
-}
-
-// =============================================================
-// เนื้อคู่ประตูถัดไป (req 2)
-// =============================================================
-const SOULMATE_URL  = 'https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/askSoulmate';
-const LIFEGRAPH_URL = 'https://asia-southeast1-capybarabu-mae-mhor.cloudfunctions.net/askLifeGraph';
-let _soulmateStatus = 'single';
-let _currentSoulmate = null;
-
-function escHtml(t) {
-  return String(t == null ? '' : t)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-// ล้างผลที่ generate ไว้ (เนื้อคู่ + กราฟชีวิต) เมื่อวันเกิดเปลี่ยน — กันข้อมูลค้างไม่ตรงวันเกิดใหม่
-function resetGeneratedResults() {
-  // เนื้อคู่
-  _currentSoulmate = null;
-  const sr = document.getElementById('soulmateResult');
-  if (sr) sr.classList.remove('show');
-  const sc = document.getElementById('soulmateContent');
-  if (sc) sc.innerHTML = '';
-  // กราฟชีวิต
-  const lr = document.getElementById('lifegraphResult');
-  if (lr) lr.classList.remove('show');
-  const ln = document.getElementById('lifegraphNarrative');
-  if (ln) ln.textContent = '';
-  if (_lifeChart) { _lifeChart.destroy(); _lifeChart = null; }
-}
-
-function setStatus(s) {
-  _soulmateStatus = s;
-  document.getElementById('statusSingle').classList.toggle('active', s === 'single');
-  document.getElementById('statusCoupled').classList.toggle('active', s === 'coupled');
-}
-
-async function askSoulmate() {
-  const birthDate = getBirthDate();
-  if (!birthDate) {
-    showToast('เลือกวันเกิดด้านบนก่อนนะคะ~');
-    document.getElementById('birthDay').focus();
-    return;
-  }
-  const zodiac = getZodiac(birthDate);
-  const idx = new Date(birthDate).getDay();
-  const btn = document.getElementById('soulmateBtn');
-  btn.disabled = true;
-  document.getElementById('soulmateLoading').classList.add('show');
-  document.getElementById('soulmateResult').classList.remove('show');
-  document.querySelector('.mascot-img').classList.add('thinking');
-
-  try {
-    const res = await fetch(SOULMATE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        birthDate,
-        status:        _soulmateStatus,
-        zodiac:        `ราศี${zodiac.name} (${zodiac.en})`,
-        zodiacTraits:  `ธาตุ${zodiac.element} · ${zodiac.traits}`,
-        chineseZodiac: getChineseZodiac(birthDate),
-        birthDayName:  THAI_DAYS[idx],
-        lifePath:      getLifePathNumber(birthDate),
-      }),
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (!data.soulmate) throw new Error('empty');
-    _currentSoulmate = data.soulmate;
-    bumpCount();
-    renderSoulmate(data.soulmate);
-  } catch (err) {
-    console.error(err);
-    showToast('ลูกแก้วแม่หมอขัดข้อง ลองใหม่นะ~');
-  } finally {
-    btn.disabled = false;
-    document.getElementById('soulmateLoading').classList.remove('show');
-    document.querySelector('.mascot-img').classList.remove('thinking');
-  }
-}
-
-function renderSoulmate(s) {
-  const h = clampPct(s.handsomeLevel), w = clampPct(s.wealthLevel);
-  document.getElementById('soulmateContent').innerHTML = `
-    <div class="soulmate-field">
-      <div class="soulmate-field-label">รูปร่างหน้าตา</div>
-      <div class="soulmate-field-value">${escHtml(s.appearance)}</div>
-    </div>
-    <div class="soulmate-field">
-      <div class="soulmate-field-label">อาชีพที่เหมาะ</div>
-      <div class="soulmate-field-value">${escHtml(s.career)}</div>
-    </div>
-    <div class="stat-bar-wrap">
-      <div class="stat-bar-top"><span class="stat-bar-label">😎 ระดับความหล่อ/สวย</span><span class="stat-bar-val">${h}%</span></div>
-      <div class="stat-bar-track"><div class="stat-bar-fill handsome" data-w="${h}"></div></div>
-    </div>
-    <div class="stat-bar-wrap">
-      <div class="stat-bar-top"><span class="stat-bar-label">💰 ระดับการเงิน</span><span class="stat-bar-val">${w}%</span></div>
-      <div class="stat-bar-track"><div class="stat-bar-fill wealth" data-w="${w}"></div></div>
-    </div>
-    <div class="soulmate-field">
-      <div class="soulmate-field-label">ช่วงเวลาที่จะเจอ</div>
-      <div class="soulmate-field-value">${escHtml(s.meetWhen)}</div>
-    </div>
-    <div class="soulmate-field">
-      <div class="soulmate-field-label">แม่หมอสรุป</div>
-      <div class="soulmate-field-value">${escHtml(s.summary)}</div>
-    </div>`;
-  const card = document.getElementById('soulmateResult');
-  card.classList.add('show');
-  requestAnimationFrame(() => {
-    document.querySelectorAll('#soulmateContent .stat-bar-fill').forEach(el => {
-      el.style.width = (el.getAttribute('data-w') || 0) + '%';
-    });
-  });
-  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
-}
-
-function clampPct(n) { return Math.max(0, Math.min(100, Math.round(Number(n) || 0))); }
-
-function shareSoulmate() {
-  if (!_currentSoulmate) return;
-  const s = _currentSoulmate;
-  const txt = `💘 เนื้อคู่ประตูถัดไปของฉัน~\nรูปร่าง: ${s.appearance}\nอาชีพ: ${s.career}\nความหล่อ ${clampPct(s.handsomeLevel)}% · การเงิน ${clampPct(s.wealthLevel)}%\n\n✨ ลองดูดวงกับแม่หมอบาร่า https://capybarabu-mae-mhor.web.app`;
-  if (navigator.share) navigator.share({ text: txt }).catch(() => {});
-  else navigator.clipboard.writeText(txt).then(() => showToast('คัดลอกข้อความแชร์แล้ว~')).catch(() => showToast('ลองคัดลอกเองนะ'));
-}
-
-// =============================================================
-// กราฟชีวิต — ศาสตร์ไทย (ปีนักษัตร/ชง/โฉลก/จังหวะอายุ), deterministic (req 3)
-// =============================================================
-let _lifeChart = null;
-
-function computeLifeGraph(birthDate) {
-  const by = new Date(birthDate).getFullYear();
-  const birthAnimal = ((by - 4) % 12 + 12) % 12;
-  const now = new Date().getFullYear();
-  const lp = getLifePathNumber(birthDate);
-  const pts = [];
-  for (let y = now - 5; y <= now + 5; y++) {
-    const animal = ((y - 4) % 12 + 12) % 12;
-    const age = y - by;
-    const diff = ((animal - birthAnimal) % 12 + 12) % 12;
-    let score = 60, tag = '';
-    if (diff === 6)                  { score -= 28; tag = 'ปีชง'; }
-    else if (diff === 3 || diff === 9) { score -= 14; tag = 'ปีคัด/เล็ง'; }
-    else if (diff === 0)             { score += 8;  tag = 'ปีนักษัตรตัวเอง'; }
-    else if (diff === 4 || diff === 8) { score += 20; tag = 'ปีถูกโฉลก'; }
-    else if (diff === 1 || diff === 11) { score += 6; }
-    if (age === 25 || age === 49)    { score -= 10; tag = tag || 'เบญจเพส/เลขกระทบ'; }
-    if (age > 0 && age % 12 === 0)   { score += 6; }
-    score += ((lp + Math.abs(y)) % 5) - 2; // กันกราฟแบน
-    score = Math.max(20, Math.min(95, score));
-    pts.push({ year: y, be: y + 543, age, score, tag, isNow: y === now });
-  }
-  return pts;
-}
-
-async function drawLifeGraph() {
-  const birthDate = getBirthDate();
-  if (!birthDate) {
-    showToast('เลือกวันเกิดด้านบนก่อนนะคะ~');
-    document.getElementById('birthDay').focus();
-    return;
-  }
-  if (typeof Chart === 'undefined') { showToast('กราฟกำลังโหลด ลองอีกครั้งนะ~'); return; }
-
-  const lgBtn = document.getElementById('lifegraphBtn');
-  if (lgBtn.disabled) return;          // กันกดซ้ำระหว่างกำลังโหลด (กัน typewrite ซ้อน)
-  lgBtn.disabled = true;
-
-  const pts = computeLifeGraph(birthDate);
-  const labels = pts.map(p => ['พ.ศ.' + p.be, 'อายุ ' + p.age]);
-  const colors = pts.map(p => p.isNow ? '#f0d060' : (p.score >= 75 ? '#4ade80' : (p.score <= 45 ? '#f87171' : '#a78bfa')));
-
-  const card = document.getElementById('lifegraphResult');
-  card.classList.add('show');
-  if (_lifeChart) _lifeChart.destroy();
-  const ctx = document.getElementById('lifeChart').getContext('2d');
-  _lifeChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets: [{
-      data: pts.map(p => p.score),
-      borderColor: '#c9a227', borderWidth: 2, tension: 0.4, fill: true,
-      backgroundColor: 'rgba(201,162,39,0.12)',
-      pointBackgroundColor: colors, pointBorderColor: colors, pointRadius: 5, pointHoverRadius: 7,
-    }]},
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: {
-          title: (it) => 'พ.ศ.' + pts[it[0].dataIndex].be + ' (อายุ ' + pts[it[0].dataIndex].age + ')',
-          label: (it) => { const p = pts[it.dataIndex]; return 'ดวง ' + p.score + '/100' + (p.tag ? ' · ' + p.tag : ''); },
-        }},
-      },
-      scales: {
-        y: { min: 0, max: 100, ticks: { color: '#8a7a95', stepSize: 25 }, grid: { color: 'rgba(255,255,255,0.06)' } },
-        x: { ticks: { color: '#8a7a95', font: { size: 9 }, maxRotation: 0, autoSkip: false }, grid: { display: false } },
-      },
-    },
-  });
-
-  const peak = pts.reduce((a, b) => b.score > a.score ? b : a);
-  const low  = pts.reduce((a, b) => b.score < a.score ? b : a);
-  document.getElementById('lifegraphSummary').innerHTML =
-    `<div class="lg-row lg-peak">⭐ ปีรุ่ง: พ.ศ.${peak.be} (อายุ ${peak.age}) — ${escHtml(peak.tag || 'ดวงขึ้น')} · ดวง ${peak.score}/100</div>` +
-    `<div class="lg-row lg-low">⚠️ ปีต้องระวัง: พ.ศ.${low.be} (อายุ ${low.age}) — ${escHtml(low.tag || 'ดวงตก')} · ดวง ${low.score}/100</div>` +
-    `<div class="lg-row" style="color:var(--muted);margin-top:6px;font-size:11px">* คำนวณแบบศาสตร์ไทย (ปีนักษัตร/ชง/โฉลก/จังหวะอายุ) เพื่อความบันเทิง</div>`;
-  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
-
-  // แม่หมออ่านกราฟผ่าน AI (ส่งแค่ปีรุ่ง/ปีระวัง — ประหยัด token + cache ฝั่ง server)
-  const nEl = document.getElementById('lifegraphNarrative');
-  const now = pts.find(p => p.isNow);
-  const zodiac = getZodiac(birthDate);
-  nEl.textContent = '🔮 แม่หมอกำลังอ่านกราฟชีวิตให้...';
-  try {
-    const res = await fetch(LIFEGRAPH_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        birthDate,
-        year:          new Date().getFullYear(),
-        zodiac:        `ราศี${zodiac.name} (${zodiac.en})`,
-        chineseZodiac: getChineseZodiac(birthDate),
-        birthDayName:  THAI_DAYS[new Date(birthDate).getDay()],
-        age:           now ? now.age : '',
-        peakBE: peak.be, peakAge: peak.age, peakTag: peak.tag || 'ดวงขึ้น', peakScore: peak.score,
-        lowBE:  low.be,  lowAge:  low.age,  lowTag:  low.tag  || 'ดวงตก',  lowScore:  low.score,
-      }),
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (!data.narrative) throw new Error('empty');
-    if (!data.cached) bumpCount();          // นับเฉพาะตอนเรียก AI จริง (cache hit ไม่นับ)
-    typewrite(nEl, data.narrative);
-  } catch (err) {
-    console.error(err);
-    nEl.textContent = '';                   // กราฟยังอยู่ แค่ไม่มีคำทำนายเสริม
-  } finally {
-    lgBtn.disabled = false;
-  }
+// CTA → onboarding (auth.html). KPI CTA วัดที่ฝั่ง auth/app (event funnel) — landing เป็น public ไม่มี auth จึงยังไม่ log ที่นี่
+function goStart(e) {
+  try { sessionStorage.setItem('from_landing', '1'); } catch (_) {}
+  // ปล่อยให้ <a href> ทำงานปกติ (ไม่ preventDefault) — เผื่อ JS พังก็ยังไปต่อได้
 }
 </script>
 </body>
