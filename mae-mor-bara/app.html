@@ -674,6 +674,7 @@ let _liffReady = Promise.resolve(false);
 (function initLiff() {
   if (typeof liff === 'undefined') return;
   _liffReady = liff.init({ liffId: LIFF_ID }).then(() => true).catch((e) => { console.warn('liff init', (e && e.message) || e); return false; });
+  _liffReady.then(resumePendingShare);   // กลับมาจาก login redirect → มี share ค้าง → โชว์ปุ่มให้กดส่งการ์ด
 })();
 // อยู่ใน LINE in-app browser ไหม (download ถูกบล็อก → ห้ามตกไป download)
 function inLineApp() {
@@ -1540,20 +1541,54 @@ async function shareWith(data, mascot) {
   catch (e) { console.warn('share', e.message); }
 }
 
-// แชร์การ์ด Flex เข้า LINE (shareTargetPicker) — คืน true ถ้าส่งการ์ด Flex สำเร็จ, false ถ้าใช้ไม่ได้ (ตกไปแชร์ลิงก์)
-// เงื่อนไขที่ picker ส่งการ์ด Flex ได้: (1) รันเป็น LIFF ใน LINE (isInClient) หรือ (2) login LIFF แล้ว (external browser)
-// ⚠️ ถ้า external + ยังไม่ login → "ไม่" ฝืนเรียก (จะเจอ login popup ถูกบล็อก → about:blank#blocked) → ตกไปแชร์ลิงก์แทน
+// แชร์การ์ด Flex เข้า LINE (shareTargetPicker) — คืน true ถ้า handled (ส่งการ์ด/กำลัง login), false ถ้าตกไปแชร์ลิงก์
+// picker ส่งการ์ด Flex ได้เมื่อ: (1) รันเป็น LIFF ใน LINE (isInClient) หรือ (2) login LIFF แล้ว (external browser)
+const PENDING_SHARE_KEY = 'mm_pendingShare';
 async function shareToLine(data) {
   try {
     if (typeof liff === 'undefined') return false;
-    await _liffReady;                              // resolve ตั้งแต่ตอนโหลดหน้า → await นี้เป็น microtask ไม่หลุด user gesture
+    await _liffReady;                              // resolve ตั้งแต่โหลดหน้า → await นี้เป็น microtask ไม่หลุด user gesture
     if (!(typeof liff.isApiAvailable === 'function' && liff.isApiAvailable('shareTargetPicker'))) return false;
     const inClient = typeof liff.isInClient === 'function' && liff.isInClient();
     const loggedIn = typeof liff.isLoggedIn === 'function' && liff.isLoggedIn();
-    if (!inClient && !loggedIn) return false;      // external + ยังไม่ login → แชร์ลิงก์แทน (ไม่ฝืน redirect กลางคัน)
-    await liff.shareTargetPicker([{ type: 'flex', altText: 'ดวงวันนี้จากแม่หมอบาร่า 🔮', contents: buildShareFlex(data) }]);
-    return true;
+    if (inClient || loggedIn) {
+      await liff.shareTargetPicker([{ type: 'flex', altText: 'ดวงวันนี้จากแม่หมอบาร่า 🔮', contents: buildShareFlex(data) }]);
+      return true;
+    }
+    // external browser + ยังไม่ login → login LIFF ก่อน (redirect) แล้วกลับมาโชว์ปุ่มให้กดส่งการ์ด (gesture-safe)
+    if (typeof liff.login === 'function') {
+      try { sessionStorage.setItem(PENDING_SHARE_KEY, JSON.stringify(data)); } catch (e) {}
+      liff.login({ redirectUri: location.href });
+      return true;                                 // กำลัง redirect ไป login — handled (อย่าตกไปแชร์ลิงก์)
+    }
+    return false;
   } catch (e) { console.warn('shareTargetPicker', e.message); return false; }
+}
+
+// หลัง login redirect กลับมา → ถ้ามี share ค้าง + login แล้ว → โชว์ปุ่มลอยให้กด (external browser เปิด picker ต้องมี user gesture)
+function resumePendingShare(ok) {
+  if (!ok || typeof liff === 'undefined') return;
+  let pending = null;
+  try { pending = sessionStorage.getItem(PENDING_SHARE_KEY); } catch (e) {}
+  if (!pending) return;
+  if (!(typeof liff.isLoggedIn === 'function' && liff.isLoggedIn())) return;
+  try { sessionStorage.removeItem(PENDING_SHARE_KEY); } catch (e) {}
+  let data; try { data = JSON.parse(pending); } catch (e) { return; }
+  let b = document.getElementById('resumeShareBtn');
+  if (!b) {
+    b = document.createElement('button');
+    b.id = 'resumeShareBtn'; b.className = 'btn mango';
+    b.style.cssText = 'position:fixed;left:16px;right:16px;bottom:88px;width:auto;z-index:9999';
+    document.body.appendChild(b);
+  }
+  b.textContent = '🔮 แตะเพื่อส่งการ์ดให้เพื่อนเลย';
+  b.style.display = 'block';
+  b.onclick = async () => {
+    b.disabled = true;
+    try { await liff.shareTargetPicker([{ type: 'flex', altText: 'ดวงวันนี้จากแม่หมอบาร่า 🔮', contents: buildShareFlex(data) }]); }
+    catch (e) { console.warn('resume share', e.message); }
+    b.style.display = 'none';
+  };
 }
 
 // fallback ใน LINE: เปิด LINE share (แชร์ลิงก์ + OG preview) — เลี่ยง download ที่ LINE WebView บล็อก
