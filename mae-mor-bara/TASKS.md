@@ -23,7 +23,8 @@
 > ✅ **Sprint 4 เสร็จ** — C6 Journal/Streak + C7 LINE push/webhook **activated** (OA `@291wnbhf`)
 > ✅ **Sprint 5 — D1 ร้าน + D2 detail + D3 checkout UI deployed** · **D3 payment backend code เสร็จ** (`functions/payment.js` Omise) เหลือ activate (ดู `D3-SETUP.md`)
 > ✅ **Sprint 6 (Scale) เสร็จ + deployed** — E1 Profile/Collection · E2 KPI instrumentation (`events` rule deployed) · L1 `landing.html` · + แก้ asset มาสคอต m1/m2/m7/m9/m10 (ตัด checkerboard ที่ baked ค้างจาก Sprint R, bump `?v=2`)
-> **🎉 ครบ 24/24 feature.** ถัดไป = go-live ฝั่ง user (publish LINE channel · Omise live · ชี้ root→landing) → วัด KPI → Phase 2
+> **🎉 ครบ 24/24 feature (Phase 1).** go-live ฝั่ง user ค้าง (publish LINE channel · Omise live · ชี้ root→landing) → วัด KPI
+> ✅ **Phase 2 · Sprint 7 (ดวงเชิงลึก) เสร็จ** (commit `bba0e70`) — **เนื้อคู่ประตูถัดไป** (`#soulmate`, reuse askSoulmate) + **กราฟชีวิต** (`#lifegraph`, `Fortune.lifeGraph`+inline SVG+askLifeGraph) · ฟรี · reuse function รอบ 1 100% (deploy hosting เท่านั้น) · deep hub ในหน้า #fortune · bump `?v=s6`. เหลือ Phase 2: Premium tier · Collection 40 · LINE automation ตามธาตุ · คอลแลบครีเอเตอร์.
 
 ---
 

@@ -1,5 +1,6 @@
 # แม่หมอบาร่า V2 — Handoff สำหรับ session ถัดไป
-### อัปเดต 2026-07-01 · **Sprint 6 (24/24) + 6.5 (LINE share cards) + 6.6 (ขัดเกลา 4 เรื่อง) — deployed** 🎉
+### อัปเดต 2026-07-01 · **Phase 1 ครบ 24/24 + Sprint R + 6.5 + 6.6 · เริ่ม Phase 2 → Sprint 7 (ดวงเชิงลึก) — deployed** 🎉
+> **Phase 2 · Sprint 7 (2026-07-01) commit `bba0e70`:** เนื้อคู่ประตูถัดไป (`#soulmate`, askSoulmate) + กราฟชีวิต (`#lifegraph`, `Fortune.lifeGraph`+SVG+askLifeGraph) — reuse function รอบ 1 100%, ฟรี, deploy hosting เท่านั้น. deep hub ในหน้า #fortune. verify local ผ่าน (preview 3459). รายละเอียด `memory/mae-mor-bara-v2-roadmap.md` (Sprint 7).
 > **6.6 (2026-07-01):** #3 แชร์+แต้ม(claimShareReward) · #4 เครื่องราง=วอลเปเปอร์(/wp) · #2 ไพ่ทาโรต์ 22 ใบ · #1 ดวงเชิงลึก AI(deepDaily) — รายละเอียด `memory/mae-mor-bara-v2-roadmap.md` (Sprint 6.6)
 > **6.5:** personalized OG card (server-render /s→/cardimg) · shareTargetPicker Flex · daily push Flex personalized
 > ↓ prompt ล่าสุดสำหรับ paste session ถัดไปอยู่ด้านล่าง (📋)
@@ -50,7 +51,8 @@
 อ่าน context: mae-mor-bara/NEXT-SESSION.md, TASKS.md, SPEC.md, ROADMAP-v2.md,
 C7-SETUP.md, D3-SETUP.md · memory: mae-mor-bara-v2-roadmap.md
 
-สถานะ: Sprint 0–6 ครบ 24/24 feature + Sprint R (CAPY POP) + 6.5 (LINE share cards) + 6.6 (ขัดเกลา 4 เรื่อง) — deploy + push หมด (origin/feat/mae-mor-bara-source, ล่าสุด commit 7751da0)
+สถานะ: Phase 1 ครบ 24/24 feature + Sprint R (CAPY POP) + 6.5 + 6.6 · **เริ่ม Phase 2 → Sprint 7 (ดวงเชิงลึก: เนื้อคู่ + กราฟชีวิต) เสร็จ** — deploy + push หมด (origin/feat/mae-mor-bara-source, ล่าสุด commit bba0e70)
+Phase 2 ที่เหลือ: Premium(Gold)tier · Collection เต็ม 40 ชิ้น · LINE automation ตามธาตุ · คอลแลบครีเอเตอร์
 ธีม = CAPY POP (ส้มมะม่วง #ff6a2b, neo-brutalist toy ขอบ2px+เงาแข็ง, มาสคอตพระเอก, Anuphan+IBM Plex Mono)
 Firebase project = capybarabu-mae-mhor (แชร์ Firestore+Hosting+functions กับ autopost) · Hosting https://capybarabu-mae-mhor.web.app
 
