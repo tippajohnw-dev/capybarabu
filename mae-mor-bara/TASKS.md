@@ -25,6 +25,7 @@
 > ✅ **Sprint 6 (Scale) เสร็จ + deployed** — E1 Profile/Collection · E2 KPI instrumentation (`events` rule deployed) · L1 `landing.html` · + แก้ asset มาสคอต m1/m2/m7/m9/m10 (ตัด checkerboard ที่ baked ค้างจาก Sprint R, bump `?v=2`)
 > **🎉 ครบ 24/24 feature (Phase 1).** go-live ฝั่ง user ค้าง (publish LINE channel · Omise live · ชี้ root→landing) → วัด KPI
 > ✅ **Phase 2 · Sprint 7 (ดวงเชิงลึก) เสร็จ** (commit `bba0e70`) — **เนื้อคู่ประตูถัดไป** (`#soulmate`, reuse askSoulmate) + **กราฟชีวิต** (`#lifegraph`, `Fortune.lifeGraph`+inline SVG+askLifeGraph) · ฟรี · reuse function รอบ 1 100% (deploy hosting เท่านั้น) · deep hub ในหน้า #fortune · bump `?v=s6`. เหลือ Phase 2: Premium tier · Collection 40 · LINE automation ตามธาตุ · คอลแลบครีเอเตอร์.
+> ✅ **Phase 2 · Sprint 8 (วอลเปเปอร์นักษัตรอลังการ) เสร็จ + deployed** (2026-07-12) — เครื่องราง=วอลเปเปอร์ยกระดับเป็น **artwork ปีนักษัตร 12 ภาพ** (gpt-image-1: สัตว์นักษัตรทองอลังการ ลาย lai Thai พื้นแดงเข้ม + คาปิบาราแม่หมอในเฟรม, สไตล์เดียวกันทั้งชุด) · `functions/zodiac/z0-z11.jpg` (~4.7MB) · `buildZodiacWallpaperSVG` ใน card.js: artwork เต็มบน 1080×1620 + แผงมงคลล่าง 300px (ชื่อเครื่องราง · ชื่อ user · ปีนักษัตร · ราศี · สีมงคล · เลขมงคล) + กรอบทอง · `wallpaperUrl()` ส่ง `zi/zline/zod` เมื่อมีวันเกิด (guest → ดีไซน์เดิม fallback) · regenerate ภาพ: `gen-zodiac-art.sh <0-11>` (ต้นฉบับ PNG อยู่ `zodiac-art/` gitignored) · + fix บั๊ก `onerror` attribute ใน openProduct (`JSON.stringify` quote ตัด attr → เศษ `"/>` โผล่)
 
 ---
 

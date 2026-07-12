@@ -133,6 +133,69 @@ const WP_PAL = {
 };
 function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
+// artwork นักษัตร 12 ภาพ (Sprint 8) — zodiac/z0..z11.jpg (ชวด..กุน) · lazy load + cache
+const _zodiacCache = {};
+function zodiacURI(i) {
+  const k = String(i);
+  if (k in _zodiacCache) return _zodiacCache[k];
+  try {
+    const buf = fs.readFileSync(path.join(__dirname, 'zodiac', 'z' + k + '.jpg'));
+    _zodiacCache[k] = 'data:image/jpeg;base64,' + buf.toString('base64');
+  } catch (e) { _zodiacCache[k] = ''; }
+  return _zodiacCache[k];
+}
+const GOLD = '#e9b64d', GOLD2 = '#f7dfa0', DARKRED = '#1c0705';
+
+// v2: artwork นักษัตรอลังการเต็มบน + แผงมงคลรายบุคคลล่าง + กรอบทองสไตล์เครื่องราง
+function buildZodiacWallpaperSVG(p, zURI) {
+  const W = 1080, H = 1920, artH = 1620, panelY = artH;
+  const name = (p.name || 'เครื่องรางนำโชค').slice(0, 26);
+  const hex = /^#[0-9a-fA-F]{6}$/.test(p.hex || '') ? p.hex : GOLD;
+  const colorName = (p.color || '').slice(0, 16);
+  const number = (p.number || '').slice(0, 8);
+  const uname = (p.uname || '').slice(0, 18);
+  const zline = (p.zline || '').slice(0, 24);   // "ปีมะโรง (มังกร)"
+  const zod = (p.zod || '').slice(0, 16);       // "ราศีสิงห์"
+  const subLine = [uname ? 'เครื่องรางของ ' + uname : '', zline, zod].filter(Boolean).join(' · ');
+
+  // chips ในแผงล่าง: สีมงคล + เลขมงคล
+  const chipY = panelY + 158, chipH = 92, cw = 420, gap = 40, x0 = (W - cw * 2 - gap) / 2;
+  function chip(i, label, valueSvg) {
+    const x = x0 + i * (cw + gap);
+    return `<g>
+      <rect x="${x}" y="${chipY}" width="${cw}" height="${chipH}" rx="20" fill="#ffffff" fill-opacity="0.06" stroke="${GOLD}" stroke-opacity="0.55" stroke-width="2"/>
+      <text x="${x + 26}" y="${chipY + 38}" font-family="Sarabun" font-weight="700" font-size="26" fill="${GOLD2}" opacity="0.9">${xml(label)}</text>
+      ${valueSvg(x)}
+    </g>`;
+  }
+  const colorChip = chip(0, 'สีมงคล', (x) =>
+    `<circle cx="${x + 46}" cy="${chipY + 66}" r="17" fill="${hex}" stroke="${GOLD2}" stroke-width="2"/>
+     <text x="${x + 76}" y="${chipY + 76}" font-family="Sarabun" font-weight="800" font-size="30" fill="#fff">${xml(colorName)}</text>`);
+  const numChip = chip(1, 'เลขมงคล', (x) =>
+    `<text x="${x + 26}" y="${chipY + 78}" font-family="Sarabun" font-weight="800" font-size="36" fill="${GOLD2}">${xml(number)}</text>`);
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${DARKRED}" stop-opacity="0"/>
+      <stop offset="1" stop-color="${DARKRED}" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="${DARKRED}"/>
+  <image x="0" y="0" width="${W}" height="${artH}" href="${zURI}" preserveAspectRatio="xMidYMin slice"/>
+  <rect x="0" y="${artH - 220}" width="${W}" height="220" fill="url(#fade)"/>
+  <!-- แผงมงคลล่าง -->
+  <line x1="120" y1="${panelY + 6}" x2="${W - 120}" y2="${panelY + 6}" stroke="${GOLD}" stroke-width="2" stroke-opacity="0.7"/>
+  <text x="${W / 2}" y="${panelY + 74}" text-anchor="middle" font-family="Sarabun" font-weight="800" font-size="52" fill="${GOLD2}">${xml(name)}</text>
+  ${subLine ? `<text x="${W / 2}" y="${panelY + 126}" text-anchor="middle" font-family="Sarabun" font-weight="700" font-size="30" fill="#fff" opacity="0.88">${xml(subLine)}</text>` : ''}
+  ${colorChip}${numChip}
+  <text x="${W / 2}" y="${H - 26}" text-anchor="middle" font-family="Sarabun" font-weight="700" font-size="24" fill="${GOLD}" opacity="0.65">แม่หมอบาร่า · เครื่องรางดิจิทัล</text>
+  <!-- กรอบทองรอบภาพ (สไตล์เครื่องราง) -->
+  <rect x="14" y="14" width="${W - 28}" height="${H - 28}" rx="26" fill="none" stroke="${GOLD}" stroke-width="4" stroke-opacity="0.85"/>
+  <rect x="30" y="30" width="${W - 60}" height="${H - 60}" rx="18" fill="none" stroke="${GOLD2}" stroke-width="1.5" stroke-opacity="0.5"/>
+</svg>`;
+}
+
 function buildWallpaperSVG(p) {
   const W = 1080, H = 1920;
   const name = (p.name || 'เครื่องรางนำโชค').slice(0, 26);
@@ -188,7 +251,11 @@ function buildWallpaperSVG(p) {
 }
 
 function renderWallpaper(p) {
-  const resvg = new Resvg(buildWallpaperSVG(p), {
+  // v2 (นักษัตร) เมื่อมี zi 0-11 + asset โหลดได้ · fallback = ดีไซน์เดิม (guest ไม่มีวันเกิด)
+  const zi = parseInt(p.zi, 10);
+  const zURI = (Number.isInteger(zi) && zi >= 0 && zi <= 11) ? zodiacURI(zi) : '';
+  const svg = zURI ? buildZodiacWallpaperSVG(p, zURI) : buildWallpaperSVG(p);
+  const resvg = new Resvg(svg, {
     fitTo: { mode: 'width', value: 1080 },
     font: { fontFiles: FONT_FILES, loadSystemFonts: false, defaultFontFamily: 'Sarabun' },
   });
@@ -202,6 +269,7 @@ exports.wallpaperImage = onRequest(
       const png = renderWallpaper({
         name: req.query.name, intention: req.query.intention, mascot: req.query.mascot,
         color: req.query.color, hex: req.query.hex, number: req.query.number, uname: req.query.uname,
+        zi: req.query.zi, zline: req.query.zline, zod: req.query.zod,
       });
       res.set('Content-Type', 'image/png');
       res.set('Cache-Control', 'public, max-age=86400');
@@ -267,4 +335,7 @@ if (require.main === module) {
   const wp = renderWallpaper({ name: 'โล่จันทรามณี', intention: 'protect', mascot: '8', color: 'ม่วงมณี', hex: '#b79bff', number: '3 9', uname: 'ต้อง' });
   fs.writeFileSync('/tmp/wp-test.png', wp);
   console.log('wrote /tmp/wp-test.png', wp.length, 'bytes');
+  const wz = renderWallpaper({ name: 'เหรียญทองเรียกทรัพย์', intention: 'money', zi: '4', zline: 'ปีมะโรง (มังกร)', zod: 'ราศีสิงห์', color: 'แดงชมพู', hex: '#ff6f91', number: '5 0 9', uname: 'ต้อง' });
+  fs.writeFileSync('/tmp/wp-zodiac-test.png', wz);
+  console.log('wrote /tmp/wp-zodiac-test.png', wz.length, 'bytes');
 }

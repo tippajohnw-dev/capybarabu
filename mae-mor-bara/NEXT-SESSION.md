@@ -1,5 +1,9 @@
 # แม่หมอบาร่า V2 — Handoff สำหรับ session ถัดไป
-### อัปเดต 2026-07-01 · **Phase 1 ครบ 24/24 + Sprint R + 6.5 + 6.6 · เริ่ม Phase 2 → Sprint 7 (ดวงเชิงลึก) — deployed** 🎉
+### อัปเดต 2026-07-12 · **Phase 2 → Sprint 8 (วอลเปเปอร์นักษัตรอลังการ) — deployed** 🐉
+> **Phase 2 · Sprint 8 (2026-07-12):** เครื่องราง=วอลเปเปอร์ยกระดับตามโหราศาสตร์จริง — **artwork ปีนักษัตร 12 ภาพ** (gpt-image-1, สัตว์นักษัตรทองอลังการ+ลาย lai Thai+คาปิบาราแม่หมอ, `functions/zodiac/z0-z11.jpg`) · renderer v2 `buildZodiacWallpaperSVG` (artwork 1080×1620 + แผงมงคล 300px: ชื่อเครื่องราง/ชื่อ user/ปีนักษัตร/ราศี/สีมงคล/เลขมงคล + กรอบทอง) · `wallpaperUrl()` ส่ง `zi/zline/zod` เมื่อมีวันเกิด, guest fallback ดีไซน์เดิม · deploy functions:wallpaperImage + hosting แล้ว · regenerate: `./gen-zodiac-art.sh <0-11>` (PNG ต้นฉบับ `zodiac-art/` gitignored, ~38MB local) · + fix บั๊ก onerror quote ใน openProduct
+> **ค้างจากรีวิวร้าน (ยังไม่ทำ):** (1) bonus copy ใน shop-catalog.js สัญญาเกินของจริง (เช่น "ดวงเชิงลึก 7 วัน" ที่ตอนนี้ฟรีอยู่แล้ว) — ต้องแก้ข้อความหรือทำระบบ gating (2) collection ในโปรไฟล์ควรกดรับวอลเปเปอร์ซ้ำได้ (3) พรีวิว /wp ไม่มีลายน้ำ = คนไม่ซื้อได้ภาพเต็ม
+
+### อัปเดตก่อนหน้า 2026-07-01 · **Phase 1 ครบ 24/24 + Sprint R + 6.5 + 6.6 · เริ่ม Phase 2 → Sprint 7 (ดวงเชิงลึก) — deployed** 🎉
 > **Phase 2 · Sprint 7 (2026-07-01) commit `bba0e70`:** เนื้อคู่ประตูถัดไป (`#soulmate`, askSoulmate) + กราฟชีวิต (`#lifegraph`, `Fortune.lifeGraph`+SVG+askLifeGraph) — reuse function รอบ 1 100%, ฟรี, deploy hosting เท่านั้น. deep hub ในหน้า #fortune. verify local ผ่าน (preview 3459). รายละเอียด `memory/mae-mor-bara-v2-roadmap.md` (Sprint 7).
 > **6.6 (2026-07-01):** #3 แชร์+แต้ม(claimShareReward) · #4 เครื่องราง=วอลเปเปอร์(/wp) · #2 ไพ่ทาโรต์ 22 ใบ · #1 ดวงเชิงลึก AI(deepDaily) — รายละเอียด `memory/mae-mor-bara-v2-roadmap.md` (Sprint 6.6)
 > **6.5:** personalized OG card (server-render /s→/cardimg) · shareTargetPicker Flex · daily push Flex personalized

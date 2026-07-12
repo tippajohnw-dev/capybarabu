@@ -1020,12 +1020,12 @@ function renderProduct() {
   const p = Shop.get(window._product); if (!p) { nav('charm'); return; }
   document.getElementById('productBody').innerHTML = `
     <div class="pd-hero" style="background:${Shop.tile(p.intention)}">
-      <img src="mascots/${p.mascot}.webp?v=2" alt="" onerror="this.outerHTML='<div class=pdh-emoji>'+${JSON.stringify(p.emoji)}+'</div>'" />
+      <img src="mascots/${p.mascot}.webp?v=2" alt="" onerror="this.outerHTML='<div class=pdh-emoji>${p.emoji}</div>'" />
       <div><h2>${p.emoji} ${esc(p.name)}</h2><p>${esc(p.tagline)}</p></div>
     </div>
     <div class="card" style="margin-top:14px"><div class="pd-story">${esc(p.story)}</div>
       <div class="pd-bonus"><span>🎁 รับเพิ่มเมื่อซื้อ</span><b>${esc(p.bonus)}</b></div>
-      <button class="btn secondary" style="margin-top:12px" onclick="openWallpaper('${p.id}', false)">🖼️ ดูวอลเปเปอร์ที่จะได้ (ใส่เลข-สีมงคลของคุณ)</button>
+      <button class="btn secondary" style="margin-top:12px" onclick="openWallpaper('${p.id}', false)">🖼️ ดูวอลเปเปอร์ที่จะได้ (ตามปีนักษัตรของคุณ)</button>
     </div>
     <p class="tiny" style="text-align:center;color:var(--muted);font-family:var(--disp);font-size:11.5px;margin:14px 0 0;text-transform:none;letter-spacing:0">เครื่องรางดิจิทัล = วอลเปเปอร์มือถือ · ส่งเข้าแอป/LINE ทันทีหลังชำระเงิน</p>
     <div class="buybar">
@@ -1060,6 +1060,13 @@ function wallpaperUrl(p) {
     color: d.color.name || '', hex: d.color.hex || '', number: String(d.number || ''),
     uname: profile.displayName || '',
   });
+  // นักษัตร/ราศี → artwork อลังการรายบุคคล (v2) · guest ไม่มีวันเกิด → ดีไซน์เดิม
+  const base = Fortune.profileBase(profile);
+  if (base.hasBirth) {
+    qp.set('zi', String(((new Date(base.iso).getFullYear() - 4) % 12 + 12) % 12));
+    qp.set('zline', 'ปี' + base.chinese);
+    if (base.zodiac) qp.set('zod', 'ราศี' + base.zodiac.name);
+  }
   return 'https://capybarabu-mae-mhor.web.app/wp?' + qp.toString();
 }
 function openWallpaper(id, owned) {
@@ -1069,8 +1076,8 @@ function openWallpaper(id, owned) {
     <div class="hello" style="font-size:18px;text-align:center">${owned ? '🎉 เครื่องรางของคุณพร้อมแล้ว!' : '🖼️ วอลเปเปอร์ที่จะได้'}</div>
     <img class="wp-preview" src="${url}" alt="wallpaper" onerror="this.style.opacity=.4" />
     <p class="wp-hint">${owned
-      ? 'กดค้างที่รูปเพื่อ <b>บันทึกลงเครื่อง</b> แล้วตั้งเป็นวอลเปเปอร์ได้เลย 📲<br>มีสี &amp; เลขมงคลของคุณอยู่บนเครื่องรางด้วยน้า'
-      : 'ซื้อแล้วจะได้วอลเปเปอร์ใบนี้ (ใส่สี &amp; เลขมงคลของคุณ) ไว้พกพลังติดตัว ✨'}</p>
+      ? 'กดค้างที่รูปเพื่อ <b>บันทึกลงเครื่อง</b> แล้วตั้งเป็นวอลเปเปอร์ได้เลย 📲<br>วาดตามปีนักษัตรของคุณ พร้อมสี &amp; เลขมงคลเลยน้า'
+      : 'ซื้อแล้วจะได้วอลเปเปอร์ใบนี้ (artwork ตามปีนักษัตร + สี &amp; เลขมงคลของคุณ) ไว้พกพลังติดตัว ✨'}</p>
     <button class="btn mango" style="margin-top:14px" onclick="saveWallpaper('${p.id}')">📥 เปิดรูปเต็มเพื่อบันทึก</button>
     <button class="btn secondary" style="margin-top:8px" onclick="closeWallpaper()">ปิด</button>`;
   document.getElementById('wpSheet').classList.add('open');
